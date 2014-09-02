@@ -68,7 +68,8 @@
 
     # include <stdio.h>
     # include <stdlib.h>
-    # include "common-stdap.h"
+    # include <string.h>
+    # include <dirent.h> 
 
 /* 
     Header - Preprocessor definitions
@@ -84,6 +85,29 @@
 /* 
     Header - Preprocessor macros
  */
+
+    /* Define standard types */
+    # define CS_NULL        0
+    # define CS_STRING      1
+    # define CS_CHAR        2
+    # define CS_SHORT       3
+    # define CS_INT         4
+    # define CS_LONG        5
+    # define CS_LLONG       6
+    # define CS_UCHAR       7
+    # define CS_USHORT      8
+    # define CS_UINT        9
+    # define CS_ULONG       10
+    # define CS_ULLONG      11
+    # define CS_FLOAT       12
+    # define CS_DOUBLE      13
+
+    /* Define standard output */
+    # define CS_OUT         stdout
+
+    /* Define boolean constants */
+    # define CS_FALSE       0
+    # define CS_TRUE        1
 
 /* 
     Header - Typedefs
@@ -105,6 +129,45 @@
      */
 
     int main ( int argc, char ** argv );
+
+    /*! \brief Directory availability check
+     *  
+     *  This function verify if a given directory exists.
+     *  
+     *  \param csDirectory Directory path
+     *  \return Returns a boolean value according to directory existence
+     */
+
+    int cs_auditlog_is_directory( const char * const csDirectory );
+
+    /*! \brief Search agrument position in argv
+     *  
+     *  This function search in the argv string array the position of the argument
+     *  defined through ltag/stag and return the index of the corresponding parameter
+     *  in argv.
+     *  
+     *  \param argc Standard main parameter
+     *  \param argv Standard main parameter
+     *  \param ltag Long-form argument string (--argument)
+     *  \param stag Short-form argument string (-a)
+     *  \return Index of parameter in argv
+     */
+
+    int  stda ( int argc, char ** argv, const char * const ltag, const char * const stag );
+
+    /*! \brief Parameter reader in argv
+     *  
+     *  This function interpret the parameter in the desired type and return it through
+     *  the param variable. The argi variable is typically set using stda function. If
+     *  argi is set to CS_NULL, the function does nothing.
+     *  
+     *  \param argi Index of the parameter in argv
+     *  \param argv Standard main parameter
+     *  \param param Pointer to the variable that recieve the parameter
+     *  \param type Type to use for parameter interpretation
+     */
+
+    void stdp ( int argi, char ** argv, void * param, int type );
 
 /* 
     Header - C/C++ compatibility
