@@ -1,7 +1,7 @@
 
 ## csps-suite<br />CSPS library front-end suite
 
-This software suite offers tools for numerical panoramas manipulation. Mainly based on equirectangular mappings, the norama-suite tools are each designed to solve a single task on panoramas, in order to maintain a good modularity of the suite. A typical example is given by rectilinear mappings extraction from a entire equirectangular mapped image.
+This suite is dedicated to becomes a front-end to CSPS library (libcsps - see [Foxel SA repository](https://github.com/FoxelSA/libcsps))
 
 
 ### Documentation
