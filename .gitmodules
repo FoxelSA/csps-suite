@@ -1,0 +1,3 @@
+[submodule "lib/libcsps"]
+	path = lib/libcsps
+	url = git@github.com:FoxelSA/libcsps.git

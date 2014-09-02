@@ -18,7 +18,7 @@
 #   make - Configuration - Libraries
 #
 
-    MAKE_DEPENDS:=
+    MAKE_DEPENDS:=$(MAKE_LIBRAR)/libcsps
 
 #
 #   make - Build - Default

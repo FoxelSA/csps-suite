@@ -138,7 +138,17 @@
      *  \return Returns a boolean value according to directory existence
      */
 
-    int cs_auditlog_is_directory( const char * const csDirectory );
+    int cs_auditlog_is_directory ( const char * const csDirectory );
+
+    /*! \brief Return size of file
+     *
+     *  Extract and return size of file in bytes.
+     *
+     *  \param csFile File to analyse
+     *  \return Returns file size in bytes or zero if file is not found
+     */
+
+    long cs_auditlog_filesize ( const char * const csFile );
 
     /*! \brief Search agrument position in argv
      *  
@@ -153,7 +163,7 @@
      *  \return Index of parameter in argv
      */
 
-    int  stda ( int argc, char ** argv, const char * const ltag, const char * const stag );
+    int  cs_stda ( int argc, char ** argv, const char * const ltag, const char * const stag );
 
     /*! \brief Parameter reader in argv
      *  
@@ -167,7 +177,7 @@
      *  \param type Type to use for parameter interpretation
      */
 
-    void stdp ( int argi, char ** argv, void * param, int type );
+    void cs_stdp ( int argi, char ** argv, void * param, int type );
 
 /* 
     Header - C/C++ compatibility

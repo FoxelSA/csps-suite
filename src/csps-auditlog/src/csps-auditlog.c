@@ -55,15 +55,21 @@
         /* Record log directory variables */
         char csLogd[256] = { 0 };
 
+        /* Record log file path variables */
+        char csLogp[256] = { 0 };
+
+        /* Record log size variables */
+        long csSize = 0L;
+
         /* File enumeration variables */
         DIR           * csDir = NULL;
         struct dirent * csEnt = NULL;
 
         /* Search in parameters */
-        stdp( stda( argc, argv,  "--root", "-r" ), argv, csRoot , CS_STRING );
+        cs_stdp( cs_stda( argc, argv,  "--root", "-r" ), argv, csRoot , CS_STRING );
 
         /* Execution switch */
-        if ( stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
+        if ( cs_stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
 
             /* Display help summary */
             printf( CS_HELP );
@@ -85,7 +91,26 @@
                         /* Check for regular files and pattern */
                         if ( ( csEnt->d_type == DT_REG ) && ( strstr( csEnt->d_name, ".log-" ) != NULL ) ) {
 
-                            fprintf( stderr, "%s\n", csEnt->d_name );
+                            /* Build log file path */
+                            sprintf( csLogp, "%s/%s", csLogd, csEnt->d_name );
+
+                            /* Display information */
+                            fprintf( CS_OUT, "Auditing : %s\n", csLogp );
+
+                            /* Ask log file size */
+                            csSize = cs_auditlog_filesize( csLogp );
+
+                            /* Display information */
+                            fprintf( CS_OUT, "    Size          : %li Bytes (%f Mo)\n", csSize, ( double ) csSize / 1048576.0 );
+
+                            /* Display information */
+                            fprintf( CS_OUT, "    64-congruence : %li ", csSize % 64 );
+
+                            /* Audit - 64 congruence check */
+                            if ( ( csSize % 64 ) == 0 ) fprintf( CS_OUT, "(Valid)\n" ); else fprintf( CS_OUT, "(Invalid : missing %li bytes to last record\n", 64 - ( csSize % 64 ) );
+
+                            /* Display information */
+                            fprintf( CS_OUT, "    Records count : %li\n", csSize >> 6 );
 
                         }
 
@@ -132,11 +157,38 @@
 
     }
 
+    long cs_auditlog_filesize( const char * const csFile ) {
+
+        /* Returned variables */
+        long csSize = 0L;
+
+        /* Ask pointed file handle */
+        FILE * csHandle = fopen( csFile, "rb" );
+
+        /* Check file handle */
+        if ( csHandle != NULL ) {
+
+            /* Update file offset */
+            fseek( csHandle, 0L, SEEK_END );
+
+            /* Ask value of updated offset */
+            csSize = ftell( csHandle );
+
+            /* Close file handle */
+            fclose( csHandle );            
+
+        }
+
+        /* Return file size */
+        return( csSize );
+
+    }
+
 /*
     Source - Arguments common handler
  */
 
-    int stda( int argc, char ** argv, const char * const ltag, const char * const stag ) {
+    int cs_stda( int argc, char ** argv, const char * const ltag, const char * const stag ) {
 
         /* Search for argument */
         while ( ( -- argc ) > 0 ) {
@@ -158,7 +210,7 @@
     Source - Parameters common handler
  */
 
-    void stdp( int argi, char ** argv, void * param, int type ) {
+    void cs_stdp( int argi, char ** argv, void * param, int type ) {
 
         /* Index consistency */
         if ( argi == CS_NULL ) return;
