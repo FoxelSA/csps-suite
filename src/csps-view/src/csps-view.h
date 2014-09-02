@@ -36,13 +36,13 @@
  *      Attribution" section of <http://foxel.ch/license>.
  */
 
-    /*! \file   csps-audit.h
+    /*! \file   csps-view.h
      *  \author Nils Hamel (n.hamel@foxel.ch)
      *   
      *  Software main header
      */
 
-    /*! \mainpage csps-audit
+    /*! \mainpage csps-view
      *
      *  Front-end suite for CSPS library.
      */
@@ -51,8 +51,8 @@
     Header - Include guard
  */
 
-    # ifndef __CS_AUDIT__
-    # define __CS_AUDIT__
+    # ifndef __CS_VIEW__
+    # define __CS_VIEW__
 
 /* 
     Header - C/C++ compatibility
@@ -66,23 +66,20 @@
     Header - Includes
  */
 
-    # include <stdio.h>
-    # include <stdlib.h>
-    # include <time.h>
-    # include <string.h>
-    # include <dirent.h>
-    # include <csps-all.h>
+    # include "csps-view-features.h"
+    # include "csps-view-event.h"
+    # include "csps-view-scene.h"
 
 /* 
     Header - Preprocessor definitions
  */
 
     /* Standard help */
-    # define CS_HELP "Usage summary :\n"          \
-    "  csps-audit [Arguments] [Parameters] ...\n" \
-    "Short arguments and parameters summary :\n"  \
-    "  -r Record root directory\n"                \
-    "csps-audit - csps-suite\n"                   \
+    # define CS_HELP "Usage summary :\n"         \
+    "  csps-view [Arguments] [Parameters] ...\n" \
+    "Short arguments and parameters summary :\n" \
+    "  -r Record root directory\n"               \
+    "csps-view - csps-suite\n"                   \
     "Copyright (c) 2013-2014 FOXEL SA\n"
 
     /* Define standard types */
@@ -100,13 +97,6 @@
     # define CS_ULLONG      11
     # define CS_FLOAT       12
     # define CS_DOUBLE      13
-
-    /* Define standard output */
-    # define CS_OUT         stdout
-
-    /* Define boolean constants */
-    # define CS_FALSE       0
-    # define CS_TRUE        1
 
 /* 
     Header - Preprocessor macros
@@ -126,44 +116,15 @@
 
     /*! \brief Software main function
      *  
-     *  The main function performs an audit of elphel camera
-     *  FPGA event-logger outputs.
+     *  The main function simply initialize graphic library and launches
+     *  event callback function. A infinite loop is performed until escape
+     *  key is pressed.
      *  
      *  \param argc Standard main parameter
      *  \param argv Standard main parameter
      */
 
     int main ( int argc, char ** argv );
-
-    /*! \brief Logs audit coprocess
-     *
-     *  This function performs an advanced audit of the considered
-     *  parsing its content and displaying extracted informations.
-     * 
-     *  \param csFile File to analyse
-     */
-
-    void cs_audit_audit ( const char * const csFile );
-
-    /*! \brief Directory availability check
-     *  
-     *  This function verify if a given directory exists.
-     *  
-     *  \param csDirectory Directory path
-     *  \return Returns a boolean value according to directory existence
-     */
-
-    int cs_audit_is_directory ( const char * const csDirectory );
-
-    /*! \brief Return size of file
-     *
-     *  Extract and return size of file in bytes.
-     *
-     *  \param csFile File to analyse
-     *  \return Returns file size in bytes or zero if file is not found
-     */
-
-    long cs_audit_filesize ( const char * const csFile );
 
     /*! \brief Search agrument position in argv
      *  
