@@ -68,8 +68,10 @@
 
     # include <stdio.h>
     # include <stdlib.h>
+    # include <time.h>
     # include <string.h>
-    # include <dirent.h> 
+    # include <dirent.h>
+    # include <csps-all.h>
 
 /* 
     Header - Preprocessor definitions
@@ -129,6 +131,16 @@
      */
 
     int main ( int argc, char ** argv );
+
+    /*! \brief Logs audit coprocess
+     *
+     *  This function performs an advanced audit of the considered
+     *  parsing its content and displaying extracted informations.
+     * 
+     *  \param csFile File to analyse
+     */
+
+    void cs_auditlog_audit ( const char * const csFile );
 
     /*! \brief Directory availability check
      *  
