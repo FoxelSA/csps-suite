@@ -41,7 +41,7 @@
     Source - Includes
  */
 
-    # include "csps-auditlog.h"
+    # include "csps-audit.h"
 
 /*
     Source - Software main function
@@ -89,7 +89,7 @@
             sprintf( csLogd, "%s/mov/1", csRoot );
 
             /* Check if directory is available */
-            if ( cs_auditlog_is_directory( csLogd ) == CS_TRUE ) {
+            if ( cs_audit_is_directory( csLogd ) == CS_TRUE ) {
 
                 /* Ask directory handle */
                 if ( ( csDir = opendir( csLogd ) ) != NULL ) {
@@ -107,7 +107,7 @@
                             fprintf( CS_OUT, "Auditing : %s\n", csLogp );
 
                             /* Ask log file size */
-                            if ( ( csSize = cs_auditlog_filesize( csLogp ) ) != 0 ) {
+                            if ( ( csSize = cs_audit_filesize( csLogp ) ) != 0 ) {
 
                                 /* Display information */
                                 fprintf( CS_OUT, "    Size          : +%li Bytes (%f Mo)\n", csSize, ( double ) csSize / 1048576.0 );
@@ -130,7 +130,7 @@
                                 fprintf( CS_OUT, "    Records count : +%li\n", csSize >> 6 );
 
                                 /* Performs advanced audit */
-                                cs_auditlog_audit( csLogp );
+                                cs_audit_audit( csLogp );
 
                             /* Display message */
                             } else { fprintf( CS_OUT, "Error : Unable to determine file size (%s)\n", csLogp ); }
@@ -157,7 +157,7 @@
     Source - Logs audit coprocess
  */
 
-    void cs_auditlog_audit( const char * const csFile ) {
+    void cs_audit_audit( const char * const csFile ) {
 
         /* Records buffer variables */
         unsigned char csRec[LP_DEVICE_EYESIS4PI_RECLEN] = { 0 };
@@ -398,7 +398,7 @@
     Source - File and directory operations
  */
 
-    int cs_auditlog_is_directory( const char * const csDirectory ) {
+    int cs_audit_is_directory( const char * const csDirectory ) {
 
         /* Ask directory handle */
         DIR * csDir = opendir( csDirectory );
@@ -421,7 +421,7 @@
 
     }
 
-    long cs_auditlog_filesize( const char * const csFile ) {
+    long cs_audit_filesize( const char * const csFile ) {
 
         /* Returned variables */
         long csSize = 0L;

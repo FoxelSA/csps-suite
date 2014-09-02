@@ -3,7 +3,7 @@
 #   make - Configuration - Bases
 #
 
-    MAKE_NAME:=csps-auditlog
+    MAKE_NAME:=csps-audit
     MAKE_CODE:=c
     MAKE_TYPE:=suite
 

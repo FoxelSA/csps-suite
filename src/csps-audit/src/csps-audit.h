@@ -36,13 +36,13 @@
  *      Attribution" section of <http://foxel.ch/license>.
  */
 
-    /*! \file   csps-auditlog.h
+    /*! \file   csps-audit.h
      *  \author Nils Hamel (n.hamel@foxel.ch)
      *   
      *  Software main header
      */
 
-    /*! \mainpage csps-auditlog
+    /*! \mainpage csps-audit
      *
      *  WIP
      */
@@ -51,8 +51,8 @@
     Header - Include guard
  */
 
-    # ifndef __CS_AUDITLOG__
-    # define __CS_AUDITLOG__
+    # ifndef __CS_AUDIT__
+    # define __CS_AUDIT__
 
 /* 
     Header - C/C++ compatibility
@@ -79,10 +79,10 @@
 
     /* Standard help */
     # define CS_HELP "Usage summary :\n\n"                                     \
-                     "\tcsps-auditlog [Arguments] [Parameters] ...\n\n"        \
+                     "\tcsps-audit [Arguments] [Parameters] ...\n\n"           \
                      "Short arguments and parameters summary :\n\n"            \
                      "\t-r Record root directory\n\n"                          \
-                     "csps-auditlog - csps-suite\n"                            \
+                     "csps-audit - csps-suite\n"                            \
                      "Copyright (c) 2013-2014 FOXEL SA - http://foxel.ch\n"
 
 /* 
@@ -141,7 +141,7 @@
      *  \param csFile File to analyse
      */
 
-    void cs_auditlog_audit ( const char * const csFile );
+    void cs_audit_audit ( const char * const csFile );
 
     /*! \brief Directory availability check
      *  
@@ -151,7 +151,7 @@
      *  \return Returns a boolean value according to directory existence
      */
 
-    int cs_auditlog_is_directory ( const char * const csDirectory );
+    int cs_audit_is_directory ( const char * const csDirectory );
 
     /*! \brief Return size of file
      *
@@ -161,7 +161,7 @@
      *  \return Returns file size in bytes or zero if file is not found
      */
 
-    long cs_auditlog_filesize ( const char * const csFile );
+    long cs_audit_filesize ( const char * const csFile );
 
     /*! \brief Search agrument position in argv
      *  
