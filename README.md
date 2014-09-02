@@ -6,7 +6,7 @@ This suite is dedicated to becomes a front-end to CSPS library (libcsps - see [F
 
 ### Documentation
 
-Documentation is not aviable for alpha 0.1. Please wait beta 0.1 or release 0.1 (Scheduled on september/november 2014 for beta 0.1).
+Documentation is not aviable for alpha 0.1 (Try the [wiki](https://github.com/niam-foxel/csps-suite/wiki) in case of emergency). Please wait beta 0.1 or release 0.1 (Scheduled on september/november 2014 for beta 0.1).
 
 
 ### Copyright

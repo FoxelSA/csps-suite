@@ -81,6 +81,7 @@
     # define CS_HELP "Usage summary :\n\n"                                     \
                      "\tcsps-auditlog [Arguments] [Parameters] ...\n\n"        \
                      "Short arguments and parameters summary :\n\n"            \
+                     "\t-r Record root directory\n\n"                          \
                      "csps-auditlog - csps-suite\n"                            \
                      "Copyright (c) 2013-2014 FOXEL SA - http://foxel.ch\n"
 
