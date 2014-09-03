@@ -155,6 +155,9 @@
 
     void cs_stdp ( int argi, char ** argv, void * param, int type );
 
+    /* Ok, well, hum, that's a prototype without being one ... */
+    extern void glutMainLoopEvent ( void );
+
 /* 
     Header - C/C++ compatibility
  */

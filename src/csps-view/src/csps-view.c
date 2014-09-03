@@ -44,10 +44,14 @@
     # include "csps-view.h"
 
 /* 
-    Source - General variables (GLUT only)
+    Source - General variables
  */
 
-    cs_view_keyboard csKeyboard = { 0 };
+    cs_view_position csPosition = { 0, 0, 0, 0, 0 }; //46.188474, 6.127366
+    cs_view_keyboard csKeyboard = { 0, 0, 10.0 };
+    cs_view_mouse    csMouse    = { 0 };
+    cs_view_list     csList     = { 0 };
+    cs_view_path     csPath     = { "", "mod-DSIDE", "mod-SGNQF", "mod-IFETI", "eyesis4pi", "ls20031", "adis16375" };
 
 /*
     Source - Software main function
@@ -55,11 +59,17 @@
 
     int main ( int argc, char ** argv ) {
 
-        /* CSPS stream root directory */
-        unsigned char * csRoot[256] = { 0 };
+        /* GLUT window handle */
+        int csWindow = 0;
 
         /* Search in parameters */
-        cs_stdp( cs_stda( argc, argv,  "--root", "-r" ), argv, csRoot , CS_STRING );
+        cs_stdp( cs_stda( argc, argv, "--root"      , "-r" ), argv, csPath.ptRoot, CS_STRING );
+        cs_stdp( cs_stda( argc, argv, "--cam-stream", "-c" ), argv, csPath.ptCAMm, CS_STRING );
+        cs_stdp( cs_stda( argc, argv, "--gps-stream", "-g" ), argv, csPath.ptGPSm, CS_STRING );
+        cs_stdp( cs_stda( argc, argv, "--imu-stream", "-i" ), argv, csPath.ptIMUm, CS_STRING );
+        cs_stdp( cs_stda( argc, argv, "--cam-tag"   , "-a" ), argv, csPath.ptCAMd, CS_STRING );
+        cs_stdp( cs_stda( argc, argv, "--gps-tag"   , "-p" ), argv, csPath.ptGPSd, CS_STRING );
+        cs_stdp( cs_stda( argc, argv, "--imu-tag"   , "-m" ), argv, csPath.ptIMUd, CS_STRING );
 
         /* Execution switch */
         if ( cs_stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
@@ -76,25 +86,43 @@
             glutInitWindowSize( 640, 480 );
 
             /* Create windows */
-            glutCreateWindow( "csps-view" );
+            csWindow = glutCreateWindow( "csps-view" );
 
             /* Assign callback functions */
             glutDisplayFunc ( cs_view_scene          );
             glutReshapeFunc ( cs_view_event_reshape  );
             glutKeyboardFunc( cs_view_event_keyboard );
-            //glutMouseFunc  ( _3p_dynamic_mouse    );
-            //glutMotionFunc ( _3p_dynamic_move     );
+            glutMouseFunc   ( cs_view_event_mouse    );
+            glutMotionFunc  ( cs_view_event_move     );
 
             /* Assign windows parameters */
             glutFullScreen();
 
+            /* Initialize display mode */
+            glutInitDisplayMode( GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_STENCIL );
+
+            /* Hide cursor */
+            glutSetCursor( GLUT_CURSOR_NONE ); 
+
+            /* Compile scene */
+            cs_view_scene_compile( CS_FLAG_CREATE );
+
             /* Software main loop */
             while ( csKeyboard.kbExit == 0 ) {
+
+                /* Display scene */
+                cs_view_scene();
 
                 /* Handle events */
                 glutMainLoopEvent();
 
             }
+
+            /* Delete scene */
+            cs_view_scene_compile( CS_FLAG_DELETE );
+
+            /* Distroy window */
+            glutDestroyWindow( csWindow );
 
         }
 

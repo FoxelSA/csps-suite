@@ -67,6 +67,9 @@
     Header - Preprocessor definitions
  */
 
+    /* Define earth radius */
+    # define CS_SCENE_EARTH 6371.0090
+
 /* 
     Header - Preprocessor macros
  */
@@ -89,6 +92,12 @@
      */
 
     void cs_view_scene ( void );
+
+    void cs_view_scene_compile( int csFlag );
+
+    void cs_view_scene_earth( GLuint csTag );
+
+    void cs_view_scene_track( GLuint csTag );
 
 /* 
     Header - C/C++ compatibility

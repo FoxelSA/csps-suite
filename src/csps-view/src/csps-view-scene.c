@@ -47,7 +47,11 @@
     Source - General variables (GLUT only)
  */
 
+    extern cs_view_position csPosition;
     extern cs_view_keyboard csKeyboard;
+    extern cs_view_mouse    csMouse;
+    extern cs_view_list     csList;
+    extern cs_view_path     csPath;
 
 /*
     Source - Scene main function
@@ -55,29 +59,51 @@
 
     void cs_view_scene( void ) {
 
-        /* Enable depth test */
-        glEnable( GL_DEPTH_TEST );
-
-        /* Update clear color */
-        glClearColor( 1.0, 1.0, 1.0, 0.0 );
-
         /* Clear buffers */
-        glClear( GL_COLOR_BUFFER_BIT );
-        glClear( GL_DEPTH_BUFFER_BIT );
+        glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
         /* Update matrix mode */
         glMatrixMode( GL_MODELVIEW );
 
-        /* Push matrix */
-        glPushMatrix();
-
         /* Reset matrix */
         glLoadIdentity();
 
-        /* ... */
+        /* Display list - Earth */
+        glPushMatrix(); {
 
-        /* Pop matrix */
-        glPopMatrix();
+            /* Transfromation - Rotation */
+            glRotatef( +csPosition.psAX, 1.0, 0.0, 0.0 );
+            glRotatef( +csPosition.psAY, 0.0, 1.0, 0.0 );
+
+            /* Transfromation - Translation */
+            glTranslatef( 0, - CS_SCENE_EARTH - csPosition.psAlt, 0 );
+
+            /* Transfromation - Rotation */
+            glRotatef( -csPosition.psLat, 1.0, 0.0, 0.0 );
+            glRotatef( -csPosition.psLon, 0.0, 1.0, 0.0 );
+            glRotatef( 90, 1.0, 0.0, 0.0 );
+
+            glCallList( csList.lsEarth );
+
+        } glPopMatrix();
+        
+        /* Display list - Track */
+        glPushMatrix(); {
+
+            /* Transfromation - Rotation */
+            glRotatef( +csPosition.psAX, 1.0, 0.0, 0.0 );
+            glRotatef( +csPosition.psAY, 0.0, 1.0, 0.0 );
+
+            /* Transfromation - Translation */
+            glTranslatef( 0, - CS_SCENE_EARTH - csPosition.psAlt, 0 );
+
+            /* Transfromation - Rotation */
+            glRotatef( -csPosition.psLat, 1.0, 0.0, 0.0 );
+            glRotatef( -csPosition.psLon, 0.0, 1.0, 0.0 );
+
+            glCallList( csList.lsCamera );
+
+        } glPopMatrix();
 
         /* Force primitives draw */
         glFlush();
@@ -86,4 +112,177 @@
         glFinish();
 
     }
+
+/*
+    Source - Scene display lists
+ */
+
+    void cs_view_scene_compile( int csFlag ) {
+
+        /* Verify exectution flag */
+        if ( csFlag == CS_FLAG_CREATE ) {
+
+            /* Enable depth test */
+            glEnable( GL_DEPTH_TEST );
+            glDepthMask( GL_TRUE );
+            glDepthFunc( GL_LEQUAL );
+            glDepthRange( 0.0f, 1.0f );
+
+            /* Update clear depth */
+            glClearDepth(1.0f);
     
+            /* Update clear color */
+            glClearColor( 1.0, 1.0, 1.0, 0.0 );
+
+            /* Assign display list index */
+            csList.lsEarth  = 1;
+            csList.lsCamera = 2;
+
+            /* Compile earth display list */
+            cs_view_scene_earth( csList.lsEarth );
+
+            /* Compile camera display list */
+            cs_view_scene_track( csList.lsCamera );
+
+        } else {
+
+            /* Delete display list */
+            glDeleteLists( csList.lsEarth , 1 );
+            glDeleteLists( csList.lsCamera, 1 );
+
+        }
+
+    }
+
+/*
+    Source - Scene earth model
+ */
+    
+    void cs_view_scene_earth( GLuint csTag ) {
+
+        /* Declare and create new quadric */
+        GLUquadricObj * csQuadric = gluNewQuadric();
+
+        /* Declare display list begining */
+        glNewList( csTag, GL_COMPILE ); {
+
+            /* Update line width */
+            glLineWidth( 1.0 );
+
+            /* Update color */
+            glColor3f( 0.96, 0.70, 0.00 );
+
+            /* Draw wired sphere */
+            gluQuadricDrawStyle( csQuadric, GLU_LINE );
+
+            /* Draw wired sphere */
+            gluSphere( csQuadric, CS_SCENE_EARTH, 72, 36 );
+
+            /* Update color */
+            glColor3f( 0.94, 0.92 ,0.90 );
+
+            /* Draw filled sphere */
+            gluQuadricDrawStyle( csQuadric, GLU_FILL );
+
+            /* Draw filled sphere */
+            gluSphere( csQuadric, CS_SCENE_EARTH - 0.1, 72, 36 );
+
+        /* Declare display list end */
+        } glEndList();
+
+        /* Delete quadric */
+        gluDeleteQuadric( csQuadric );
+
+    }
+
+/*
+    Source - Camera track
+ */
+
+    void cs_view_scene_track( GLuint csTag ) {
+
+        /* Parsing variables */
+        lp_Size_t csParse = 0;
+
+        /* Stream size variables */
+        lp_Size_t csSize = 0;
+
+        /* Stream memory variables */
+        lp_Time_t * csCAMsyn = NULL;
+
+        /* Query interface structures variables */
+        lp_QueryPosition csQPos;
+
+        /* Ask stream size */
+        csSize = lp_stream_size( csPath.ptRoot, LP_DEVICE_TYPE_CAM, csPath.ptCAMd, csPath.ptCAMm );
+
+        /* Read stream */
+        csCAMsyn = lp_stream_read( csPath.ptRoot, LP_DEVICE_TYPE_CAM, csPath.ptCAMd, csPath.ptCAMm, LP_STREAM_CPN_SYN, sizeof( lp_Time_t ) * csSize );
+
+        /* Declare display list begining */
+        glNewList( csTag, GL_COMPILE ); {
+
+            /* Update color */
+            //glColor3f( 0.93, 0.69, 0.0 );
+            glColor3f( 1.0, 0.0, 0.0 );
+
+            /* Update line width */
+            glLineWidth( 4.0 );
+
+            glBegin( GL_LINE_STRIP ); {
+
+                /* Cartesian coordinates variables */
+                double csPX = 0.0, csPY = 0.0, csPZ = 0.0, csCR = 0.0;
+
+                /* Mean position accumulators */
+                double csLon = 0.0, csLat = 0.0, csAlt = 0.0, csAcc = 0.0;
+
+                /* Loop on camera records */
+                for ( csParse = 0; csParse < csSize; csParse ++ ) {
+
+                    /* Query position by timestamp */
+                    csQPos = lp_query_position_by_timestamp( csPath.ptRoot, LP_DEVICE_TYPE_GPS, csPath.ptGPSd, csPath.ptGPSm, csCAMsyn[csParse] );
+
+                    /* Check query results */
+                    if ( csQPos.qrStatus == LP_TRUE ) {
+
+                        /* Compute corrected altitude */
+                        csCR = csQPos.qrAltitude * 0.001 + CS_SCENE_EARTH;
+
+                        /* Compute cartesian coordinates */
+                        csPZ = + csCR * cos( csQPos.qrLongitude * CS_DEG2RAD ) * sin( csQPos.qrLatitude * CS_DEG2RAD );
+                        csPX = + csCR * sin( csQPos.qrLongitude * CS_DEG2RAD ) * sin( csQPos.qrLatitude * CS_DEG2RAD );
+                        csPY = + csCR * cos( csQPos.qrLatitude  * CS_DEG2RAD );
+
+                        /* Send position vertex */
+                        glVertex3f( csPX, csPY, csPZ );
+
+                        /* Accumulates position */
+                        csLon += csQPos.qrLongitude;
+                        csLat += csQPos.qrLatitude;
+                        csAlt += csQPos.qrAltitude;
+                        csAcc += 1.0;
+
+                    }
+
+                }
+
+                /* Assign initial position */
+                csPosition.psLon = ( csLon / csAcc );
+                csPosition.psLat = ( csLat / csAcc );
+                csPosition.psAlt = ( csAlt / csAcc ) * 0.001 + 1.0;
+
+                /* Assign initial orientation */
+                csPosition.psAX = 90.0;
+                csPosition.psAY =  0.0;
+
+            } glEnd();
+
+        /* Declare display list end */
+        } glEndList();
+
+        /* Unallocate stream memory */
+        csCAMsyn = lp_stream_delete( csCAMsyn );
+
+    }
+

@@ -80,6 +80,13 @@
     Header - Preprocessor definitions
  */
 
+    /* Define execution flag */
+    # define CS_FLAG_CREATE 0
+    # define CS_FLAG_DELETE 1
+
+    /* Define angle conversion factor */
+    # define CS_DEG2RAD     ( 3.1415926536 / 180.0 )
+
 /* 
     Header - Preprocessor macros
  */
@@ -92,12 +99,50 @@
     Header - Structures
  */
 
+    typedef struct cs_view_position_struct {
+
+        double psAX;
+        double psAY;
+        double psLon;
+        double psLat;
+        double psAlt;
+
+    } cs_view_position;
+
     typedef struct cs_view_keyboard_struct {
 
-        int kbExit;
-        int kbKey;
+        int   kbExit;
+        int   kbKey;
+        float kbScale;
 
     } cs_view_keyboard;
+
+    typedef struct cs_view_mouse_struct {
+
+        int msMode;
+        int msX;
+        int msY;
+
+    } cs_view_mouse;
+
+    typedef struct cs_view_list_struct {
+
+        GLuint lsEarth;
+        GLuint lsCamera;
+
+    } cs_view_list;
+
+    typedef struct cs_view_path_struct {
+
+        char ptRoot[256];
+        char ptCAMm[256];
+        char ptGPSm[256];
+        char ptIMUm[256];
+        char ptCAMd[256];
+        char ptGPSd[256];
+        char ptIMUd[256];
+
+    } cs_view_path;
 
 /* 
     Header - Function prototypes

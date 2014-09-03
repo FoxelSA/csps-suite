@@ -108,6 +108,10 @@
 
     void cs_view_event_keyboard ( unsigned char key, int x, int y );
 
+    void cs_view_event_mouse ( int button, int state, int x, int y );
+
+    void cs_view_event_move ( int x, int y );
+
 /* 
     Header - C/C++ compatibility
  */
