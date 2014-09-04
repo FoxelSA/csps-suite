@@ -69,6 +69,7 @@
     # include "csps-view-features.h"
     # include "csps-view-event.h"
     # include "csps-view-scene.h"
+    # include "csps-view-controls.h"
 
 /* 
     Header - Preprocessor definitions

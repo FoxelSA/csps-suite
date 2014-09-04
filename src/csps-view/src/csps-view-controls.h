@@ -36,18 +36,18 @@
  *      Attribution" section of <http://foxel.ch/license>.
  */
 
-    /*! \file   csps-view-scene.h
+    /*! \file   csps-view-event.h
      *  \author Nils Hamel (n.hamel@foxel.ch)
      *   
-     *  OpenGL scene drawing.
+     *  OpenGLUT callbacks function definition for keyboard and mouse.
      */
 
 /* 
     Header - Include guard
  */
 
-    # ifndef __CS_VIEW_SCENE__
-    # define __CS_VIEW_SCENE__
+    # ifndef __CS_VIEW_CONTROLS__
+    # define __CS_VIEW_CONTROLS__
 
 /* 
     Header - C/C++ compatibility
@@ -62,21 +62,18 @@
  */
 
     # include "csps-view-features.h"
-    # include "csps-view-controls.h"
 
 /* 
     Header - Preprocessor definitions
  */
 
-    /* Define earth radius */
-    # define CS_SCENE_EARTH 6371.0090
+    /* Define control reset flags */
+    # define CS_VIEW_CONTROLS_SET   0
+    # define CS_VIEW_CONTROLS_RESET 1
 
 /* 
     Header - Preprocessor macros
  */
-
-    /* Define altitude correction macro */
-    # define CS_VIEW_SCENE_CALT( x ) ( ( x * 0.001 ) + CS_SCENE_EARTH )
 
 /* 
     Header - Typedefs
@@ -90,18 +87,7 @@
     Header - Function prototypes
  */
 
-    /*! \brief Scene main function
-     *  
-     *  Main scene drawing function.
-     */
-
-    void cs_view_scene ( void );
-
-    void cs_view_scene_compile( int csFlag );
-
-    void cs_view_scene_earth( GLuint csTag );
-
-    void cs_view_scene_track( GLuint csTag );
+    void cs_view_controls_reset ( int csFlag, double csMeanLon, double csMeanLat, double csMeanAlt );
 
 /* 
     Header - C/C++ compatibility

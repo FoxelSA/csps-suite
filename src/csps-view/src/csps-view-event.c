@@ -69,7 +69,7 @@
         glLoadIdentity();
 
         /* Compute projection matrix */
-        gluPerspective( 45, ( float ) width / (float) height, 1, 25000 );
+        gluPerspective( 45, ( float ) width / (float) height, 0.01, 25000 );
 
     }
 
@@ -96,6 +96,13 @@
 
                 /* Check and update scale */
                 if ( csKeyboard.kbScale < 1.0 ) csKeyboard.kbScale = 10.0; else csKeyboard.kbScale = 0.02;
+
+            } break;
+
+            case ( 'r' ) : {
+
+                /* Reset position */
+                cs_view_controls_reset( CS_VIEW_CONTROLS_RESET, 0.0, 0.0, 0.0 );
 
             } break;
 

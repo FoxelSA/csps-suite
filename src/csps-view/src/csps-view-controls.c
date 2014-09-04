@@ -36,85 +36,52 @@
  *      Attribution" section of <http://foxel.ch/license>.
  */
 
-    /*! \file   csps-view-scene.h
-     *  \author Nils Hamel (n.hamel@foxel.ch)
-     *   
-     *  OpenGL scene drawing.
-     */
 
 /* 
-    Header - Include guard
+    Source - Includes
  */
 
-    # ifndef __CS_VIEW_SCENE__
-    # define __CS_VIEW_SCENE__
-
-/* 
-    Header - C/C++ compatibility
- */
-
-    # ifdef __cplusplus
-    extern "C" {
-    # endif
-
-/* 
-    Header - Includes
- */
-
-    # include "csps-view-features.h"
     # include "csps-view-controls.h"
 
 /* 
-    Header - Preprocessor definitions
+    Source - General variables (GLUT only)
  */
 
-    /* Define earth radius */
-    # define CS_SCENE_EARTH 6371.0090
-
-/* 
-    Header - Preprocessor macros
- */
-
-    /* Define altitude correction macro */
-    # define CS_VIEW_SCENE_CALT( x ) ( ( x * 0.001 ) + CS_SCENE_EARTH )
-
-/* 
-    Header - Typedefs
- */
-
-/* 
-    Header - Structures
- */
-
-/* 
-    Header - Function prototypes
- */
-
-    /*! \brief Scene main function
-     *  
-     *  Main scene drawing function.
-     */
-
-    void cs_view_scene ( void );
-
-    void cs_view_scene_compile( int csFlag );
-
-    void cs_view_scene_earth( GLuint csTag );
-
-    void cs_view_scene_track( GLuint csTag );
-
-/* 
-    Header - C/C++ compatibility
- */
-
-    # ifdef __cplusplus
-    }
-    # endif
+    extern cs_view_position csPosition;
+    extern cs_view_keyboard csKeyboard;
+    extern cs_view_mouse    csMouse;
+    extern cs_view_list     csList;
+    extern cs_view_path     csPath;
 
 /*
-    Header - Include guard
+    Source - Initial position reset
  */
 
-    # endif
+    void cs_view_controls_reset( int csFlag, double csMeanLon, double csMeanLat, double csMeanAlt ) {
 
+        /* Declare static variables */
+        static double csInitLon = 0.0;
+        static double csInitLat = 0.0;
+        static double csInitAlt = 0.0;
+
+        /* Check function call flag */
+        if ( csFlag == CS_VIEW_CONTROLS_SET ) {
+
+            /* Assign initial position */
+            csInitLon = csMeanLon;
+            csInitLat = csMeanLat;
+            csInitAlt = csMeanAlt;
+
+        }
+
+        /* Reset position according to initial means */
+        csPosition.psLon = csInitLon;
+        csPosition.psLat = csInitLat;
+        csPosition.psAlt = csInitAlt + 2.0;
+
+        /* Reset orientation */
+        csPosition.psAX = 90.0;
+        csPosition.psAY =  0.0;
+
+    }
 

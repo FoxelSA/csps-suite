@@ -187,7 +187,7 @@
                     glLineWidth( 2.0 );
 
                     /* Update color */
-                    glColor3f( 0.96, 0.70, 0.00 );
+                    glColor3f( 0.92941, 0.69412, 0.0 );
 
                 } else {
 
@@ -237,7 +237,7 @@
                     glLineWidth( 2.0 );
 
                     /* Update color */
-                    glColor3f( 0.96, 0.70, 0.00 );
+                    glColor3f( 0.92941, 0.69412, 0.0 );
 
                 } else {
 
@@ -245,7 +245,7 @@
                     glLineWidth( 1.0 );
 
                     /* Update color */
-                    glColor3f( 0.96, 0.96, 0.96 );
+                    glColor3f( 0.98, 0.98, 0.98 );
 
                 }
 
@@ -278,7 +278,7 @@
             glRotatef( 90, 1.0, 0.0, 0.0 );
 
             /* Update color */
-            glColor3f( 0.90, 0.90 ,0.90 );
+            glColor3f( 0.88, 0.88 ,0.88 );
 
             /* Display solide sphere */
             glutSolidSphere( CS_SCENE_EARTH - 0.2, 360, 180 );
@@ -304,7 +304,8 @@
         lp_Time_t * csCAMsyn = NULL;
 
         /* Query interface structures variables */
-        lp_QueryPosition csQPos;
+        lp_QueryPosition    csQPos;
+        lp_QueryOrientation csQOri;
 
         /* Ask stream size */
         csSize = lp_stream_size( csPath.ptRoot, LP_DEVICE_TYPE_CAM, csPath.ptCAMd, csPath.ptCAMm );
@@ -315,20 +316,33 @@
         /* Declare display list begining */
         glNewList( csTag, GL_COMPILE ); {
 
-            /* Update color */
-            //glColor3f( 0.93, 0.69, 0.0 );
-            glColor3f( 1.0, 0.0, 0.0 );
-
             /* Update line width */
-            glLineWidth( 4.0 );
+            glLineWidth( 2.0 );
 
-            glBegin( GL_LINE_STRIP ); {
+            /* Begin primitive */
+            glBegin( GL_LINES ); {
 
                 /* Cartesian coordinates variables */
-                double csPX = 0.0, csPY = 0.0, csPZ = 0.0, csCR = 0.0;
+                double csPX = 0.0, csPY = 0.0, csPZ = 0.0;
 
-                /* Mean position accumulators */
+                /* Cartesian coordinates memory variables */
+                double csMX = 0.0, csMY = 0.0, csMZ = 0.0, csMF = 0.0;
+
+                /* Cartesian coordinates frame variables */
+                double csXX = 0.0, csXY = 0.0, csXZ = 0.0;
+                double csYX = 0.0, csYY = 0.0, csYZ = 0.0;
+                double csZX = 0.0, csZY = 0.0, csZZ = 0.0;
+
+                /* Cartesian coordinates frame memory variables */
+                double csMXX = 0.0, csMXY = 0.0, csMXZ = 0.0;
+                double csMYX = 0.0, csMYY = 0.0, csMYZ = 0.0;
+                double csMZX = 0.0, csMZY = 0.0, csMZZ = 0.0, csFF = 0.0;
+
+                /* Mean position accumulators variables */
                 double csLon = 0.0, csLat = 0.0, csAlt = 0.0, csAcc = 0.0;
+
+                /* Spherical coordinate system variables */
+                double csFrm[3][3] = { { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 } };
 
                 /* Loop on camera records */
                 for ( csParse = 0; csParse < csSize; csParse ++ ) {
@@ -339,36 +353,132 @@
                     /* Check query results */
                     if ( csQPos.qrStatus == LP_TRUE ) {
 
-                        /* Compute corrected altitude */
-                        csCR = csQPos.qrAltitude * 0.001 + CS_SCENE_EARTH;
-
                         /* Compute cartesian coordinates */
-                        csPZ = + csCR * cos( csQPos.qrLongitude * CS_DEG2RAD ) * sin( csQPos.qrLatitude * CS_DEG2RAD );
-                        csPX = + csCR * sin( csQPos.qrLongitude * CS_DEG2RAD ) * sin( csQPos.qrLatitude * CS_DEG2RAD );
-                        csPY = + csCR * cos( csQPos.qrLatitude  * CS_DEG2RAD );
+                        csPZ = + CS_VIEW_SCENE_CALT( csQPos.qrAltitude ) * cos( csQPos.qrLongitude * CS_DEG2RAD ) * sin( csQPos.qrLatitude * CS_DEG2RAD );
+                        csPX = + CS_VIEW_SCENE_CALT( csQPos.qrAltitude ) * sin( csQPos.qrLongitude * CS_DEG2RAD ) * sin( csQPos.qrLatitude * CS_DEG2RAD );
+                        csPY = + CS_VIEW_SCENE_CALT( csQPos.qrAltitude ) * cos( csQPos.qrLatitude  * CS_DEG2RAD );
 
-                        /* Send position vertex */
-                        glVertex3f( csPX, csPY, csPZ );
+                        /* Verify previous point memory */
+                        if ( csMF > 0.5 ) {
+
+                            /* Update color */
+                            glColor3f( 0.92941, 0.69412, 0.0 );
+
+                            /* Send position vertex */
+                            glVertex3f( csMX, csMY, csMZ );
+                            glVertex3f( csPX, csPY, csPZ );
+
+                        }
+
+                        /* Memorize position */
+                        csMX = csPX; csMY = csPY; csMZ = csPZ; csMF = 1.0;
 
                         /* Accumulates position */
                         csLon += csQPos.qrLongitude;
                         csLat += csQPos.qrLatitude;
                         csAlt += csQPos.qrAltitude;
+
+                        /* Update index */
                         csAcc += 1.0;
+
+                    }
+
+                    /* Query orientation by timestamp */
+                    csQOri = lp_query_orientation_by_timestamp( csPath.ptRoot, LP_DEVICE_TYPE_IMU, csPath.ptIMUd, csPath.ptIMUm, csCAMsyn[csParse] );
+
+                    /* Check query results */
+                    if ( csQOri.qrStatus == LP_TRUE ) {
+
+                        /* Define local spherical frame - longitudinal-vector */
+                        csFrm[0][0] = + 0.001 * cos( csQPos.qrLongitude * CS_DEG2RAD );
+                        csFrm[0][1] = + 0.0;
+                        csFrm[0][2] = + 0.001 * sin( csQPos.qrLongitude * CS_DEG2RAD );
+
+                        /* Define local spherical frame - latitudinal-vector */
+                        csFrm[1][0] = + 0.001 * cos( csQPos.qrLatitude * CS_DEG2RAD ) * sin( csQPos.qrLongitude * CS_DEG2RAD );
+                        csFrm[1][1] = + 0.001 * sin( csQPos.qrLatitude * CS_DEG2RAD );
+                        csFrm[1][2] = - 0.001 * cos( csQPos.qrLatitude * CS_DEG2RAD ) * cos( csQPos.qrLongitude * CS_DEG2RAD );
+
+                        /* Define local spherical frame - radial-vector */
+                        csFrm[2][0] = + 0.001 * sin( csQPos.qrLatitude * CS_DEG2RAD ) * sin( csQPos.qrLongitude * CS_DEG2RAD );
+                        csFrm[2][1] = + 0.001 * cos( csQPos.qrLatitude * CS_DEG2RAD );
+                        csFrm[2][2] = + 0.001 * sin( csQPos.qrLatitude * CS_DEG2RAD ) * cos( csQPos.qrLongitude * CS_DEG2RAD );
+
+                        /* Compute frame vectors - x-vector */
+                        csXX = csPX + csQOri.qrfxx * csFrm[0][0] + csQOri.qrfxy * csFrm[1][0] + csQOri.qrfxz * csFrm[2][0];
+                        csXY = csPY + csQOri.qrfxx * csFrm[0][1] + csQOri.qrfxy * csFrm[1][1] + csQOri.qrfxz * csFrm[2][1];
+                        csXZ = csPZ + csQOri.qrfxx * csFrm[0][2] + csQOri.qrfxy * csFrm[1][2] + csQOri.qrfxz * csFrm[2][2];
+
+                        /* Compute frame vectors - y-vector */
+                        csYX = csPX + csQOri.qrfyx * csFrm[0][0] + csQOri.qrfyy * csFrm[1][0] + csQOri.qrfyz * csFrm[2][0];
+                        csYY = csPY + csQOri.qrfyx * csFrm[0][1] + csQOri.qrfyy * csFrm[1][1] + csQOri.qrfyz * csFrm[2][1];
+                        csYZ = csPZ + csQOri.qrfyx * csFrm[0][2] + csQOri.qrfyy * csFrm[1][2] + csQOri.qrfyz * csFrm[2][2];
+
+                        /* Compute frame vectors - z-vector */
+                        csZX = csPX + csQOri.qrfzx * csFrm[0][0] + csQOri.qrfzy * csFrm[1][0] + csQOri.qrfzz * csFrm[2][0];
+                        csZY = csPY + csQOri.qrfzx * csFrm[0][1] + csQOri.qrfzy * csFrm[1][1] + csQOri.qrfzz * csFrm[2][1];
+                        csZZ = csPZ + csQOri.qrfzx * csFrm[0][2] + csQOri.qrfzy * csFrm[1][2] + csQOri.qrfzz * csFrm[2][2];
+
+                        /* Update color */
+                        glColor3f( 0.70, 0.20, 0.10 );
+
+                        /* Display body x-vector */
+                        glVertex3f( csPX, csPY, csPZ ); 
+                        glVertex3f( csXX, csXY, csXZ );
+
+                        /* Update color */
+                        glColor3f( 0.20, 0.50, 0.30 );
+
+                        /* Display body y-vector */
+                        glVertex3f( csPX, csPY, csPZ ); 
+                        glVertex3f( csYX, csYY, csYZ );
+
+                        /* Update color */
+                        glColor3f( 0.20, 0.30, 0.60 );
+
+                        /* Display body z-vector */
+                        glVertex3f( csPX, csPY, csPZ ); 
+                        glVertex3f( csZX, csZY, csZZ );
+
+                        /* Verify previous point memory */
+                        if ( csFF > 0.5 ) {
+
+                            /* Update color */
+                            glColor3f( 0.70, 0.20, 0.10 );
+
+                            /* Display body x-vector */
+                            glVertex3f( csMXX, csMXY, csMXZ );
+                            glVertex3f( csXX , csXY , csXZ  );
+
+                            /* Update color */
+                            glColor3f( 0.20, 0.50, 0.30 );
+
+                            /* Display body y-vector */
+                            glVertex3f( csMYX, csMYY, csMYZ );
+                            glVertex3f( csYX , csYY , csYZ  );
+
+                            /* Update color */
+                            glColor3f( 0.20, 0.30, 0.60 );
+
+                            /* Display body z-vector */
+                            glVertex3f( csMZX, csMZY, csMZZ );
+                            glVertex3f( csZX , csZY , csZZ  );
+
+                        }
+
+                        /* Memorize frame */
+                        csMXX = csXX; csMXY = csXY; csMXZ = csXZ;
+                        csMYX = csYX; csMYY = csYY; csMYZ = csYZ;
+                        csMZX = csZX; csMZY = csZY; csMZZ = csZZ; csFF = 1.0;
 
                     }
 
                 }
 
-                /* Assign initial position */
-                csPosition.psLon = ( csLon / csAcc );
-                csPosition.psLat = ( csLat / csAcc );
-                csPosition.psAlt = ( csAlt / csAcc ) * 0.001 + 1.0;
+                /* Reset initial position and assign initial means */
+                cs_view_controls_reset( CS_VIEW_CONTROLS_SET, ( csLon / csAcc ), ( csLat / csAcc ), ( csAlt / csAcc ) * 0.001 );
 
-                /* Assign initial orientation */
-                csPosition.psAX = 90.0;
-                csPosition.psAY =  0.0;
-
+            /* End primitive */
             } glEnd();
 
         /* Declare display list end */
