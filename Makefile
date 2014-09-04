@@ -24,7 +24,8 @@
 #   make - Build - Default
 #
 
-    all:directories libraries units
+    all:directories units
+    lib:libraries
 
 #
 #   make - Build - Stack

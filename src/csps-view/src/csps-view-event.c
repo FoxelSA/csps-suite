@@ -129,19 +129,10 @@
             /* Update mouse mode */
             csMouse.msMode = 2;           
 
-        } else if ( button == 3 ) {
+        } else if ( ( button == 3 ) || ( button == 4 ) )  {
 
             /* Update altitude */
-            csPosition.psAlt += csPosition.psAlt * 2e-3;
-
-            /* Altitude range check */
-            if ( csPosition.psAlt <    0.1 ) csPosition.psAlt =    0.1;
-            if ( csPosition.psAlt > 1000.0 ) csPosition.psAlt = 1000.0;
-
-        } else if ( button == 4 ) {
-
-            /* Update altitude */
-            csPosition.psAlt -= csPosition.psAlt * 2e-3;
+            csPosition.psAlt = csPosition.psAlt - ( button == 3 ? -1.0 : +1.0 ) * csPosition.psAlt * 2e-3;
 
             /* Altitude range check */
             if ( csPosition.psAlt <    0.1 ) csPosition.psAlt =    0.1;

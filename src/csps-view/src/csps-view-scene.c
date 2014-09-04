@@ -81,7 +81,6 @@
             /* Transfromation - Rotation */
             glRotatef( -csPosition.psLat, 1.0, 0.0, 0.0 );
             glRotatef( -csPosition.psLon, 0.0, 1.0, 0.0 );
-            glRotatef( 90, 1.0, 0.0, 0.0 );
 
             glCallList( csList.lsEarth );
 
@@ -128,6 +127,10 @@
             glDepthFunc( GL_LEQUAL );
             glDepthRange( 0.0f, 1.0f );
 
+            /* Enable faceculling */
+            glEnable( GL_CULL_FACE );
+            glCullFace( GL_BACK );
+
             /* Update clear depth */
             glClearDepth(1.0f);
     
@@ -160,38 +163,128 @@
     
     void cs_view_scene_earth( GLuint csTag ) {
 
-        /* Declare and create new quadric */
-        GLUquadricObj * csQuadric = gluNewQuadric();
+        /* Parsing variables */
+        int csLoopi = 0;
+        int csLoopj = 0;
+
+        /* Angle variables */
+        double csAnglei = 0.0;
+        double csAnglej = 0.0;
 
         /* Declare display list begining */
         glNewList( csTag, GL_COMPILE ); {
 
-            /* Update line width */
-            glLineWidth( 1.0 );
+            /* Meridians */
+            for ( csLoopi = 0; csLoopi < 360; csLoopi ++ ) {
+
+                /* Compute angle */
+                csAnglei = ( csLoopi / 360.0 ) * CS_PI * 2.0;
+
+                /* Detect main and secondary meridians */
+                if ( ( csLoopi % 10 ) == 0 ) {
+
+                    /* Update line width */
+                    glLineWidth( 2.0 );
+
+                    /* Update color */
+                    glColor3f( 0.96, 0.70, 0.00 );
+
+                } else {
+
+                    /* Update line width */
+                    glLineWidth( 1.0 );
+
+                    /* Update color */
+                    glColor3f( 0.96, 0.96, 0.96 );
+
+                }
+
+                /* Begin line strip */
+                glBegin( GL_LINE_STRIP );
+
+                /* Secondary loop on angles */
+                for ( csLoopj = 10; csLoopj <= 350; csLoopj ++ ) {
+
+                    /* Compute angle */
+                    csAnglej = ( ( csLoopj - 180.0 ) / 180.0 ) * CS_PI * 0.5; 
+
+                    /* Send vertex */
+                    glVertex3f(
+
+                        CS_SCENE_EARTH * cos( csAnglei ) * cos( csAnglej ),
+                        CS_SCENE_EARTH * sin( csAnglej ),
+                        CS_SCENE_EARTH * sin( csAnglei ) * cos( csAnglej )
+
+                    );
+
+                }
+
+                /* End primitive */
+                glEnd();
+
+            }
+
+            /* Paralleles */
+            for ( csLoopi = 5; csLoopi <= 175; csLoopi ++ ) {
+
+                /* Compute angle */
+                csAnglei = ( ( csLoopi - 90.0 ) / 90.0 ) * CS_PI * 0.5;
+
+                /* Detect main and secondary meridians */
+                if ( ( csLoopi % 10 ) == 0 ) {
+
+                    /* Update line width */
+                    glLineWidth( 2.0 );
+
+                    /* Update color */
+                    glColor3f( 0.96, 0.70, 0.00 );
+
+                } else {
+
+                    /* Update line width */
+                    glLineWidth( 1.0 );
+
+                    /* Update color */
+                    glColor3f( 0.96, 0.96, 0.96 );
+
+                }
+
+                /* Begin line strip */
+                glBegin( GL_LINE_STRIP );
+
+                /* Secondary loop on angles */
+                for ( csLoopj = 0; csLoopj < 720; csLoopj ++ ) {
+
+                    /* Compute angle */
+                    csAnglej = ( csLoopj / 720.0 ) * CS_PI * 2.0; 
+
+                    /* Send vertex */
+                    glVertex3f(
+
+                        CS_SCENE_EARTH * cos( csAnglej ) * cos( csAnglei ),
+                        CS_SCENE_EARTH * sin( csAnglei ),
+                        CS_SCENE_EARTH * sin( csAnglej ) * cos( csAnglei )
+
+                    );
+
+                }
+
+                /* End primitive */
+                glEnd();
+
+            }
+
+            /* Transfromation - Rotation */
+            glRotatef( 90, 1.0, 0.0, 0.0 );
 
             /* Update color */
-            glColor3f( 0.96, 0.70, 0.00 );
+            glColor3f( 0.90, 0.90 ,0.90 );
 
-            /* Draw wired sphere */
-            gluQuadricDrawStyle( csQuadric, GLU_LINE );
-
-            /* Draw wired sphere */
-            gluSphere( csQuadric, CS_SCENE_EARTH, 72, 36 );
-
-            /* Update color */
-            glColor3f( 0.94, 0.92 ,0.90 );
-
-            /* Draw filled sphere */
-            gluQuadricDrawStyle( csQuadric, GLU_FILL );
-
-            /* Draw filled sphere */
-            gluSphere( csQuadric, CS_SCENE_EARTH - 0.1, 72, 36 );
+            /* Display solide sphere */
+            glutSolidSphere( CS_SCENE_EARTH - 0.2, 360, 180 );
 
         /* Declare display list end */
         } glEndList();
-
-        /* Delete quadric */
-        gluDeleteQuadric( csQuadric );
 
     }
 
