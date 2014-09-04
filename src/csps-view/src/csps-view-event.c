@@ -92,10 +92,10 @@
 
             } break;
 
-            case ( 's' ) : {
+            case ( 'b' ) : {
 
                 /* Check and update scale */
-                if ( csKeyboard.kbScale < 1.0 ) csKeyboard.kbScale = 10.0; else csKeyboard.kbScale = 0.02;
+                if ( csPosition.psBst < 10.0 ) csPosition.psBst = 50.0; else csPosition.psBst = 1.0;
 
             } break;
 
@@ -139,10 +139,10 @@
         } else if ( ( button == 3 ) || ( button == 4 ) )  {
 
             /* Update altitude */
-            csPosition.psAlt = csPosition.psAlt - ( button == 3 ? -1.0 : +1.0 ) * csPosition.psAlt * 2e-3;
+            csPosition.psAlt -= ( button == 3 ? -1.0 : +1.0 ) * cs_view_controls_altstep();
 
             /* Altitude range check */
-            if ( csPosition.psAlt <    0.1 ) csPosition.psAlt =    0.1;
+            if ( csPosition.psAlt <  0.001 ) csPosition.psAlt = 0.001;
             if ( csPosition.psAlt > 1000.0 ) csPosition.psAlt = 1000.0;
 
         } else if ( state == GLUT_UP ) {
@@ -176,8 +176,8 @@
         } else if ( csMouse.msMode == 2 ) {
 
             /* Update longitude and latitude */
-            csPosition.psLon += 2e-5 * sin( csPosition.psAY * CS_DEG2RAD ) * ( y - csMouse.msY ) * cos( csPosition.psAX * CS_DEG2RAD );
-            csPosition.psLat -= 2e-5 * cos( csPosition.psAY * CS_DEG2RAD ) * ( y - csMouse.msY ) * cos( csPosition.psAX * CS_DEG2RAD );
+            csPosition.psLon += cs_view_controls_altstep() * 0.005 * sin( csPosition.psAY * CS_DEG2RAD ) * ( y - csMouse.msY ) * cos( csPosition.psAX * CS_DEG2RAD );
+            csPosition.psLat -= cs_view_controls_altstep() * 0.005 * cos( csPosition.psAY * CS_DEG2RAD ) * ( y - csMouse.msY ) * cos( csPosition.psAX * CS_DEG2RAD );
 
             /* Pointer memorization */
             csMouse.msX = x;

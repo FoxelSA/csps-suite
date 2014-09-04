@@ -109,6 +109,7 @@
         double psLon;
         double psLat;
         double psAlt;
+        double psBst;
 
     } cs_view_position;
 
@@ -116,7 +117,6 @@
 
         int   kbExit;
         int   kbKey;
-        float kbScale;
 
     } cs_view_keyboard;
 

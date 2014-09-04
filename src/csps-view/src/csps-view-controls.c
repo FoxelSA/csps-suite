@@ -77,11 +77,25 @@
         /* Reset position according to initial means */
         csPosition.psLon = csInitLon;
         csPosition.psLat = csInitLat;
-        csPosition.psAlt = csInitAlt + 2.0;
+        csPosition.psAlt = csInitAlt + 1.0;
 
         /* Reset orientation */
         csPosition.psAX = 90.0;
         csPosition.psAY =  0.0;
+
+        /* Reset boost */
+        csPosition.psBst = 1.0;
+
+    }
+
+/*
+    Source - Altitude adaptative step function
+ */
+
+    double cs_view_controls_altstep( void ) {
+
+        /* Return adaptative step function */
+        return( csPosition.psBst * 0.001 * exp( ( log( 10000.0 ) / 1000.0 ) * csPosition.psAlt ) );
 
     }
 
