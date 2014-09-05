@@ -82,7 +82,7 @@
     # define CS_HELP "Usage summary :\n"           \
     "  csps-append [Arguments] [Parameters] ...\n" \
     "Short arguments and parameters summary :\n"   \
-    "  -r Course master directory\n"               \
+    "  -p Course master directory\n"               \
     "csps-append - csps-suite\n"                   \
     "Copyright (c) 2013-2014 FOXEL SA\n"
 
@@ -112,6 +112,14 @@
     /* Define directory structure */
     # define CS_PATH_PATTERN    ".log-"
     # define CS_PATH_RAW        "/mov/1"
+    # define CS_PATH_SEGMENT    "segment"
+    # define CS_PATH_STREAMS    "streams"
+    # define CS_PATH_DEVICES    "devices"
+    # define CS_PATH_EYESIS4    "eyesis4pi"
+    # define CS_PATH_LOGFILE    "fpga-log.bin"
+
+    /* Define descriptors stack size */
+    # define CS_STACK_SIZE      1024
 
     /* Define transfer buffer size */
     # define CS_BUFFER_SIZE     8192
@@ -127,6 +135,22 @@
 /* 
     Header - Structures
  */
+
+    /*! \struct cs_Descriptor_struct
+     *  \brief Raw log file descriptor
+     *
+     *  This structure stores the necessary information to perform
+     *  contigous file detection and appending.
+     *
+     *  \var cs_Descriptor_struct::dsName
+     *  Stores raw log file path
+     *  \var cs_Descriptor_struct::dsFlag
+     *  Appended flag - True if file already appended
+     *  \var cs_Descriptor_struct::dsFirst
+     *  Raw log file first IMU timestamp
+     *  \var cs_Descriptor_struct::dsLast
+     *  Raw log file last IMU timestamp
+     */ 
 
     typedef struct cs_Descriptor_struct {
 
@@ -151,6 +175,8 @@
 
     /*! \brief Software main function
      *  
+     *  The main function calls the analysis and appending procedure in
+     *  order to perform contigous log detection and appending.
      *  
      *  \param argc Standard main parameter
      *  \param argv Standard main parameter
@@ -158,11 +184,47 @@
 
     int main ( int argc, char ** argv );
 
-    int cs_append_create( char * csPath, cs_Descriptor * csStack );
+    /*! \brief Raw logs analysis
+     *  
+     *  This function performs an analysis on raw log file
+     *  available in the master directory. It creates the
+     *  the descriptor stack that stores information on raw
+     *  logs in order to perform appending of contigous logs.
+     *
+     *  The descriptor stack size is limited according to
+     *  CS_STACK_SIZE constant.
+     *  
+     *  \param csPath Master directory
+     *  \param csStack Descriptors stack to fill up
+     *  \return Returns created stack size
+     */
 
-    void cs_append_append( char * csPath, cs_Descriptor * csDescriptors, int csIndex );
+    int cs_append_create ( char * csPath, cs_Descriptor * csDescriptor );
 
-    lp_Time_t cs_append_push( cs_Descriptor * csDescriptor, FILE * csHandle ); 
+    /*! \brief Contigous logs appending
+     *  
+     *  This function performs the appending of contigous raw log
+     *  files that are provided by the descriptor stack.
+     *  
+     *  \param csPath Master directory
+     *  \param csDescriptors Filled descriptors stack
+     *  \param csStack Size of the filled descriptors stack
+     */
+
+    void cs_append_append ( char * csPath, cs_Descriptor * csDescriptors, int csStack );
+
+    /*! \brief Appending coprocess
+     *  
+     *  This function append the content of the file described by the
+     *  provided descriptor into the csHandle stream. The output stream
+     *  has to be already open.
+     *  
+     *  \param csDescriptor Descriptor of raw log to append
+     *  \param csHandle Stream in which appending is performed
+     *  \return Returns the last IMU timestamp stored by the provided descriptor
+     */     
+
+    lp_Time_t cs_append_push( cs_Descriptor * csDescriptor, FILE * csHandle );
 
     /*! \brief Search agrument position in argv
      *  

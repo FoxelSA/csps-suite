@@ -67,7 +67,7 @@
         } else {
 
             /* Descriptors table variables */
-            cs_Descriptor csDescriptor[1024];
+            cs_Descriptor csDescriptor[CS_STACK_SIZE];
 
             /* Retrieve current time */
             time( & csTime );
@@ -89,10 +89,10 @@
     }
 
 /*
-    Source - Create log file descriptors
+    Source - Raw logs analysis
 */
 
-    int cs_append_create( char * csPath, cs_Descriptor * csDescriptor ) {
+    int cs_append_create( char * csPath, cs_Descriptor * csDescriptors ) {
 
         /* Records buffer variables */
         unsigned char csRec[LP_DEVICE_EYESIS4PI_RECLEN] = { 0 };
@@ -123,21 +123,21 @@
             fprintf( CS_OUT, "Course %s\nMaster directory analysis :\n", csPath );
 
             /* Enumerates directory entities */
-            while ( ( csEntity = readdir( csDirect ) ) != NULL ) {
+            while ( ( ( csEntity = readdir( csDirect ) ) != NULL ) && ( csStack < CS_STACK_SIZE ) ) {
 
                 /* Device file detection */
                 if ( ( csEntity->d_type == DT_REG ) && ( strstr( csEntity->d_name, CS_PATH_PATTERN ) != NULL ) ) {
 
                     /* Create file path */
-                    sprintf( csDescriptor[csStack].dsName, "%s/%s", csPathDir, csEntity->d_name );
+                    sprintf( csDescriptors[csStack].dsName, "%s/%s", csPathDir, csEntity->d_name );
 
                     /* Open detected file */
-                    if ( ( csHandle = fopen( csDescriptor[csStack].dsName, "rb" ) ) != NULL ) {
+                    if ( ( csHandle = fopen( csDescriptors[csStack].dsName, "rb" ) ) != NULL ) {
 
                         /* Reset descriptor data */
-                        csDescriptor[csStack].dsFlag  = CS_FALSE;
-                        csDescriptor[csStack].dsFirst = 0;
-                        csDescriptor[csStack].dsLast  = 0;                        
+                        csDescriptors[csStack].dsFlag  = CS_FALSE;
+                        csDescriptors[csStack].dsFirst = 0;
+                        csDescriptors[csStack].dsLast  = 0;                        
 
                         /* Search file initial and final IMU timestamp */
                         while ( ( csRead = fread( csRec, 1, LP_DEVICE_EYESIS4PI_RECLEN, csHandle ) ) == LP_DEVICE_EYESIS4PI_RECLEN ) {
@@ -146,10 +146,10 @@
                             if ( ( csRec[3] & lp_Byte_s( 0x0F ) ) == LP_DEVICE_EYESIS4PI_IMUEVT ) {
 
                                 /* Assign last timestamp */
-                                csDescriptor[csStack].dsLast = lp_timestamp( ( lp_Void_t * ) csRec );
+                                csDescriptors[csStack].dsLast = lp_timestamp( ( lp_Void_t * ) csRec );
 
                                 /* Assign first timestamp */
-                                if ( csDescriptor[csStack].dsFirst == 0 ) csDescriptor[csStack].dsFirst = csDescriptor[csStack].dsLast;
+                                if ( csDescriptors[csStack].dsFirst == 0 ) csDescriptors[csStack].dsFirst = csDescriptors[csStack].dsLast;
 
                             }
 
@@ -189,7 +189,7 @@
     }
 
 /*
-    Source - Appending contigous files
+    Source - Contigous logs appending
 */
 
     void cs_append_append( char * csPath, cs_Descriptor * csDescriptors, int csStack ) {
@@ -256,17 +256,17 @@
             }
 
             /* Create current segment directory */
-            sprintf( csPathCSEG, "%s/segment-%02i", csPathCSPS, ++ csSegIx ); mkdir( csPathCSEG, 0700 );
+            sprintf( csPathCSEG, "%s/" CS_PATH_SEGMENT "-%02i", csPathCSPS, ++ csSegIx ); mkdir( csPathCSEG, 0700 );
 
             /* Create sub-structure directories */
-            sprintf( csPathSTRU, "%s/streams", csPathCSEG ); mkdir( csPathSTRU, 0700 );
-            sprintf( csPathSTRU, "%s/devices", csPathCSEG ); mkdir( csPathSTRU, 0700 );
+            sprintf( csPathSTRU, "%s/" CS_PATH_STREAMS, csPathCSEG ); mkdir( csPathSTRU, 0700 );
+            sprintf( csPathSTRU, "%s/" CS_PATH_DEVICES, csPathCSEG ); mkdir( csPathSTRU, 0700 );
 
             /* Create sub-structure devices directories */
-            sprintf( csPathSTRU, "%s/devices/eyesis4pi", csPathCSEG ); mkdir( csPathSTRU, 0700 );
+            sprintf( csPathSTRU, "%s/" CS_PATH_EYESIS4, csPathSTRU ); mkdir( csPathSTRU, 0700 );
 
             /* Create sub-structure devices concatenated file  */
-            sprintf( csPathSTRU, "%s/devices/eyesis4pi/fpga-log.bin", csPathCSEG );
+            sprintf( csPathSTRU, "%s/" CS_PATH_LOGFILE, csPathSTRU );
 
             /* Open concatenated file */
             if ( ( csHandle = fopen( csPathSTRU, "wb" ) ) != NULL ) {
@@ -335,7 +335,7 @@
     }
 
 /*
-    Source - Append file content
+    Source - Appending coprocess
 */
 
     lp_Time_t cs_append_push( cs_Descriptor * csDescriptor, FILE * csHandle ) {
