@@ -72,15 +72,15 @@
         glPushMatrix(); {
 
             /* Transfromation - Rotation */
-            glRotatef( +csPosition.psAX, 1.0, 0.0, 0.0 );
-            glRotatef( +csPosition.psAY, 0.0, 1.0, 0.0 );
+            glRotated( +csPosition.psAX, 1.0, 0.0, 0.0 );
+            glRotated( +csPosition.psAY, 0.0, 1.0, 0.0 );
 
             /* Transfromation - Translation */
-            glTranslatef( 0, - CS_SCENE_EARTH - csPosition.psAlt, 0 );
+            glTranslated( 0.0, - CS_SCENE_EARTH - csPosition.psAlt, 0.0 );
 
             /* Transfromation - Rotation */
-            glRotatef( -csPosition.psLat, 1.0, 0.0, 0.0 );
-            glRotatef( -csPosition.psLon, 0.0, 1.0, 0.0 );
+            glRotated( -csPosition.psLat, 1.0, 0.0, 0.0 );
+            glRotated( -csPosition.psLon, 0.0, 1.0, 0.0 );
 
             glCallList( csList.lsEarth );
 
@@ -90,15 +90,15 @@
         glPushMatrix(); {
 
             /* Transfromation - Rotation */
-            glRotatef( +csPosition.psAX, 1.0, 0.0, 0.0 );
-            glRotatef( +csPosition.psAY, 0.0, 1.0, 0.0 );
+            glRotated( +csPosition.psAX, 1.0, 0.0, 0.0 );
+            glRotated( +csPosition.psAY, 0.0, 1.0, 0.0 );
 
             /* Transfromation - Translation */
-            glTranslatef( 0, - CS_SCENE_EARTH - csPosition.psAlt, 0 );
+            glTranslated( 0.0, - CS_SCENE_EARTH - csPosition.psAlt, 0.0 );
 
             /* Transfromation - Rotation */
-            glRotatef( -csPosition.psLat, 1.0, 0.0, 0.0 );
-            glRotatef( -csPosition.psLon, 0.0, 1.0, 0.0 );
+            glRotated( -csPosition.psLat, 1.0, 0.0, 0.0 );
+            glRotated( -csPosition.psLon, 0.0, 1.0, 0.0 );
 
             glCallList( csList.lsCamera );
 
@@ -274,7 +274,7 @@
             }
 
             /* Transfromation - Rotation */
-            glRotatef( 90, 1.0, 0.0, 0.0 );
+            glRotated( 90, 1.0, 0.0, 0.0 );
 
             /* Update color */
             glColor3f( 0.88, 0.88 ,0.88 );

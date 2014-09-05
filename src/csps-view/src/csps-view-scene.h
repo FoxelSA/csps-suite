@@ -70,8 +70,8 @@
  */
 
     /* Define earth radius */
-    # define CS_SCENE_METRE 0.000001
-    # define CS_SCENE_EARTH 6.37100090
+    # define CS_SCENE_METRE 0.001
+    # define CS_SCENE_EARTH 6371.00090
 
 /* 
     Header - Preprocessor macros

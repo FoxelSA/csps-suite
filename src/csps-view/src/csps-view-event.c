@@ -69,7 +69,7 @@
         glLoadIdentity();
 
         /* Compute projection matrix */
-        gluPerspective( 45, ( float ) width / ( float ) height, 0.0001, 18.0 );
+        gluPerspective( 45, ( float ) width / ( float ) height, 0.01, 18000.0 );
 
     }
 
@@ -139,7 +139,7 @@
         } else if ( ( button == 3 ) || ( button == 4 ) )  {
 
             /* Update altitude */
-            csPosition.psAlt -= ( button == 3 ? -1.0 : +1.0 ) * cs_view_controls_altstep() * 0.001;
+            csPosition.psAlt -= ( button == 3 ? -1.0 : +1.0 ) * cs_view_controls_altstep();
 
             /* Altitude range check */
             if ( csPosition.psAlt < CS_SCENE_METRE *        1.0 ) csPosition.psAlt = CS_SCENE_METRE * 1.0;
