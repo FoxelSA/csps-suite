@@ -63,20 +63,22 @@
 
     # include "csps-view-features.h"
     # include "csps-view-controls.h"
+    # include "csps-view-event.h"
 
 /* 
     Header - Preprocessor definitions
  */
 
     /* Define earth radius */
-    # define CS_SCENE_EARTH 6371.0090
+    # define CS_SCENE_METRE 0.000001
+    # define CS_SCENE_EARTH 6.37100090
 
 /* 
     Header - Preprocessor macros
  */
 
     /* Define altitude correction macro */
-    # define CS_VIEW_SCENE_CALT( x ) ( ( x * 0.001 ) + CS_SCENE_EARTH )
+    # define CS_VIEW_SCENE_CALT( x ) ( ( x * CS_SCENE_METRE ) + CS_SCENE_EARTH )
 
 /* 
     Header - Typedefs

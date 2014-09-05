@@ -83,7 +83,7 @@
             glutInit( & argc, argv );
 
             /* Initialize windows parameters */
-            glutInitWindowSize( 640, 480 );
+            glutInitWindowSize( 1920, 1200 );
 
             /* Create windows */
             csWindow = glutCreateWindow( "csps-view" );
@@ -99,7 +99,9 @@
             glutFullScreen();
 
             /* Initialize display mode */
-            glutInitDisplayMode( GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_STENCIL );
+            //glutInitDisplayMode( GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_STENCIL );
+            //glutInitDisplayMode( GLUT_RGB );
+            glutInitDisplayMode( GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_STENCIL );
 
             /* Hide cursor */
             glutSetCursor( GLUT_CURSOR_NONE ); 

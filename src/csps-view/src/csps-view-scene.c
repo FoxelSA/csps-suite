@@ -121,21 +121,20 @@
         /* Verify exectution flag */
         if ( csFlag == CS_FLAG_CREATE ) {
 
+            /* Update clear color */
+            glClearColor( 1.0, 1.0, 1.0, 0.0 );
+
             /* Enable depth test */
             glEnable( GL_DEPTH_TEST );
-            glDepthMask( GL_TRUE );
             glDepthFunc( GL_LEQUAL );
-            glDepthRange( 0.0f, 1.0f );
+            glDepthMask( GL_TRUE );
+            glClearDepth( 1.0 );
 
             /* Enable faceculling */
             glEnable( GL_CULL_FACE );
             glCullFace( GL_BACK );
 
-            /* Update clear depth */
-            glClearDepth(1.0f);
-    
-            /* Update clear color */
-            glClearColor( 1.0, 1.0, 1.0, 0.0 );
+            glShadeModel( GL_SMOOTH );
 
             /* Assign display list index */
             csList.lsEarth  = 1;
@@ -209,7 +208,7 @@
                     csAnglej = ( ( csLoopj - 180.0 ) / 180.0 ) * CS_PI * 0.5; 
 
                     /* Send vertex */
-                    glVertex3f(
+                    glVertex3d(
 
                         CS_SCENE_EARTH * cos( csAnglei ) * cos( csAnglej ),
                         CS_SCENE_EARTH * sin( csAnglej ),
@@ -259,7 +258,7 @@
                     csAnglej = ( csLoopj / 720.0 ) * CS_PI * 2.0; 
 
                     /* Send vertex */
-                    glVertex3f(
+                    glVertex3d(
 
                         CS_SCENE_EARTH * cos( csAnglej ) * cos( csAnglei ),
                         CS_SCENE_EARTH * sin( csAnglei ),
@@ -281,7 +280,7 @@
             glColor3f( 0.88, 0.88 ,0.88 );
 
             /* Display solide sphere */
-            glutSolidSphere( CS_SCENE_EARTH - 0.2, 360, 180 );
+            glutSolidSphere( CS_SCENE_EARTH - CS_SCENE_METRE * 200.0, 360, 180 );
 
         /* Declare display list end */
         } glEndList();
@@ -317,7 +316,7 @@
         glNewList( csTag, GL_COMPILE ); {
 
             /* Update line width */
-            glLineWidth( 2.0 );
+            glLineWidth( 1.0 );
 
             /* Begin primitive */
             glBegin( GL_LINES ); {
@@ -365,8 +364,8 @@
                             glColor3f( 0.92941, 0.69412, 0.0 );
 
                             /* Send position vertex */
-                            glVertex3f( csMX, csMY, csMZ );
-                            glVertex3f( csPX, csPY, csPZ );
+                            glVertex3d( csMX, csMY, csMZ );
+                            glVertex3d( csPX, csPY, csPZ );
 
                         }
 
@@ -390,19 +389,19 @@
                     if ( csQOri.qrStatus == LP_TRUE ) {
 
                         /* Define local spherical frame - longitudinal-vector */
-                        csFrm[0][0] = + 0.001 * cos( csQPos.qrLongitude * CS_DEG2RAD );
+                        csFrm[0][0] = + CS_SCENE_METRE * 10.0 * cos( csQPos.qrLongitude * CS_DEG2RAD );
                         csFrm[0][1] = + 0.0;
-                        csFrm[0][2] = + 0.001 * sin( csQPos.qrLongitude * CS_DEG2RAD );
+                        csFrm[0][2] = + CS_SCENE_METRE * 10.0 * sin( csQPos.qrLongitude * CS_DEG2RAD );
 
                         /* Define local spherical frame - latitudinal-vector */
-                        csFrm[1][0] = + 0.001 * cos( csQPos.qrLatitude * CS_DEG2RAD ) * sin( csQPos.qrLongitude * CS_DEG2RAD );
-                        csFrm[1][1] = + 0.001 * sin( csQPos.qrLatitude * CS_DEG2RAD );
-                        csFrm[1][2] = - 0.001 * cos( csQPos.qrLatitude * CS_DEG2RAD ) * cos( csQPos.qrLongitude * CS_DEG2RAD );
+                        csFrm[1][0] = + CS_SCENE_METRE * 10.0 * cos( csQPos.qrLatitude * CS_DEG2RAD ) * sin( csQPos.qrLongitude * CS_DEG2RAD );
+                        csFrm[1][1] = + CS_SCENE_METRE * 10.0 * sin( csQPos.qrLatitude * CS_DEG2RAD );
+                        csFrm[1][2] = - CS_SCENE_METRE * 10.0 * cos( csQPos.qrLatitude * CS_DEG2RAD ) * cos( csQPos.qrLongitude * CS_DEG2RAD );
 
                         /* Define local spherical frame - radial-vector */
-                        csFrm[2][0] = + 0.001 * sin( csQPos.qrLatitude * CS_DEG2RAD ) * sin( csQPos.qrLongitude * CS_DEG2RAD );
-                        csFrm[2][1] = + 0.001 * cos( csQPos.qrLatitude * CS_DEG2RAD );
-                        csFrm[2][2] = + 0.001 * sin( csQPos.qrLatitude * CS_DEG2RAD ) * cos( csQPos.qrLongitude * CS_DEG2RAD );
+                        csFrm[2][0] = + CS_SCENE_METRE * 10.0 * sin( csQPos.qrLatitude * CS_DEG2RAD ) * sin( csQPos.qrLongitude * CS_DEG2RAD );
+                        csFrm[2][1] = + CS_SCENE_METRE * 10.0 * cos( csQPos.qrLatitude * CS_DEG2RAD );
+                        csFrm[2][2] = + CS_SCENE_METRE * 10.0 * sin( csQPos.qrLatitude * CS_DEG2RAD ) * cos( csQPos.qrLongitude * CS_DEG2RAD );
 
                         /* Compute frame vectors - x-vector */
                         csXX = csPX + csQOri.qrfxx * csFrm[0][0] + csQOri.qrfxy * csFrm[1][0] + csQOri.qrfxz * csFrm[2][0];
@@ -423,22 +422,22 @@
                         glColor3f( 0.70, 0.20, 0.10 );
 
                         /* Display body x-vector */
-                        glVertex3f( csPX, csPY, csPZ ); 
-                        glVertex3f( csXX, csXY, csXZ );
+                        glVertex3d( csPX, csPY, csPZ ); 
+                        glVertex3d( csXX, csXY, csXZ );
 
                         /* Update color */
                         glColor3f( 0.20, 0.50, 0.30 );
 
                         /* Display body y-vector */
-                        glVertex3f( csPX, csPY, csPZ ); 
-                        glVertex3f( csYX, csYY, csYZ );
+                        glVertex3d( csPX, csPY, csPZ ); 
+                        glVertex3d( csYX, csYY, csYZ );
 
                         /* Update color */
                         glColor3f( 0.20, 0.30, 0.60 );
 
                         /* Display body z-vector */
-                        glVertex3f( csPX, csPY, csPZ ); 
-                        glVertex3f( csZX, csZY, csZZ );
+                        glVertex3d( csPX, csPY, csPZ ); 
+                        glVertex3d( csZX, csZY, csZZ );
 
                         /* Verify previous point memory */
                         if ( csFF > 0.5 ) {
@@ -447,22 +446,22 @@
                             glColor3f( 0.70, 0.20, 0.10 );
 
                             /* Display body x-vector */
-                            glVertex3f( csMXX, csMXY, csMXZ );
-                            glVertex3f( csXX , csXY , csXZ  );
+                            glVertex3d( csMXX, csMXY, csMXZ );
+                            glVertex3d( csXX , csXY , csXZ  );
 
                             /* Update color */
                             glColor3f( 0.20, 0.50, 0.30 );
 
                             /* Display body y-vector */
-                            glVertex3f( csMYX, csMYY, csMYZ );
-                            glVertex3f( csYX , csYY , csYZ  );
+                            glVertex3d( csMYX, csMYY, csMYZ );
+                            glVertex3d( csYX , csYY , csYZ  );
 
                             /* Update color */
                             glColor3f( 0.20, 0.30, 0.60 );
 
                             /* Display body z-vector */
-                            glVertex3f( csMZX, csMZY, csMZZ );
-                            glVertex3f( csZX , csZY , csZZ  );
+                            glVertex3d( csMZX, csMZY, csMZZ );
+                            glVertex3d( csZX , csZY , csZZ  );
 
                         }
 
@@ -476,7 +475,7 @@
                 }
 
                 /* Reset initial position and assign initial means */
-                cs_view_controls_reset( CS_VIEW_CONTROLS_SET, ( csLon / csAcc ), ( csLat / csAcc ), ( csAlt / csAcc ) * 0.001 );
+                cs_view_controls_reset( CS_VIEW_CONTROLS_SET, ( csLon / csAcc ), ( csLat / csAcc ), ( csAlt / csAcc ) );
 
             /* End primitive */
             } glEnd();

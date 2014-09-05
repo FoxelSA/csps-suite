@@ -62,6 +62,7 @@
  */
 
     # include "csps-view-features.h"
+    # include "csps-view-scene.h"
 
 /* 
     Header - Preprocessor definitions
@@ -88,6 +89,8 @@
  */
 
     void cs_view_controls_reset ( int csFlag, double csMeanLon, double csMeanLat, double csMeanAlt );
+
+    double cs_view_controls_altscale ( void );
 
     double cs_view_controls_altstep ( void );
 
