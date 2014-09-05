@@ -50,26 +50,20 @@
     int main ( int argc, char ** argv ) {
 
         /* Record root directory variables */
-        char csRoot[256] = { 0 };
-
-        /* Record log directory variables */
-        char csLogd[256] = { 0 };
+        char csPath[256] = { 0 };
 
         /* Record log file path variables */
-        char csLogp[256] = { 0 };
+        char csFile[256] = { 0 };
 
-        /* Record log size variables */
-        long csSize = 0L;
+        /* Enumeration variables */
+        DIR    * csDirect = NULL;
+        DIRENT * csEntity = NULL;
 
         /* Date and time variables */
         time_t csTime;
 
-        /* File enumeration variables */
-        DIR           * csDir = NULL;
-        struct dirent * csEnt = NULL;
-
         /* Search in parameters */
-        cs_stdp( cs_stda( argc, argv,  "--root", "-r" ), argv, csRoot , CS_STRING );
+        cs_stdp( cs_stda( argc, argv,  "--path", "-p" ), argv, csPath , CS_STRING );
 
         /* Execution switch */
         if ( cs_stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
@@ -78,73 +72,37 @@
             printf( CS_HELP );
 
         } else {
-
-            /* Obtain current time */
-            time( & csTime );
-
-            /* Display information */
-            fprintf( CS_OUT, "Audit performed on %s", ctime( & csTime ) );
+            
+            /* Display message */
+            time( & csTime ); fprintf( CS_OUT, "Audit performed using csps-audit on %s", ctime( & csTime ) );
         
-            /* Build log directory */
-            sprintf( csLogd, "%s/mov/1", csRoot );
+            /* Display message */
+            fprintf( CS_OUT, "Course %s\nMaster directory audit :\n", csPath );
 
-            /* Check if directory is available */
-            if ( cs_audit_is_directory( csLogd ) == CS_TRUE ) {
+            /* Create directory handle */
+            if ( ( csDirect = opendir( strcat( csPath, "/" CS_PATH_RAW ) ) ) != NULL ) {
 
-                /* Ask directory handle */
-                if ( ( csDir = opendir( csLogd ) ) != NULL ) {
+                /* Enumerates directory entities */
+                while ( ( csEntity = readdir( csDirect ) ) != NULL ) {
 
-                    /* File enumeration loop */
-                    while ( ( csEnt = readdir( csDir ) ) != NULL ) {
+                    /* Device file detection */
+                    if ( ( csEntity->d_type == DT_REG ) && ( strstr( csEntity->d_name, CS_PATH_PATTERN ) != NULL ) ) {
 
-                        /* Check for regular files and pattern */
-                        if ( ( csEnt->d_type == DT_REG ) && ( strstr( csEnt->d_name, ".log-" ) != NULL ) ) {
+                        /* Construct file path */
+                        sprintf( csFile, "%s/%s", csPath, csEntity->d_name );
 
-                            /* Build log file path */
-                            sprintf( csLogp, "%s/%s", csLogd, csEnt->d_name );
-
-                            /* Display information */
-                            fprintf( CS_OUT, "Auditing : %s\n", csLogp );
-
-                            /* Ask log file size */
-                            if ( ( csSize = cs_audit_filesize( csLogp ) ) != 0 ) {
-
-                                /* Display information */
-                                fprintf( CS_OUT, "    Size          : +%li Bytes (%f Mo)\n", csSize, ( double ) csSize / 1048576.0 );
-
-                                /* Display information */
-                                fprintf( CS_OUT, "    64-congruence : +%li ", csSize % 64 );
-
-                                /* Audit - 64 congruence check */
-                                if ( ( csSize % 64 ) == 0 ) {
-
-                                    fprintf( CS_OUT, "(Valid)\n" ); 
-
-                                } else  {
-
-                                    fprintf( CS_OUT, "(Invalid : missing %li bytes to last record\n", 64 - ( csSize % 64 ) );
-
-                                }
-
-                                /* Display information */
-                                fprintf( CS_OUT, "    Records count : +%li\n", csSize >> 6 );
-
-                                /* Performs advanced audit */
-                                cs_audit_audit( csLogp );
-
-                            /* Display message */
-                            } else { fprintf( CS_OUT, "Error : Unable to determine file size (%s)\n", csLogp ); }
-
-                        }
+                        /* File audit procedure */
+                        cs_audit_audit( csFile );
 
                     }
 
-                /* Display message */
-                } else { fprintf( CS_OUT, "Error : Unable to enumerate files in logs directory\n" ); }
+                }
 
+                /* Delete directory handle */
+                closedir( csDirect );
 
             /* Display message */
-            } else { fprintf( CS_OUT, "Error : Unable to find logs directory\n" ); }
+            } else { fprintf( CS_OUT, "Error : Unable access master directory %s.\n", csPath ); }
 
         }
 
@@ -159,10 +117,7 @@
 
     void cs_audit_audit( const char * const csFile ) {
 
-        /* Records buffer variables */
-        unsigned char csRec[LP_DEVICE_EYESIS4PI_RECLEN] = { 0 };
-
-        /* Timestamp marker variables */
+        /* Timestamp analysis variables */
         lp_Time_t csDEVstep = lp_Time_s( 0 );
         lp_Time_t csIMUtime = lp_Time_s( 0 );
         lp_Time_t csIMUinit = lp_Time_s( 0 );
@@ -182,11 +137,45 @@
         lp_Time_t csGPSstpi = lp_timestamp_compose( lp_Time_s( 1000000000 ), lp_Time_s( 0 ) );
         lp_Time_t csGPSstpm = lp_Time_s( 0 );
 
-        /* Ask file handle */
-        FILE * csHandle = fopen( csFile, "rb" );
+        /* Records buffer variables */
+        unsigned char csRec[LP_DEVICE_EYESIS4PI_RECLEN] = { 0 };
 
-        /* Check handle */
-        if ( csHandle != NULL ) {
+        /* Handle variables */
+        FILE * csHandle = NULL;
+
+        /* File size variables */
+        long csSize = 0;
+
+        /* Query file size */
+        if ( ( csSize = cs_audit_filesize( csFile ) ) != 0 ) {
+
+            /* Display message */
+            fprintf( CS_OUT, "Auditing : %s\n", csFile ); 
+
+            /* Display message */
+            fprintf( CS_OUT, "    File size     : +%li Bytes (%f Mo)\n", csSize, ( double ) csSize / 1048576.0 );
+
+            /* Display information */
+            fprintf( CS_OUT, "    Congruence-64 : +%li ", csSize % 64 );
+
+            /* Display message */
+            if ( ( csSize % 64 ) == 0 ) {
+
+                /* Display additionnal message */
+                fprintf( CS_OUT, "(Valid)\n" ); 
+
+            } else  {
+
+                /* Display additionnal message */
+                fprintf( CS_OUT, "(Invalid : missing %li bytes to last record\n", 64 - ( csSize % 64 ) );
+
+            }
+
+            /* Display information */
+            fprintf( CS_OUT, "    Records count : +%li\n", csSize >> 6 );
+
+            /* Create file handle */
+            csHandle = fopen( csFile, "rb" );
 
             /* Read log records */
             while ( fread( csRec, 1, LP_DEVICE_EYESIS4PI_RECLEN, csHandle ) == LP_DEVICE_EYESIS4PI_RECLEN ) {
@@ -278,6 +267,9 @@
                 }
 
             }
+
+            /* Delete file handle */
+            fclose( csHandle );
 
             /* Display information */
             fprintf( CS_OUT, "    IMU range     : +%010" lp_Time_p ".%06" lp_Time_p "s to +%010" lp_Time_p ".%06" lp_Time_p "s\n", 
@@ -390,36 +382,18 @@
 
             );
 
+        } else { 
+
+            /* Display message */
+            fprintf( CS_OUT, "Auditing : %s\n    Unable access file\n", csFile ); 
+
         }
 
     }
 
 /*
-    Source - File and directory operations
+    Source - File size extractor
  */
-
-    int cs_audit_is_directory( const char * const csDirectory ) {
-
-        /* Ask directory handle */
-        DIR * csDir = opendir( csDirectory );
-
-        /* Check directory handle */
-        if ( csDir != NULL ) {
-
-            /* Close directory handle */
-            closedir( csDir );
-
-            /* Return positive answer */
-            return( CS_TRUE );
-
-        } else {
-
-            /* Return negative answer */
-            return( CS_FALSE );
-
-        }       
-
-    }
 
     long cs_audit_filesize( const char * const csFile ) {
 

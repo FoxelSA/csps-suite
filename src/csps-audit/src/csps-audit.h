@@ -81,7 +81,7 @@
     # define CS_HELP "Usage summary :\n"          \
     "  csps-audit [Arguments] [Parameters] ...\n" \
     "Short arguments and parameters summary :\n"  \
-    "  -r Record root directory\n"                \
+    "  -p Course master directory\n"              \
     "csps-audit - csps-suite\n"                   \
     "Copyright (c) 2013-2014 FOXEL SA\n"
 
@@ -108,6 +108,10 @@
     # define CS_FALSE       0
     # define CS_TRUE        1
 
+    /* Define directory structure */
+    # define CS_PATH_PATTERN    ".log-"
+    # define CS_PATH_RAW        "/mov/1"
+
 /* 
     Header - Preprocessor macros
  */
@@ -115,6 +119,9 @@
 /* 
     Header - Typedefs
  */
+
+    /* I know ! Screw you ! */
+    typedef struct dirent DIRENT;
 
 /* 
     Header - Structures
@@ -127,7 +134,8 @@
     /*! \brief Software main function
      *  
      *  The main function performs an audit of elphel camera
-     *  FPGA event-logger outputs.
+     *  FPGA event-logger outputs. It enumerates all raw log
+     *  files and calls the audit process for each.
      *  
      *  \param argc Standard main parameter
      *  \param argv Standard main parameter
@@ -145,22 +153,12 @@
 
     void cs_audit_audit ( const char * const csFile );
 
-    /*! \brief Directory availability check
-     *  
-     *  This function verify if a given directory exists.
-     *  
-     *  \param csDirectory Directory path
-     *  \return Returns a boolean value according to directory existence
-     */
-
-    int cs_audit_is_directory ( const char * const csDirectory );
-
-    /*! \brief Return size of file
+    /*! \brief File size extractor
      *
-     *  Extract and return size of file in bytes.
+     *  Extract and return size, in bytes, of the provided file.
      *
-     *  \param csFile File to analyse
-     *  \return Returns file size in bytes or zero if file is not found
+     *  \param csFile Path to file
+     *  \return Returns file size in bytes - Zero is returned on error
      */
 
     long cs_audit_filesize ( const char * const csFile );

@@ -69,11 +69,8 @@
             /* Descriptors table variables */
             cs_Descriptor csDescriptor[CS_STACK_SIZE];
 
-            /* Retrieve current time */
-            time( & csTime );
-
             /* Display message */
-            fprintf( CS_OUT, "Append performed using csps-append on %s", ctime( & csTime ) );
+            time( & csTime ); fprintf( CS_OUT, "Append performed using csps-append on %s", ctime( & csTime ) );
 
             /* Appending procedure */
             cs_append_append( csPath, csDescriptor, cs_append_create( csPath, csDescriptor ) );
