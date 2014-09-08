@@ -120,7 +120,7 @@
         if ( ( csDirect = opendir( csPathDir ) ) != NULL ) {
 
             /* Display message */
-            fprintf( CS_OUT, "Master directory analysis :\n", csPath );
+            fprintf( CS_OUT, "Master directory analysis :\n" );
 
             /* Enumerates directory entities */
             while ( ( ( csEntity = readdir( csDirect ) ) != NULL ) && ( csStack < CS_STACK_SIZE ) ) {

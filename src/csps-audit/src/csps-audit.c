@@ -99,6 +99,9 @@
                 /* Delete directory handle */
                 closedir( csDirect );
 
+                /* Display message */
+                fprintf( CS_OUT, "Done!\n" );
+
             /* Display message */
             } else { fprintf( CS_OUT, "Error : Unable access master directory %s.\n", csPath ); }
 

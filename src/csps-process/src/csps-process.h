@@ -36,7 +36,7 @@
  *      Attribution" section of <http://foxel.ch/license>.
  */
 
-    /*! \file   csps-append.h
+    /*! \file   csps-process.h
      *  \author Nils Hamel (n.hamel@foxel.ch)
      *   
      *  Software main header
@@ -51,8 +51,8 @@
     Header - Include guard
  */
 
-    # ifndef __CS_APPEND__
-    # define __CS_APPEND__
+    # ifndef __CS_PROCESS__
+    # define __CS_PROCESS__
 
 /* 
     Header - C/C++ compatibility
@@ -68,8 +68,8 @@
 
     # include <stdio.h>
     # include <stdlib.h>
-    # include <time.h>
     # include <string.h>
+    # include <time.h>
     # include <dirent.h>
     # include <sys/stat.h>
     # include <csps-all.h>
@@ -79,11 +79,11 @@
  */
 
     /* Standard help */
-    # define CS_HELP "Usage summary :\n"           \
-    "  csps-append [Arguments] [Parameters] ...\n" \
-    "Short arguments and parameters summary :\n"   \
-    "  -p Course master directory\n"               \
-    "csps-append - csps-suite\n"                   \
+    # define CS_HELP "Usage summary :\n"            \
+    "  csps-process [Arguments] [Parameters] ...\n" \
+    "Short arguments and parameters summary :\n"    \
+    "  -p Course master directory\n"                \
+    "csps-process - csps-suite\n"                   \
     "Copyright (c) 2013-2014 FOXEL SA\n"
 
     /* Define standard types */
@@ -105,24 +105,9 @@
     /* Define standard output */
     # define CS_OUT             stdout
 
-    /* Define boolean variables */
-    # define CS_FALSE           0
-    # define CS_TRUE            1
-
     /* Define directory structure */
-    # define CS_PATH_PATTERN    ".log-"
-    # define CS_PATH_RAW        "/mov/1"
-    # define CS_PATH_SEGMENT    "segment"
-    # define CS_PATH_STREAMS    "streams"
-    # define CS_PATH_DEVICES    "devices"
-    # define CS_PATH_EYESIS4    "eyesis4pi"
-    # define CS_PATH_LOGFILE    "fpga-log.bin"
-
-    /* Define descriptors stack size */
-    # define CS_STACK_SIZE      1024
-
-    /* Define transfer buffer size */
-    # define CS_BUFFER_SIZE     8192
+    # define CS_PATH_CSPS       "csps"
+    # define CS_PATH_TOPO       "csps-topology"
 
 /* 
     Header - Preprocessor macros
@@ -135,36 +120,6 @@
 /* 
     Header - Structures
  */
-
-    /*! \struct cs_Descriptor_struct
-     *  \brief Raw log file descriptor
-     *
-     *  This structure stores the necessary information to perform
-     *  contigous file detection and appending.
-     *
-     *  \var cs_Descriptor_struct::dsName
-     *  Stores raw log file path
-     *  \var cs_Descriptor_struct::dsFlag
-     *  Appended flag - True if file already appended
-     *  \var cs_Descriptor_struct::dsFirst
-     *  Raw log file first IMU timestamp
-     *  \var cs_Descriptor_struct::dsLast
-     *  Raw log file last IMU timestamp
-     */ 
-
-    typedef struct cs_Descriptor_struct {
-
-        /* File name */
-        char dsName[256];
-
-        /* Descriptor flag */
-        int dsFlag;
-
-        /* Timestamp boundaries */
-        lp_Time_t dsFirst;
-        lp_Time_t dsLast;
-
-    } cs_Descriptor;
 
     /* I know ! Screw you ! */
     typedef struct dirent DIRENT;
@@ -183,48 +138,6 @@
      */
 
     int main ( int argc, char ** argv );
-
-    /*! \brief Raw logs analysis
-     *  
-     *  This function performs an analysis on raw log file
-     *  available in the master directory. It creates the
-     *  the descriptors stack that stores information on raw
-     *  logs in order to perform appending of contigous logs.
-     *
-     *  The descriptor stack size is limited according to
-     *  CS_STACK_SIZE constant.
-     *  
-     *  \param csPath Master directory
-     *  \param csStack Descriptors stack to fill up
-     *  \return Returns created stack size
-     */
-
-    int cs_append_create ( char * csPath, cs_Descriptor * csDescriptor );
-
-    /*! \brief Contigous logs appending
-     *  
-     *  This function performs the appending of contigous raw log
-     *  files that are provided by the descriptor stack.
-     *  
-     *  \param csPath Master directory
-     *  \param csDescriptors Filled descriptors stack
-     *  \param csStack Size of the filled descriptors stack
-     */
-
-    void cs_append_append ( char * csPath, cs_Descriptor * csDescriptors, int csStack );
-
-    /*! \brief Appending coprocess
-     *  
-     *  This function append the content of the file described by the
-     *  descriptor into the csHandle stream. The output stream has to 
-     *  be already open.
-     *  
-     *  \param csDescriptor Descriptor of raw log to append
-     *  \param csHandle Stream in which appending is performed
-     *  \return Returns the last IMU timestamp stored by the provided descriptor
-     */     
-
-    lp_Time_t cs_append_push( cs_Descriptor * csDescriptor, FILE * csHandle );
 
     /*! \brief Search agrument position in argv
      *  
