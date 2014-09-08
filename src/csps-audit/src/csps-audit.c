@@ -49,17 +49,15 @@
 
     int main ( int argc, char ** argv ) {
 
-        /* Record root directory variables */
+        /* Paths variables */
         char csPath[256] = { 0 };
-
-        /* Record log file path variables */
         char csFile[256] = { 0 };
 
-        /* Enumeration variables */
+        /* Directory variables */
         DIR    * csDirect = NULL;
         DIRENT * csEntity = NULL;
 
-        /* Date and time variables */
+        /* Time variables */
         time_t csTime;
 
         /* Search in parameters */
@@ -73,11 +71,11 @@
 
         } else {
             
+            /* Retrieve time */
+            time( & csTime ); 
+
             /* Display message */
-            time( & csTime ); fprintf( CS_OUT, "Audit performed using csps-audit on %s", ctime( & csTime ) );
-        
-            /* Display message */
-            fprintf( CS_OUT, "Course %s\nMaster directory audit :\n", csPath );
+            fprintf( CS_OUT, "Audit performed using csps-audit on %s\n\tCourse : %s\n", ctime( & csTime ), strrchr( csPath, '/' ) + 1 );
 
             /* Create directory handle */
             if ( ( csDirect = opendir( strcat( csPath, "/" CS_PATH_RAW ) ) ) != NULL ) {
@@ -112,75 +110,50 @@
     }
 
 /*
-    Source - Logs audit coprocess
+    Source - Audit procedure
  */
 
     void cs_audit_audit( const char * const csFile ) {
 
-        /* Timestamp analysis variables */
+        /* Records buffer variables */
+        unsigned char csRec[LP_DEVICE_EYESIS4PI_RECLEN] = { 0 };
+
+        /* Timestamps variables */
         lp_Time_t csDEVstep = lp_Time_s( 0 );
         lp_Time_t csIMUtime = lp_Time_s( 0 );
         lp_Time_t csIMUinit = lp_Time_s( 0 );
         lp_Time_t csIMUprev = lp_Time_s( 0 );
-        lp_Time_t csIMUstpi = lp_timestamp_compose( lp_Time_s( 1000000000 ), lp_Time_s( 0 ) );
+        lp_Time_t csIMUstpi = lp_timestamp_compose( lp_Time_s( 4000000000 ), lp_Time_s( 0 ) );
         lp_Time_t csIMUstpm = lp_Time_s( 0 );
         lp_Time_t csCAMtime = lp_Time_s( 0 );
         lp_Time_t csCAMinit = lp_Time_s( 0 );
         lp_Time_t csCAMmain = lp_Time_s( 0 );
         lp_Time_t csCAMdiff = lp_Time_s( 0 );
         lp_Time_t csCAMprev = lp_Time_s( 0 );
-        lp_Time_t csCAMstpi = lp_timestamp_compose( lp_Time_s( 1000000000 ), lp_Time_s( 0 ) );
+        lp_Time_t csCAMstpi = lp_timestamp_compose( lp_Time_s( 4000000000 ), lp_Time_s( 0 ) );
         lp_Time_t csCAMstpm = lp_Time_s( 0 );
         lp_Time_t csGPStime = lp_Time_s( 0 );
         lp_Time_t csGPSinit = lp_Time_s( 0 );
         lp_Time_t csGPSprev = lp_Time_s( 0 );
-        lp_Time_t csGPSstpi = lp_timestamp_compose( lp_Time_s( 1000000000 ), lp_Time_s( 0 ) );
+        lp_Time_t csGPSstpi = lp_timestamp_compose( lp_Time_s( 4000000000 ), lp_Time_s( 0 ) );
         lp_Time_t csGPSstpm = lp_Time_s( 0 );
-
-        /* Records buffer variables */
-        unsigned char csRec[LP_DEVICE_EYESIS4PI_RECLEN] = { 0 };
 
         /* Handle variables */
         FILE * csHandle = NULL;
 
-        /* File size variables */
+        /* Size variables */
         long csSize = 0;
 
-        /* Query file size */
+        /* Retrieve file size */
         if ( ( csSize = cs_audit_filesize( csFile ) ) != 0 ) {
-
-            /* Display message */
-            fprintf( CS_OUT, "Auditing : %s\n", csFile ); 
-
-            /* Display message */
-            fprintf( CS_OUT, "    File size     : +%li Bytes (%f Mo)\n", csSize, ( double ) csSize / 1048576.0 );
-
-            /* Display information */
-            fprintf( CS_OUT, "    Congruence-64 : +%li ", csSize % 64 );
-
-            /* Display message */
-            if ( ( csSize % 64 ) == 0 ) {
-
-                /* Display additionnal message */
-                fprintf( CS_OUT, "(Valid)\n" ); 
-
-            } else  {
-
-                /* Display additionnal message */
-                fprintf( CS_OUT, "(Invalid : missing %li bytes to last record\n", 64 - ( csSize % 64 ) );
-
-            }
-
-            /* Display information */
-            fprintf( CS_OUT, "    Records count : +%li\n", csSize >> 6 );
 
             /* Create file handle */
             csHandle = fopen( csFile, "rb" );
 
-            /* Read log records */
+            /* Parse file */
             while ( fread( csRec, 1, LP_DEVICE_EYESIS4PI_RECLEN, csHandle ) == LP_DEVICE_EYESIS4PI_RECLEN ) {
 
-                /* IMU record filter */
+                /* IMU records */
                 if ( ( csRec[3] & lp_Byte_s( 0x0F ) ) == LP_DEVICE_EYESIS4PI_IMUEVT ) {
 
                     /* Extract current timestamp */
@@ -206,7 +179,7 @@
                     /* Memorize current timestamp */
                     csIMUprev = csIMUtime;
 
-                /* CAM record filter */
+                /* CAM records */
                 } else if ( ( csRec[3] & lp_Byte_s( 0x0F ) ) == LP_DEVICE_EYESIS4PI_MASEVT ) {
 
                     /* Extract current timestamp */
@@ -238,7 +211,7 @@
                     /* Memorize current timestamp */
                     csCAMprev = csCAMtime;
 
-                /* GPS record filter */
+                /* GPS records */
                 } else if ( ( csRec[3] & lp_Byte_s( 0x0F ) ) == LP_DEVICE_EYESIS4PI_GPSEVT ) {
 
                     /* Extract current timestamp */
@@ -271,116 +244,25 @@
             /* Delete file handle */
             fclose( csHandle );
 
-            /* Display information */
-            fprintf( CS_OUT, "    IMU range     : +%010" lp_Time_p ".%06" lp_Time_p "s to +%010" lp_Time_p ".%06" lp_Time_p "s\n", 
+            /* Display message */
+            fprintf( CS_OUT, "Auditing : %s\n", strrchr( csFile, '/' ) + 1 ); 
 
-                lp_timestamp_sec ( csIMUinit ), 
-                lp_timestamp_usec( csIMUinit ),
-                lp_timestamp_sec ( csIMUtime ), 
-                lp_timestamp_usec( csIMUtime ) 
+            /* Display message */
+            fprintf( CS_OUT, "\tLength      : +%li Bytes (%f Mo)\n", csSize, ( double ) csSize / 1048576.0 );
+            fprintf( CS_OUT, "\t64-CGC      : +%li (%s)\n", csSize % 64, ( csSize % 64 ) == 0 ? "Valid" : "Broken" );
+            fprintf( CS_OUT, "\tRecords     : +%li\n", csSize >> 6 );
 
-            );
-
-            /* Display information */
-            fprintf( CS_OUT, "    IMU duration  : +%010" lp_Time_p ".%06" lp_Time_p "s (~ %" lp_Time_p " minutes)\n", 
-
-                lp_timestamp_sec ( lp_timestamp_diff( csIMUinit, csIMUtime ) ), 
-                lp_timestamp_usec( lp_timestamp_diff( csIMUinit, csIMUtime ) ),
-                lp_timestamp_sec ( lp_timestamp_diff( csIMUinit, csIMUtime ) ) / 60
-
-            );
-
-            /* Display information */
-            fprintf( CS_OUT, "    IMU steps     : +%010" lp_Time_p ".%06" lp_Time_p "s   +%010" lp_Time_p ".%06" lp_Time_p "s\n",
-
-                lp_timestamp_sec ( csIMUstpi ), 
-                lp_timestamp_usec( csIMUstpi ),
-                lp_timestamp_sec ( csIMUstpm ), 
-                lp_timestamp_usec( csIMUstpm )
-
-            );
-
-            /* Display information */
-            fprintf( CS_OUT, "    CAM range     : +%010" lp_Time_p ".%06" lp_Time_p "s to +%010" lp_Time_p ".%06" lp_Time_p "s\n", 
-
-                lp_timestamp_sec ( csCAMinit ), 
-                lp_timestamp_usec( csCAMinit ),
-                lp_timestamp_sec ( csCAMtime ), 
-                lp_timestamp_usec( csCAMtime ) 
-
-            );
-
-            /* Display information */
-            fprintf( CS_OUT, "    CAM duration  : +%010" lp_Time_p ".%06" lp_Time_p "s (~ %" lp_Time_p " minutes)\n", 
-
-                lp_timestamp_sec ( lp_timestamp_diff( csCAMinit, csCAMtime ) ), 
-                lp_timestamp_usec( lp_timestamp_diff( csCAMinit, csCAMtime ) ),
-                lp_timestamp_sec ( lp_timestamp_diff( csCAMinit, csCAMtime ) ) / 60
-
-            );
-
-            /* Display information */
-            fprintf( CS_OUT, "    CAM steps     : +%010" lp_Time_p ".%06" lp_Time_p "s    +%010" lp_Time_p ".%06" lp_Time_p "s\n",
-
-                lp_timestamp_sec ( csCAMstpi ), 
-                lp_timestamp_usec( csCAMstpi ),
-                lp_timestamp_sec ( csCAMstpm ), 
-                lp_timestamp_usec( csCAMstpm )
-
-            );
-
-            /* Display information */
-            fprintf( CS_OUT, "    CAM async.    : +%010" lp_Time_p ".%06" lp_Time_p "s to +%010" lp_Time_p ".%06" lp_Time_p "s\n", 
-
-                lp_timestamp_sec ( csCAMinit ), 
-                lp_timestamp_usec( csCAMinit ),
-                lp_timestamp_sec ( csCAMmain ), 
-                lp_timestamp_usec( csCAMmain ) 
-
-            );
-
-            /* Display information */
-            fprintf( CS_OUT, "    CAM async.    : " );
-
-            /* Verify asynchronous value between event-logger and camera record timestamps */
-            if ( lp_timestamp_ge( csCAMinit, csCAMmain ) == LP_TRUE ) fprintf( CS_OUT, "-" ); else fprintf( CS_OUT, "-" );
-
-            /* Display information */
-            fprintf( CS_OUT, "%010" lp_Time_p ".%06" lp_Time_p "s\n", 
-
-                lp_timestamp_sec ( csCAMdiff ), 
-                lp_timestamp_usec( csCAMdiff )
-
-            );
-
-            /* Display information */
-            fprintf( CS_OUT, "    GPS range     : +%010" lp_Time_p ".%06" lp_Time_p "s to +%010" lp_Time_p ".%06" lp_Time_p "s\n", 
-
-                lp_timestamp_sec ( csGPSinit ), 
-                lp_timestamp_usec( csGPSinit ),
-                lp_timestamp_sec ( csGPStime ), 
-                lp_timestamp_usec( csGPStime ) 
-
-            );
-
-            /* Display information */
-            fprintf( CS_OUT, "    GPS duration  : +%010" lp_Time_p ".%06" lp_Time_p "s (~ %" lp_Time_p " minutes)\n", 
-
-                lp_timestamp_sec ( lp_timestamp_diff( csGPSinit, csGPStime ) ), 
-                lp_timestamp_usec( lp_timestamp_diff( csGPSinit, csGPStime ) ),
-                lp_timestamp_sec ( lp_timestamp_diff( csGPSinit, csGPStime ) ) / 60
-
-            );
-
-            /* Display information */
-            fprintf( CS_OUT, "    GPS steps     : +%010" lp_Time_p ".%06" lp_Time_p "s    +%010" lp_Time_p ".%06" lp_Time_p "s\n",
-
-                lp_timestamp_sec ( csGPSstpi ), 
-                lp_timestamp_usec( csGPSstpi ),
-                lp_timestamp_sec ( csGPSstpm ), 
-                lp_timestamp_usec( csGPSstpm )
-
-            );
+            /* Display message */
+            fprintf( CS_OUT, "\tRange (CAM) : " ); CS_TIMESTAMP( csCAMinit ); CS_SPACE; CS_TIMESTAMP( csCAMtime ); CS_ENDL;
+            fprintf( CS_OUT, "\tSpan  (CAM) : " ); CS_TIMESTAMP( lp_timestamp_diff( csCAMinit, csCAMtime ) ); CS_ENDL;
+            fprintf( CS_OUT, "\tSteps (CAM) : " ); CS_TIMESTAMP( csCAMstpi ); CS_SPACE; CS_TIMESTAMP( csCAMstpm ); CS_ENDL;
+            fprintf( CS_OUT, "\tSynch (CAM) : " ); CS_TIMESTAMP( csCAMinit ); CS_SPACE; CS_TIMESTAMP( csCAMmain ); CS_SPACE; CS_TIMESTAMP( csCAMdiff ); CS_ENDL;
+            fprintf( CS_OUT, "\tRange (IMU) : " ); CS_TIMESTAMP( csIMUinit ); CS_SPACE; CS_TIMESTAMP( csIMUtime ); CS_ENDL;
+            fprintf( CS_OUT, "\tSpan  (IMU) : " ); CS_TIMESTAMP( lp_timestamp_diff( csIMUinit, csIMUtime ) ); CS_ENDL;
+            fprintf( CS_OUT, "\tSteps (IMU) : " ); CS_TIMESTAMP( csIMUstpi ); CS_SPACE; CS_TIMESTAMP( csIMUstpm ); CS_ENDL;
+            fprintf( CS_OUT, "\tRange (GPS) : " ); CS_TIMESTAMP( csGPSinit ); CS_SPACE; CS_TIMESTAMP( csGPStime ); CS_ENDL;
+            fprintf( CS_OUT, "\tSpan  (GPS) : " ); CS_TIMESTAMP( lp_timestamp_diff( csCAMinit, csCAMtime ) ); CS_ENDL;
+            fprintf( CS_OUT, "\tSteps (GPS) : " ); CS_TIMESTAMP( csGPSstpi ); CS_SPACE; CS_TIMESTAMP( csGPSstpm ); CS_ENDL;
 
         } else { 
 
@@ -392,7 +274,7 @@
     }
 
 /*
-    Source - File size extractor
+    Source - File length extractor
  */
 
     long cs_audit_filesize( const char * const csFile ) {

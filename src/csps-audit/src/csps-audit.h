@@ -86,27 +86,27 @@
     "Copyright (c) 2013-2014 FOXEL SA\n"
 
     /* Define standard types */
-    # define CS_NULL        0
-    # define CS_STRING      1
-    # define CS_CHAR        2
-    # define CS_SHORT       3
-    # define CS_INT         4
-    # define CS_LONG        5
-    # define CS_LLONG       6
-    # define CS_UCHAR       7
-    # define CS_USHORT      8
-    # define CS_UINT        9
-    # define CS_ULONG       10
-    # define CS_ULLONG      11
-    # define CS_FLOAT       12
-    # define CS_DOUBLE      13
+    # define CS_NULL            0
+    # define CS_STRING          1
+    # define CS_CHAR            2
+    # define CS_SHORT           3
+    # define CS_INT             4
+    # define CS_LONG            5
+    # define CS_LLONG           6
+    # define CS_UCHAR           7
+    # define CS_USHORT          8
+    # define CS_UINT            9
+    # define CS_ULONG           10
+    # define CS_ULLONG          11
+    # define CS_FLOAT           12
+    # define CS_DOUBLE          13
 
     /* Define standard output */
-    # define CS_OUT         stdout
+    # define CS_OUT             stdout
 
     /* Define boolean constants */
-    # define CS_FALSE       0
-    # define CS_TRUE        1
+    # define CS_FALSE           0
+    # define CS_TRUE            1
 
     /* Define directory structure */
     # define CS_PATH_PATTERN    ".log-"
@@ -115,6 +115,11 @@
 /* 
     Header - Preprocessor macros
  */
+
+    /* Display macros */
+    # define CS_ENDL            fprintf( CS_OUT, "\n" )
+    # define CS_SPACE           fprintf( CS_OUT, " " )
+    # define CS_TIMESTAMP(x)    fprintf( CS_OUT, "+%010" lp_Time_p ".%06" lp_Time_p, lp_timestamp_sec( x ), lp_timestamp_usec( x ) )
 
 /* 
     Header - Typedefs
@@ -133,9 +138,9 @@
 
     /*! \brief Software main function
      *  
-     *  The main function performs an audit of elphel camera
-     *  FPGA event-logger outputs. It enumerates all raw log
-     *  files and calls the audit process for each.
+     *  The main function enumerates all elphel camera event
+     *  logger output files. The audit process is then called
+     *  for each enumerated file.
      *  
      *  \param argc Standard main parameter
      *  \param argv Standard main parameter
@@ -143,19 +148,20 @@
 
     int main ( int argc, char ** argv );
 
-    /*! \brief Logs audit coprocess
+    /*! \brief Audit procedure
      *
-     *  This function performs an advanced audit of the considered
-     *  parsing its content and displaying extracted informations.
+     *  This function performs an advanced audit of the 
+     *  considered file parsing its content and displaying 
+     *  extracted informations.
      * 
-     *  \param csFile File to analyse
+     *  \param csFile Considered file path
      */
 
     void cs_audit_audit ( const char * const csFile );
 
-    /*! \brief File size extractor
+    /*! \brief File length extractor
      *
-     *  Extract and return size, in bytes, of the provided file.
+     *  Extract and return file length of file.
      *
      *  \param csFile Path to file
      *  \return Returns file size in bytes - Zero is returned on error
