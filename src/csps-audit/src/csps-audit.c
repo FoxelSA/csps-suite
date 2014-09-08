@@ -75,7 +75,7 @@
             time( & csTime ); 
 
             /* Display message */
-            fprintf( CS_OUT, "Audit performed using csps-audit on %s\n\tCourse : %s\n", ctime( & csTime ), strrchr( csPath, '/' ) + 1 );
+            fprintf( CS_OUT, "Audit performed using csps-audit on %sCourse : %s\n", ctime( & csTime ), strrchr( csPath, '/' ) + 1 );
 
             /* Create directory handle */
             if ( ( csDirect = opendir( strcat( csPath, "/" CS_PATH_RAW ) ) ) != NULL ) {

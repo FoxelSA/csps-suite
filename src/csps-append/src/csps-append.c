@@ -49,6 +49,9 @@
 
     int main ( int argc, char ** argv ) {
 
+        /* Descriptors table variables */
+        cs_Descriptor csDescriptor[CS_STACK_SIZE];
+
         /* Structure path variables */
         char csPath[256] = { 0 };
 
@@ -66,11 +69,11 @@
 
         } else {
 
-            /* Descriptors table variables */
-            cs_Descriptor csDescriptor[CS_STACK_SIZE];
+            /* Retrieve time */
+            time( & csTime );
 
             /* Display message */
-            time( & csTime ); fprintf( CS_OUT, "Append performed using csps-append on %s", ctime( & csTime ) );
+            fprintf( CS_OUT, "Append performed using csps-append on %sCourse : %s\n", ctime( & csTime ), strrchr( csPath, '/' ) + 1 );
 
             /* Appending procedure */
             cs_append_append( csPath, csDescriptor, cs_append_create( csPath, csDescriptor ) );
@@ -103,12 +106,12 @@
         /* Paths variables */
         char csPathDir[256] = { 0 };
 
-        /* Handle variables */
-        FILE * csHandle = NULL;
-
         /* Enumeration variables */
         DIR    * csDirect = NULL;
         DIRENT * csEntity = NULL;
+
+        /* Handle variables */
+        FILE * csHandle = NULL;
 
         /* Create specific path */
         sprintf( csPathDir, "%s" CS_PATH_RAW, csPath );
@@ -117,7 +120,7 @@
         if ( ( csDirect = opendir( csPathDir ) ) != NULL ) {
 
             /* Display message */
-            fprintf( CS_OUT, "Course %s\nMaster directory analysis :\n", csPath );
+            fprintf( CS_OUT, "Master directory analysis :\n", csPath );
 
             /* Enumerates directory entities */
             while ( ( ( csEntity = readdir( csDirect ) ) != NULL ) && ( csStack < CS_STACK_SIZE ) ) {
@@ -152,21 +155,8 @@
 
                         }
 
-                        /* Check for broken file */
-                        if ( csRead == 0 ) {
-
-                            /* Display message */
-                            fprintf( CS_OUT, "    Stacked : %s\n", csEntity->d_name );
-                            
-                            /* Update stack index */
-                            csStack ++; 
-
-                        } else {
-
-                            /* Display message */
-                            fprintf( CS_OUT, "    Borken  : %s\n", csEntity->d_name );
-
-                        }
+                        /* Broken file check */
+                        fprintf( CS_OUT, "\t%s : %s\n", csRead == 0 ? "Stacking " : "Borken   ", strrchr( csDescriptors[csStack++].dsName, '/' ) + 1 );
 
                     }
 
@@ -194,6 +184,11 @@
         /* Remaining segment variables */
         int csRemains = csStack;
 
+        /* Paths variables */
+        char csPathCSPS[256];
+        char csPathCSEG[256];
+        char csPathSTRU[256];
+
         /* Parsing variables */
         int csParse = 0;
         int csSegIx = 0;
@@ -203,11 +198,6 @@
 
         /* Appending flag variables */
         int csAppended = 0;
-
-        /* Paths variables */
-        char csPathCSPS[256];
-        char csPathCSEG[256];
-        char csPathSTRU[256];
 
         /* Handle variables */
         FILE * csHandle = NULL;
@@ -258,8 +248,6 @@
             /* Create sub-structure directories */
             sprintf( csPathSTRU, "%s/" CS_PATH_STREAMS, csPathCSEG ); mkdir( csPathSTRU, 0700 );
             sprintf( csPathSTRU, "%s/" CS_PATH_DEVICES, csPathCSEG ); mkdir( csPathSTRU, 0700 );
-
-            /* Create sub-structure devices directories */
             sprintf( csPathSTRU, "%s/" CS_PATH_EYESIS4, csPathSTRU ); mkdir( csPathSTRU, 0700 );
 
             /* Create sub-structure devices concatenated file  */
@@ -269,7 +257,7 @@
             if ( ( csHandle = fopen( csPathSTRU, "wb" ) ) != NULL ) {
 
                 /* Display message */
-                fprintf( CS_OUT, "    Appending : %s ", csDescriptors[csCurrent].dsName );
+                fprintf( CS_OUT, "\tAppending : %s ", strrchr( csDescriptors[csCurrent].dsName, '/' ) + 1 );
 
                 /* Append initial descriptor */
                 csLast = cs_append_push( csDescriptors + csCurrent, csHandle );
@@ -296,7 +284,7 @@
                             if ( lp_timestamp_float( lp_timestamp_diff( csLast, csDescriptors[csParse].dsFirst ) ) < 1.0 ) {
 
                                 /* Display message */
-                                fprintf( CS_OUT, "%s ", csDescriptors[csParse].dsName );
+                                fprintf( CS_OUT, "%s ", strrchr( csDescriptors[csParse].dsName, '/' ) + 1 );
 
                                 /* Append current descriptor */
                                 csLast = cs_append_push( csDescriptors + csParse, csHandle );
@@ -343,7 +331,7 @@
         /* Transfert variables */
         int csRead = 0;
 
-        /* Handle variables */
+        /* Open input file */
         FILE * csInput = fopen( csDescriptor->dsName, "rb" );
 
         /* Update descriptor flag */
