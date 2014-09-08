@@ -130,8 +130,9 @@
 
     /*! \brief Software main function
      *  
-     *  The main function calls the analysis and appending procedure in
-     *  order to perform contigous log detection and appending.
+     *  The main function enumerates standard directories, usually created
+     *  using csps-append software, and calls the libcsps topology interpreter
+     *  for each segment stored in the found directories.
      *  
      *  \param argc Standard main parameter
      *  \param argv Standard main parameter

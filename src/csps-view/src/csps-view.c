@@ -48,7 +48,7 @@
  */
 
     cs_view_position csPosition = { 0, 0, 0, 0, 0 }; //46.188474, 6.127366
-    cs_view_keyboard csKeyboard = { 0, 0, 10.0 };
+    cs_view_keyboard csKeyboard = { 0, 0 };
     cs_view_mouse    csMouse    = { 0 };
     cs_view_list     csList     = { 0 };
     cs_view_path     csPath     = { "", "mod-DSIDE", "mod-SGNQF", "mod-IFETI", "eyesis4pi", "ls20031", "adis16375" };
