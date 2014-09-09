@@ -54,23 +54,25 @@
         char csList[256] = { 0 };
         char csCone[256] = { 0 };
 
-        /* Image stack */
+        /* Stack variables */
         char csStack[8192][256] = { { 0 } };
 
-        /* Stack size */
+        /* Stack size variables */
         long csIndex = 0;
+
+        /* Parsing variables */
         long csParse = 0;
         long csOther = 0;
 
-        /* Orientation structures */
+        /* Orientation variables */
         lp_QueryOrientation lpOrientA;
         lp_QueryOrientation lpOrientB;
 
-        /* Position structures */
+        /* Position variables */
         lp_QueryPosition lpPositionA;
         lp_QueryPosition lpPositionB;
 
-        /* Timestamps */
+        /* Timestamps variables */
         lp_Time_t csTimeA;
         lp_Time_t csTimeB;
 
