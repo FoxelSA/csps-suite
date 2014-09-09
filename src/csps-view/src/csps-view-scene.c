@@ -280,7 +280,7 @@
             glColor3f( 0.88, 0.88 ,0.88 );
 
             /* Display solide sphere */
-            glutSolidSphere( CS_SCENE_EARTH - CS_SCENE_METRE * 200.0, 360, 180 );
+            glutSolidSphere( CS_SCENE_EARTH - CS_SCENE_METRE * 10000.0, 360, 180 );
 
         /* Declare display list end */
         } glEndList();
@@ -316,7 +316,7 @@
         glNewList( csTag, GL_COMPILE ); {
 
             /* Update line width */
-            glLineWidth( 1.0 );
+            glLineWidth( 2.0 );
 
             /* Begin primitive */
             glBegin( GL_LINES ); {
@@ -349,8 +349,11 @@
                     /* Query position by timestamp */
                     csQPos = lp_query_position_by_timestamp( csPath.ptRoot, LP_DEVICE_TYPE_GPS, csPath.ptGPSd, csPath.ptGPSm, csCAMsyn[csParse] );
 
+                    /* Query orientation by timestamp */
+                    csQOri = lp_query_orientation_by_timestamp( csPath.ptRoot, LP_DEVICE_TYPE_IMU, csPath.ptIMUd, csPath.ptIMUm, csCAMsyn[csParse] );
+
                     /* Check query results */
-                    if ( csQPos.qrStatus == LP_TRUE ) {
+                    if ( ( csQPos.qrStatus == LP_TRUE ) && ( csQOri.qrStatus == LP_TRUE ) ) {
 
                         /* Compute cartesian coordinates */
                         csPZ = + CS_VIEW_SCENE_CALT( csQPos.qrAltitude ) * cos( csQPos.qrLongitude * CS_DEG2RAD ) * sin( csQPos.qrLatitude * CS_DEG2RAD );
@@ -365,6 +368,13 @@
 
                             /* Send position vertex */
                             glVertex3d( csMX, csMY, csMZ );
+                            glVertex3d( csPX, csPY, csPZ );
+
+                            /* Update color */
+                            glColor3f( 0.98, 0.98, 0.98 );
+
+                            /* Send position vertex */
+                            glVertex3d(  0.0,  0.0,  0.0 );
                             glVertex3d( csPX, csPY, csPZ );
 
                         }
@@ -382,11 +392,8 @@
 
                     }
 
-                    /* Query orientation by timestamp */
-                    csQOri = lp_query_orientation_by_timestamp( csPath.ptRoot, LP_DEVICE_TYPE_IMU, csPath.ptIMUd, csPath.ptIMUm, csCAMsyn[csParse] );
-
                     /* Check query results */
-                    if ( csQOri.qrStatus == LP_TRUE ) {
+                    if ( ( csQPos.qrStatus == LP_TRUE ) && ( csQOri.qrStatus == LP_TRUE ) ) {
 
                         /* Define local spherical frame - longitudinal-vector */
                         csFrm[0][0] = + CS_SCENE_METRE * 10.0 * cos( csQPos.qrLongitude * CS_DEG2RAD );
