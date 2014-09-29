@@ -75,6 +75,9 @@
     /* Define frame size */
     # define CS_SCENE_FRAME         2.0
 
+    /* Define box factor */
+    # define CS_VIEW_SCENE_BOX      50.0
+
 /* 
     Header - Preprocessor macros
  */

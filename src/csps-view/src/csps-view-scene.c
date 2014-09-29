@@ -174,6 +174,11 @@
         /* Mean position accumulators variables */
         double csLon = 0.0, csLat = 0.0, csAlt = 0.0, csAcc = 0.0;
 
+        /* Position extremums */
+        double csMinLon = 1e100, csMaxLon = -1e100;
+        double csMinLat = 1e100, csMaxLat = -1e100;
+        double csMinAlt = 1e100, csMaxAlt = -1e100;
+
         /* Ask stream size */
         csSize = lp_stream_size( csPath.ptRoot, LP_DEVICE_TYPE_CAM, csPath.ptCAMd, csPath.ptCAMm );
 
@@ -184,7 +189,7 @@
         glNewList( csTag, GL_COMPILE ); {
 
             /* Update line width */
-            glLineWidth( 2.0 );
+            glLineWidth( 3.0 );
 
             /* Begin primitive */
             glBegin( GL_LINES ); {
@@ -307,21 +312,90 @@
                         /* Update index */
                         csAcc += 1.0;
 
+                        /* Compute extremums */
+                        if ( csPX > csMaxLon ) csMaxLon = csPX;
+                        if ( csPX < csMinLon ) csMinLon = csPX;
+                        if ( csPZ > csMaxLat ) csMaxLat = csPZ;
+                        if ( csPZ < csMinLat ) csMinLat = csPZ;
+                        if ( csPY > csMaxAlt ) csMaxAlt = csPY;
+                        if ( csPY < csMinAlt ) csMinAlt = csPY;
+
                     }
 
                 }
 
-                /* Reset initial position and assign initial means */
-                cs_view_controls_reset( CS_VIEW_CONTROLS_SET, ( csLon / csAcc ), ( csLat / csAcc ), ( csAlt / csAcc ) );
+                /* Update color */
+               glColor3f( 0.96, 0.96, 0.96 );
+
+                /* Display box */
+                glVertex3f( csMinLon - CS_VIEW_SCENE_BOX, csMaxAlt + CS_VIEW_SCENE_BOX, csMinLat - CS_VIEW_SCENE_BOX );
+                glVertex3f( csMaxLon + CS_VIEW_SCENE_BOX, csMaxAlt + CS_VIEW_SCENE_BOX, csMinLat - CS_VIEW_SCENE_BOX );
+                glVertex3f( csMinLon - CS_VIEW_SCENE_BOX, csMaxAlt + CS_VIEW_SCENE_BOX, csMaxLat + CS_VIEW_SCENE_BOX );
+                glVertex3f( csMaxLon + CS_VIEW_SCENE_BOX, csMaxAlt + CS_VIEW_SCENE_BOX, csMaxLat + CS_VIEW_SCENE_BOX );
+                glVertex3f( csMinLon - CS_VIEW_SCENE_BOX, csMaxAlt + CS_VIEW_SCENE_BOX, csMinLat - CS_VIEW_SCENE_BOX );
+                glVertex3f( csMinLon - CS_VIEW_SCENE_BOX, csMaxAlt + CS_VIEW_SCENE_BOX, csMaxLat + CS_VIEW_SCENE_BOX );
+                glVertex3f( csMaxLon + CS_VIEW_SCENE_BOX, csMaxAlt + CS_VIEW_SCENE_BOX, csMinLat - CS_VIEW_SCENE_BOX );
+                glVertex3f( csMaxLon + CS_VIEW_SCENE_BOX, csMaxAlt + CS_VIEW_SCENE_BOX, csMaxLat + CS_VIEW_SCENE_BOX );
+                glVertex3f( csMaxLon + CS_VIEW_SCENE_BOX, csMinAlt - CS_VIEW_SCENE_BOX, csMinLat - CS_VIEW_SCENE_BOX );
+                glVertex3f( csMaxLon + CS_VIEW_SCENE_BOX, csMaxAlt + CS_VIEW_SCENE_BOX, csMinLat - CS_VIEW_SCENE_BOX );
+                glVertex3f( csMinLon - CS_VIEW_SCENE_BOX, csMinAlt - CS_VIEW_SCENE_BOX, csMaxLat + CS_VIEW_SCENE_BOX );
+                glVertex3f( csMinLon - CS_VIEW_SCENE_BOX, csMaxAlt + CS_VIEW_SCENE_BOX, csMaxLat + CS_VIEW_SCENE_BOX );
+                glVertex3f( csMaxLon + CS_VIEW_SCENE_BOX, csMinAlt - CS_VIEW_SCENE_BOX, csMaxLat + CS_VIEW_SCENE_BOX );
+                glVertex3f( csMaxLon + CS_VIEW_SCENE_BOX, csMaxAlt + CS_VIEW_SCENE_BOX, csMaxLat + CS_VIEW_SCENE_BOX );
+
+                /* Update color */
+                glColor3f( 0.70, 0.20, 0.10 );
+
+                /* Draw referential frame - x-vector */
+                glVertex3f( csMinLon - CS_VIEW_SCENE_BOX, csMinAlt - CS_VIEW_SCENE_BOX, csMinLat - CS_VIEW_SCENE_BOX );
+                glVertex3f( csMaxLon + CS_VIEW_SCENE_BOX, csMinAlt - CS_VIEW_SCENE_BOX, csMinLat - CS_VIEW_SCENE_BOX );
+
+                /* Update color */
+                glColor3f( 0.20, 0.50, 0.30 );
+
+                /* Draw referential frame - y-vector */
+                glVertex3f( csMinLon - CS_VIEW_SCENE_BOX, csMinAlt - CS_VIEW_SCENE_BOX, csMinLat - CS_VIEW_SCENE_BOX );
+                glVertex3f( csMinLon - CS_VIEW_SCENE_BOX, csMinAlt - CS_VIEW_SCENE_BOX, csMaxLat + CS_VIEW_SCENE_BOX );
+
+                /* Update color */
+                glColor3f( 0.20, 0.30, 0.60 );
+
+                /* Draw referential frame - z-vector */
+                glVertex3f( csMinLon - CS_VIEW_SCENE_BOX, csMinAlt - CS_VIEW_SCENE_BOX, csMinLat - CS_VIEW_SCENE_BOX );
+                glVertex3f( csMinLon - CS_VIEW_SCENE_BOX, csMaxAlt + CS_VIEW_SCENE_BOX, csMinLat - CS_VIEW_SCENE_BOX );
 
             /* End primitive */
             } glEnd();
+
+            /* Begin primitive */
+            glBegin( GL_QUADS );
+
+                /* Update color */
+                glColor3f( 0.96, 0.96, 0.96 );
+
+                /* Send vertex */
+                glVertex3f( csMinLon - CS_VIEW_SCENE_BOX, -csIZ, csMinLat - CS_VIEW_SCENE_BOX );
+                glVertex3f( csMaxLon + CS_VIEW_SCENE_BOX, -csIZ, csMinLat - CS_VIEW_SCENE_BOX );
+                glVertex3f( csMaxLon + CS_VIEW_SCENE_BOX, -csIZ, csMaxLat + CS_VIEW_SCENE_BOX );
+                glVertex3f( csMinLon - CS_VIEW_SCENE_BOX, -csIZ, csMaxLat + CS_VIEW_SCENE_BOX );
+                
+                /* Send vertex */
+                glVertex3f( csMinLon - CS_VIEW_SCENE_BOX, csMinAlt - CS_VIEW_SCENE_BOX, csMinLat - CS_VIEW_SCENE_BOX );
+                glVertex3f( csMaxLon + CS_VIEW_SCENE_BOX, csMinAlt - CS_VIEW_SCENE_BOX, csMinLat - CS_VIEW_SCENE_BOX );
+                glVertex3f( csMaxLon + CS_VIEW_SCENE_BOX, csMinAlt - CS_VIEW_SCENE_BOX, csMaxLat + CS_VIEW_SCENE_BOX );
+                glVertex3f( csMinLon - CS_VIEW_SCENE_BOX, csMinAlt - CS_VIEW_SCENE_BOX, csMaxLat + CS_VIEW_SCENE_BOX );
+
+            /* End primitive */
+            glEnd();
 
         /* Declare display list end */
         } glEndList();
 
         /* Unallocate stream memory */
         csCAMsyn = lp_stream_delete( csCAMsyn );
+
+        /* Reset initial position and assign initial means */
+        cs_view_controls_reset( CS_VIEW_CONTROLS_SET, ( csLon / csAcc ), ( csLat / csAcc ), ( csAlt / csAcc ) );
 
     }
 

@@ -84,7 +84,7 @@
         csPosition.psAY = 0.0;
 
         /* Reset velocity */
-        csPosition.psVel = 1.0;
+        csPosition.psVel = 5.0;
 
     }
 
