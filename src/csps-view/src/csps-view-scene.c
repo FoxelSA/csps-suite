@@ -67,40 +67,22 @@
 
         /* Reset matrix */
         glLoadIdentity();
-
-        /* Display list - Earth */
-        glPushMatrix(); {
-
-            /* Transfromation - Rotation */
-            glRotated( +csPosition.psAX, 1.0, 0.0, 0.0 );
-            glRotated( +csPosition.psAY, 0.0, 1.0, 0.0 );
-
-            /* Transfromation - Translation */
-            glTranslated( 0.0, - CS_SCENE_EARTH - csPosition.psAlt, 0.0 );
-
-            /* Transfromation - Rotation */
-            glRotated( -csPosition.psLat, 1.0, 0.0, 0.0 );
-            glRotated( -csPosition.psLon, 0.0, 1.0, 0.0 );
-
-            glCallList( csList.lsEarth );
-
-        } glPopMatrix();
         
         /* Display list - Track */
         glPushMatrix(); {
 
+            /* Transformation - Symetry */
+            glScalef( 1.0, 1.0, -1.0 );
+
             /* Transfromation - Rotation */
             glRotated( +csPosition.psAX, 1.0, 0.0, 0.0 );
             glRotated( +csPosition.psAY, 0.0, 1.0, 0.0 );
 
             /* Transfromation - Translation */
-            glTranslated( 0.0, - CS_SCENE_EARTH - csPosition.psAlt, 0.0 );
+            glTranslated( - csPosition.psLon, - csPosition.psAlt, - csPosition.psLat );
 
-            /* Transfromation - Rotation */
-            glRotated( -csPosition.psLat, 1.0, 0.0, 0.0 );
-            glRotated( -csPosition.psLon, 0.0, 1.0, 0.0 );
-
-            glCallList( csList.lsCamera );
+            /* Call display list */
+            glCallList( csList.lsTrack );
 
         } glPopMatrix();
 
@@ -130,160 +112,21 @@
             glDepthMask( GL_TRUE );
             glClearDepth( 1.0 );
 
-            /* Enable faceculling */
-            glEnable( GL_CULL_FACE );
-            glCullFace( GL_BACK );
-
+            /* Set shade model */
             glShadeModel( GL_SMOOTH );
 
             /* Assign display list index */
-            csList.lsEarth  = 1;
-            csList.lsCamera = 2;
-
-            /* Compile earth display list */
-            cs_view_scene_earth( csList.lsEarth );
+            csList.lsTrack = 1;
 
             /* Compile camera display list */
-            cs_view_scene_track( csList.lsCamera );
+            cs_view_scene_track( csList.lsTrack );
 
         } else {
 
             /* Delete display list */
-            glDeleteLists( csList.lsEarth , 1 );
-            glDeleteLists( csList.lsCamera, 1 );
+            glDeleteLists( csList.lsTrack, 1 );
 
         }
-
-    }
-
-/*
-    Source - Scene earth model
- */
-    
-    void cs_view_scene_earth( GLuint csTag ) {
-
-        /* Parsing variables */
-        int csLoopi = 0;
-        int csLoopj = 0;
-
-        /* Angle variables */
-        double csAnglei = 0.0;
-        double csAnglej = 0.0;
-
-        /* Declare display list begining */
-        glNewList( csTag, GL_COMPILE ); {
-
-            /* Meridians */
-            for ( csLoopi = 0; csLoopi < 360; csLoopi ++ ) {
-
-                /* Compute angle */
-                csAnglei = ( csLoopi / 360.0 ) * CS_PI * 2.0;
-
-                /* Detect main and secondary meridians */
-                if ( ( csLoopi % 10 ) == 0 ) {
-
-                    /* Update line width */
-                    glLineWidth( 2.0 );
-
-                    /* Update color */
-                    glColor3f( 0.92941, 0.69412, 0.0 );
-
-                } else {
-
-                    /* Update line width */
-                    glLineWidth( 1.0 );
-
-                    /* Update color */
-                    glColor3f( 0.96, 0.96, 0.96 );
-
-                }
-
-                /* Begin line strip */
-                glBegin( GL_LINE_STRIP );
-
-                /* Secondary loop on angles */
-                for ( csLoopj = 10; csLoopj <= 350; csLoopj ++ ) {
-
-                    /* Compute angle */
-                    csAnglej = ( ( csLoopj - 180.0 ) / 180.0 ) * CS_PI * 0.5; 
-
-                    /* Send vertex */
-                    glVertex3d(
-
-                        CS_SCENE_EARTH * cos( csAnglei ) * cos( csAnglej ),
-                        CS_SCENE_EARTH * sin( csAnglej ),
-                        CS_SCENE_EARTH * sin( csAnglei ) * cos( csAnglej )
-
-                    );
-
-                }
-
-                /* End primitive */
-                glEnd();
-
-            }
-
-            /* Paralleles */
-            for ( csLoopi = 5; csLoopi <= 175; csLoopi ++ ) {
-
-                /* Compute angle */
-                csAnglei = ( ( csLoopi - 90.0 ) / 90.0 ) * CS_PI * 0.5;
-
-                /* Detect main and secondary meridians */
-                if ( ( csLoopi % 10 ) == 0 ) {
-
-                    /* Update line width */
-                    glLineWidth( 2.0 );
-
-                    /* Update color */
-                    glColor3f( 0.92941, 0.69412, 0.0 );
-
-                } else {
-
-                    /* Update line width */
-                    glLineWidth( 1.0 );
-
-                    /* Update color */
-                    glColor3f( 0.98, 0.98, 0.98 );
-
-                }
-
-                /* Begin line strip */
-                glBegin( GL_LINE_STRIP );
-
-                /* Secondary loop on angles */
-                for ( csLoopj = 0; csLoopj < 720; csLoopj ++ ) {
-
-                    /* Compute angle */
-                    csAnglej = ( csLoopj / 720.0 ) * CS_PI * 2.0; 
-
-                    /* Send vertex */
-                    glVertex3d(
-
-                        CS_SCENE_EARTH * cos( csAnglej ) * cos( csAnglei ),
-                        CS_SCENE_EARTH * sin( csAnglei ),
-                        CS_SCENE_EARTH * sin( csAnglej ) * cos( csAnglei )
-
-                    );
-
-                }
-
-                /* End primitive */
-                glEnd();
-
-            }
-
-            /* Transfromation - Rotation */
-            glRotated( 90, 1.0, 0.0, 0.0 );
-
-            /* Update color */
-            glColor3f( 0.88, 0.88 ,0.88 );
-
-            /* Display solide sphere */
-            glutSolidSphere( CS_SCENE_EARTH - CS_SCENE_METRE * 10000.0, 360, 180 );
-
-        /* Declare display list end */
-        } glEndList();
 
     }
 
@@ -306,6 +149,31 @@
         lp_QueryPosition    csQPos;
         lp_QueryOrientation csQOri;
 
+        /* Define flags */
+        int csMF = 0, csFF = 0, csIF = 0;
+
+        /* Cartesian coordinates variables */
+        double csPX = 0.0, csPY = 0.0, csPZ = 0.0;
+
+        /* Cartesian coordinates memory variables */
+        double csMX = 0.0, csMY = 0.0, csMZ = 0.0;
+
+        /* Cartesian coordinates frame variables */
+        double csXX = 0.0, csXY = 0.0, csXZ = 0.0;
+        double csYX = 0.0, csYY = 0.0, csYZ = 0.0;
+        double csZX = 0.0, csZY = 0.0, csZZ = 0.0;
+
+        /* Cartesian coordinates frame memory variables */
+        double csMXX = 0.0, csMXY = 0.0, csMXZ = 0.0;
+        double csMYX = 0.0, csMYY = 0.0, csMYZ = 0.0;
+        double csMZX = 0.0, csMZY = 0.0, csMZZ = 0.0;
+
+        /* Initial position memory */
+        double csIX = 0.0, csIY = 0.0, csIZ = 0.0;
+
+        /* Mean position accumulators variables */
+        double csLon = 0.0, csLat = 0.0, csAlt = 0.0, csAcc = 0.0;
+
         /* Ask stream size */
         csSize = lp_stream_size( csPath.ptRoot, LP_DEVICE_TYPE_CAM, csPath.ptCAMd, csPath.ptCAMm );
 
@@ -321,28 +189,6 @@
             /* Begin primitive */
             glBegin( GL_LINES ); {
 
-                /* Cartesian coordinates variables */
-                double csPX = 0.0, csPY = 0.0, csPZ = 0.0;
-
-                /* Cartesian coordinates memory variables */
-                double csMX = 0.0, csMY = 0.0, csMZ = 0.0, csMF = 0.0;
-
-                /* Cartesian coordinates frame variables */
-                double csXX = 0.0, csXY = 0.0, csXZ = 0.0;
-                double csYX = 0.0, csYY = 0.0, csYZ = 0.0;
-                double csZX = 0.0, csZY = 0.0, csZZ = 0.0;
-
-                /* Cartesian coordinates frame memory variables */
-                double csMXX = 0.0, csMXY = 0.0, csMXZ = 0.0;
-                double csMYX = 0.0, csMYY = 0.0, csMYZ = 0.0;
-                double csMZX = 0.0, csMZY = 0.0, csMZZ = 0.0, csFF = 0.0;
-
-                /* Mean position accumulators variables */
-                double csLon = 0.0, csLat = 0.0, csAlt = 0.0, csAcc = 0.0;
-
-                /* Spherical coordinate system variables */
-                double csFrm[3][3] = { { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 } };
-
                 /* Loop on camera records */
                 for ( csParse = 0; csParse < csSize; csParse ++ ) {
 
@@ -355,13 +201,27 @@
                     /* Check query results */
                     if ( ( csQPos.qrStatus == LP_TRUE ) && ( csQOri.qrStatus == LP_TRUE ) ) {
 
+                        /* Compute flat meters using equatorial radius */
+                        csQPos.qrLongitude *= CS_SCENE_RAD2METER; 
+                        csQPos.qrLatitude  *= CS_SCENE_RAD2METER;
+
+                        /* Save initial position */
+                        if ( csIF == 0 ) {
+
+                            /* Save components */
+                            csIX = + csQPos.qrLongitude;
+                            csIY = + csQPos.qrAltitude;
+                            csIZ = + csQPos.qrLatitude;
+
+                        } csIF = 1;
+
                         /* Compute cartesian coordinates */
-                        csPZ = + CS_VIEW_SCENE_CALT( csQPos.qrAltitude ) * cos( csQPos.qrLongitude * CS_DEG2RAD ) * sin( csQPos.qrLatitude * CS_DEG2RAD );
-                        csPX = + CS_VIEW_SCENE_CALT( csQPos.qrAltitude ) * sin( csQPos.qrLongitude * CS_DEG2RAD ) * sin( csQPos.qrLatitude * CS_DEG2RAD );
-                        csPY = + CS_VIEW_SCENE_CALT( csQPos.qrAltitude ) * cos( csQPos.qrLatitude  * CS_DEG2RAD );
+                        csPX = csQPos.qrLongitude - csIX;
+                        csPY = csQPos.qrAltitude  - csIY;
+                        csPZ = csQPos.qrLatitude  - csIZ;
 
                         /* Verify previous point memory */
-                        if ( csMF > 0.5 ) {
+                        if ( csMF != 0 ) { 
 
                             /* Update color */
                             glColor3f( 0.92941, 0.69412, 0.0 );
@@ -374,56 +234,18 @@
                             glColor3f( 0.98, 0.98, 0.98 );
 
                             /* Send position vertex */
-                            glVertex3d(  0.0,  0.0,  0.0 );
-                            glVertex3d( csPX, csPY, csPZ );
+                            glVertex3d( csPX, -csIZ, csPZ );
+                            glVertex3d( csPX,  csPY, csPZ );
 
-                        }
+                        } csMF = 1;
 
                         /* Memorize position */
-                        csMX = csPX; csMY = csPY; csMZ = csPZ; csMF = 1.0;
+                        csMX = csPX; csMY = csPY; csMZ = csPZ;
 
-                        /* Accumulates position */
-                        csLon += csQPos.qrLongitude;
-                        csLat += csQPos.qrLatitude;
-                        csAlt += csQPos.qrAltitude;
-
-                        /* Update index */
-                        csAcc += 1.0;
-
-                    }
-
-                    /* Check query results */
-                    if ( ( csQPos.qrStatus == LP_TRUE ) && ( csQOri.qrStatus == LP_TRUE ) ) {
-
-                        /* Define local spherical frame - longitudinal-vector */
-                        csFrm[0][0] = + CS_SCENE_METRE * 10.0 * cos( csQPos.qrLongitude * CS_DEG2RAD );
-                        csFrm[0][1] = + 0.0;
-                        csFrm[0][2] = + CS_SCENE_METRE * 10.0 * sin( csQPos.qrLongitude * CS_DEG2RAD );
-
-                        /* Define local spherical frame - latitudinal-vector */
-                        csFrm[1][0] = + CS_SCENE_METRE * 10.0 * cos( csQPos.qrLatitude * CS_DEG2RAD ) * sin( csQPos.qrLongitude * CS_DEG2RAD );
-                        csFrm[1][1] = + CS_SCENE_METRE * 10.0 * sin( csQPos.qrLatitude * CS_DEG2RAD );
-                        csFrm[1][2] = - CS_SCENE_METRE * 10.0 * cos( csQPos.qrLatitude * CS_DEG2RAD ) * cos( csQPos.qrLongitude * CS_DEG2RAD );
-
-                        /* Define local spherical frame - radial-vector */
-                        csFrm[2][0] = + CS_SCENE_METRE * 10.0 * sin( csQPos.qrLatitude * CS_DEG2RAD ) * sin( csQPos.qrLongitude * CS_DEG2RAD );
-                        csFrm[2][1] = + CS_SCENE_METRE * 10.0 * cos( csQPos.qrLatitude * CS_DEG2RAD );
-                        csFrm[2][2] = + CS_SCENE_METRE * 10.0 * sin( csQPos.qrLatitude * CS_DEG2RAD ) * cos( csQPos.qrLongitude * CS_DEG2RAD );
-
-                        /* Compute frame vectors - x-vector */
-                        csXX = csPX + csQOri.qrfxx * csFrm[0][0] + csQOri.qrfxy * csFrm[1][0] + csQOri.qrfxz * csFrm[2][0];
-                        csXY = csPY + csQOri.qrfxx * csFrm[0][1] + csQOri.qrfxy * csFrm[1][1] + csQOri.qrfxz * csFrm[2][1];
-                        csXZ = csPZ + csQOri.qrfxx * csFrm[0][2] + csQOri.qrfxy * csFrm[1][2] + csQOri.qrfxz * csFrm[2][2];
-
-                        /* Compute frame vectors - y-vector */
-                        csYX = csPX + csQOri.qrfyx * csFrm[0][0] + csQOri.qrfyy * csFrm[1][0] + csQOri.qrfyz * csFrm[2][0];
-                        csYY = csPY + csQOri.qrfyx * csFrm[0][1] + csQOri.qrfyy * csFrm[1][1] + csQOri.qrfyz * csFrm[2][1];
-                        csYZ = csPZ + csQOri.qrfyx * csFrm[0][2] + csQOri.qrfyy * csFrm[1][2] + csQOri.qrfyz * csFrm[2][2];
-
-                        /* Compute frame vectors - z-vector */
-                        csZX = csPX + csQOri.qrfzx * csFrm[0][0] + csQOri.qrfzy * csFrm[1][0] + csQOri.qrfzz * csFrm[2][0];
-                        csZY = csPY + csQOri.qrfzx * csFrm[0][1] + csQOri.qrfzy * csFrm[1][1] + csQOri.qrfzz * csFrm[2][1];
-                        csZZ = csPZ + csQOri.qrfzx * csFrm[0][2] + csQOri.qrfzy * csFrm[1][2] + csQOri.qrfzz * csFrm[2][2];
+                        /* Compute frame vectors */
+                        csXX = csPX + csQOri.qrfxx * CS_SCENE_FRAME; csXY = csPY + csQOri.qrfxz * CS_SCENE_FRAME; csXZ = csPZ + csQOri.qrfxy * CS_SCENE_FRAME;
+                        csYX = csPX + csQOri.qrfyx * CS_SCENE_FRAME; csYY = csPY + csQOri.qrfyz * CS_SCENE_FRAME; csYZ = csPZ + csQOri.qrfyy * CS_SCENE_FRAME;
+                        csZX = csPX + csQOri.qrfzx * CS_SCENE_FRAME; csZY = csPY + csQOri.qrfzz * CS_SCENE_FRAME; csZZ = csPZ + csQOri.qrfzy * CS_SCENE_FRAME;
 
                         /* Update color */
                         glColor3f( 0.70, 0.20, 0.10 );
@@ -447,7 +269,7 @@
                         glVertex3d( csZX, csZY, csZZ );
 
                         /* Verify previous point memory */
-                        if ( csFF > 0.5 ) {
+                        if ( csFF != 0 ) {
 
                             /* Update color */
                             glColor3f( 0.70, 0.20, 0.10 );
@@ -470,12 +292,20 @@
                             glVertex3d( csMZX, csMZY, csMZZ );
                             glVertex3d( csZX , csZY , csZZ  );
 
-                        }
+                        } csFF = 1;
 
                         /* Memorize frame */
                         csMXX = csXX; csMXY = csXY; csMXZ = csXZ;
                         csMYX = csYX; csMYY = csYY; csMYZ = csYZ;
-                        csMZX = csZX; csMZY = csZY; csMZZ = csZZ; csFF = 1.0;
+                        csMZX = csZX; csMZY = csZY; csMZZ = csZZ; 
+
+                        /* Accumulates position */
+                        csLon += csPX;
+                        csAlt += csPY;
+                        csLat += csPZ;
+
+                        /* Update index */
+                        csAcc += 1.0;
 
                     }
 

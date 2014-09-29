@@ -47,7 +47,7 @@
     Source - General variables
  */
 
-    cs_view_position csPosition = { 0, 0, 0, 0, 0 }; //46.188474, 6.127366
+    cs_view_position csPosition = { 0, 0, 0, 0, 0 };
     cs_view_keyboard csKeyboard = { 0, 0 };
     cs_view_mouse    csMouse    = { 0 };
     cs_view_list     csList     = { 0 };
@@ -99,8 +99,6 @@
             glutFullScreen();
 
             /* Initialize display mode */
-            //glutInitDisplayMode( GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_STENCIL );
-            //glutInitDisplayMode( GLUT_RGB );
             glutInitDisplayMode( GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_STENCIL );
 
             /* Hide cursor */

@@ -90,10 +90,6 @@
 
     void cs_view_controls_reset ( int csFlag, double csMeanLon, double csMeanLat, double csMeanAlt );
 
-    double cs_view_controls_altscale ( void );
-
-    double cs_view_controls_altstep ( void );
-
 /* 
     Header - C/C++ compatibility
  */

@@ -75,38 +75,16 @@
         }
 
         /* Reset position according to initial means */
-        csPosition.psLon = csInitLon;
-        csPosition.psLat = csInitLat;
-        csPosition.psAlt = ( csInitAlt + 1000.0 ) * CS_SCENE_METRE;
+        csPosition.psLon = + csInitLon;
+        csPosition.psLat = + csInitLat;
+        csPosition.psAlt = + csInitAlt;
 
         /* Reset orientation */
-        csPosition.psAX = 90.0;
-        csPosition.psAY =  0.0;
+        csPosition.psAX = 0.0;
+        csPosition.psAY = 0.0;
 
-        /* Reset boost */
-        csPosition.psBst = 1.0;
-
-    }
-
-/*
-    Source - Altitude adaptative scale function
- */
-
-    double cs_view_controls_altscale( void ) {
-
-        /* Return adaptative scale function */
-        return( ( ( 0.2 - 100.0 ) / 100.0 ) * csPosition.psAlt + 100.0 );
-
-    }
-
-/*
-    Source - Altitude adaptative step function
- */
-
-    double cs_view_controls_altstep( void ) {
-
-        /* Return adaptative step function */
-        return( csPosition.psBst * 0.001 * exp( ( log( 10000.0 ) / 1000.0 ) * csPosition.psAlt ) );
+        /* Reset velocity */
+        csPosition.psVel = 1.0;
 
     }
 

@@ -85,10 +85,10 @@
     # define CS_FLAG_DELETE 1
 
     /* Define pi constant */
-    # define CS_PI          ( 3.1415926535 )
+    # define CS_PI          3.1415926535
 
     /* Define angle conversion factor */
-    # define CS_DEG2RAD     ( 3.1415926535 / 180.0 )
+    # define CS_DEG2RAD     ( CS_PI / 180.0 )
 
 /* 
     Header - Preprocessor macros
@@ -109,7 +109,7 @@
         double psLon;
         double psLat;
         double psAlt;
-        double psBst;
+        double psVel;
 
     } cs_view_position;
 
@@ -130,8 +130,7 @@
 
     typedef struct cs_view_list_struct {
 
-        GLuint lsEarth;
-        GLuint lsCamera;
+        GLuint lsTrack;
 
     } cs_view_list;
 

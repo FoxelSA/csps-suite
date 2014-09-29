@@ -69,6 +69,11 @@
     Header - Preprocessor definitions
  */
 
+    /* Define nominal motion velocities */
+    # define CS_VIEW_EVENT_VELOCITY_AXIS 1e-1
+    # define CS_VIEW_EVENT_VELOCITY_ALTM 1.0
+    # define CS_VIEW_EVENT_VELOCITY_MOVE 0.1
+
 /* 
     Header - Preprocessor macros
  */

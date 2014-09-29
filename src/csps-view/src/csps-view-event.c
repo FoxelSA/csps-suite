@@ -69,7 +69,7 @@
         glLoadIdentity();
 
         /* Compute projection matrix */
-        gluPerspective( 45, ( float ) width / ( float ) height, 0.01, 18000.0 );
+        gluPerspective( 45, ( float ) width / ( float ) height, 1.0, 10000.0 );
 
     }
 
@@ -92,17 +92,17 @@
 
             } break;
 
-            case ( 'b' ) : {
-
-                /* Check and update scale */
-                if ( csPosition.psBst < 10.0 ) csPosition.psBst = 50.0; else csPosition.psBst = 1.0;
-
-            } break;
-
             case ( 'r' ) : {
 
                 /* Reset position */
                 cs_view_controls_reset( CS_VIEW_CONTROLS_RESET, 0.0, 0.0, 0.0 );
+
+            } break;
+
+            case ( 'v' ) : {
+
+                /* Change velocity */
+                csPosition.psVel = ( csPosition.psVel < 2.0 ) ? 5.0 : 1.0;
 
             } break;
 
@@ -134,16 +134,21 @@
             csMouse.msY = y;
 
             /* Update mouse mode */
-            csMouse.msMode = 2;           
+            csMouse.msMode = 2;
+
+        } else if ( ( button == GLUT_MIDDLE_BUTTON ) && ( state == GLUT_DOWN ) ) {
+
+            /* Memorize pointer position */
+            csMouse.msX = x;
+            csMouse.msY = y;
+
+            /* Update mouse mode */
+            csMouse.msMode = 3;
 
         } else if ( ( button == 3 ) || ( button == 4 ) )  {
 
-            /* Update altitude */
-            csPosition.psAlt -= ( button == 3 ? -1.0 : +1.0 ) * cs_view_controls_altstep();
-
-            /* Altitude range check */
-            if ( csPosition.psAlt < CS_SCENE_METRE *        1.0 ) csPosition.psAlt = CS_SCENE_METRE * 1.0;
-            if ( csPosition.psAlt > CS_SCENE_METRE * 10000000.0 ) csPosition.psAlt = CS_SCENE_METRE * 10000000.0;
+            /* Update position */
+            csPosition.psAlt -= csPosition.psVel * ( ( button == 3 ) ? - CS_VIEW_EVENT_VELOCITY_ALTM : + CS_VIEW_EVENT_VELOCITY_ALTM );
 
         } else if ( state == GLUT_UP ) {
 
@@ -160,34 +165,33 @@
         if ( csMouse.msMode == 1 ) {
 
             /* Angular modification */
-            csPosition.psAX -= 7.5e-2 * ( y - csMouse.msY );
-            csPosition.psAY -= 7.5e-2 * ( x - csMouse.msX );
+            csPosition.psAX += CS_VIEW_EVENT_VELOCITY_AXIS * ( y - csMouse.msY );
+            csPosition.psAY += CS_VIEW_EVENT_VELOCITY_AXIS * ( x - csMouse.msX );
 
             /* Pointer memorization */
             csMouse.msX = x;
             csMouse.msY = y;
-
-            /* Angle of view ranges check */
-            if ( csPosition.psAX >  + 90.0 ) csPosition.psAX  = + 90.0;
-            if ( csPosition.psAX <  - 90.0 ) csPosition.psAX  = - 90.0;
-            if ( csPosition.psAY >  +360.0 ) csPosition.psAY -= +360.0;
-            if ( csPosition.psAY <  +  0.0 ) csPosition.psAY += +360.0;
 
         } else if ( csMouse.msMode == 2 ) {
 
             /* Update longitude and latitude */
-            csPosition.psLon += cs_view_controls_altstep() * 0.005 * sin( csPosition.psAY * CS_DEG2RAD ) * ( y - csMouse.msY ) * cos( csPosition.psAX * CS_DEG2RAD );
-            csPosition.psLat -= cs_view_controls_altstep() * 0.005 * cos( csPosition.psAY * CS_DEG2RAD ) * ( y - csMouse.msY ) * cos( csPosition.psAX * CS_DEG2RAD );
+            csPosition.psLon -= csPosition.psVel * CS_VIEW_EVENT_VELOCITY_MOVE * sin( csPosition.psAY * CS_DEG2RAD ) * ( y - csMouse.msY ) * cos( csPosition.psAX * CS_DEG2RAD );
+            csPosition.psAlt += csPosition.psVel * CS_VIEW_EVENT_VELOCITY_MOVE * sin( csPosition.psAX * CS_DEG2RAD ) * ( y - csMouse.msY );
+            csPosition.psLat += csPosition.psVel * CS_VIEW_EVENT_VELOCITY_MOVE * cos( csPosition.psAY * CS_DEG2RAD ) * ( y - csMouse.msY ) * cos( csPosition.psAX * CS_DEG2RAD );
 
             /* Pointer memorization */
             csMouse.msX = x;
             csMouse.msY = y;
 
-            /* Geoposition angle ranges check */
-            if ( csPosition.psLat > + 85.0 ) csPosition.psLat  = + 85.0;
-            if ( csPosition.psLat < - 85.0 ) csPosition.psLat  = - 85.0;
-            if ( csPosition.psLon > +360.0 ) csPosition.psLon -= +360.0;
-            if ( csPosition.psLon < +  0.0 ) csPosition.psLon += +360.0;
+        } else if ( csMouse.msMode == 3 ) {
+
+            /* Update longitude and latitude */
+            csPosition.psLon += csPosition.psVel * CS_VIEW_EVENT_VELOCITY_MOVE * cos( csPosition.psAY * CS_DEG2RAD ) * ( x - csMouse.msX ) * cos( csPosition.psAX * CS_DEG2RAD );
+            csPosition.psLat += csPosition.psVel * CS_VIEW_EVENT_VELOCITY_MOVE * sin( csPosition.psAY * CS_DEG2RAD ) * ( x - csMouse.msX ) * cos( csPosition.psAX * CS_DEG2RAD );
+
+            /* Pointer memorization */
+            csMouse.msX = x;
+            csMouse.msY = y;
 
         }
 

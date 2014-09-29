@@ -69,16 +69,15 @@
     Header - Preprocessor definitions
  */
 
-    /* Define earth radius */
-    # define CS_SCENE_METRE 0.001
-    # define CS_SCENE_EARTH 6371.00090
+    /* Define geoposition to meter factor */
+    # define CS_SCENE_RAD2METER     177170.472222
+
+    /* Define frame size */
+    # define CS_SCENE_FRAME         2.0
 
 /* 
     Header - Preprocessor macros
  */
-
-    /* Define altitude correction macro */
-    # define CS_VIEW_SCENE_CALT( x ) ( ( x * CS_SCENE_METRE ) + CS_SCENE_EARTH )
 
 /* 
     Header - Typedefs
@@ -100,8 +99,6 @@
     void cs_view_scene ( void );
 
     void cs_view_scene_compile( int csFlag );
-
-    void cs_view_scene_earth( GLuint csTag );
 
     void cs_view_scene_track( GLuint csTag );
 
