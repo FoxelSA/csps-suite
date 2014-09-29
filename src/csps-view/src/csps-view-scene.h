@@ -70,13 +70,16 @@
  */
 
     /* Define geoposition to meter factor */
-    # define CS_SCENE_RAD2METER     177170.472222
+    # define CS_VIEW_SCENE_RAD2METER    177170.472222
 
     /* Define frame size */
-    # define CS_SCENE_FRAME         2.0
+    # define CS_VIEW_SCENE_FRAME        2.0
 
     /* Define box factor */
-    # define CS_VIEW_SCENE_BOX      50.0
+    # define CS_VIEW_SCENE_BOX          50.0
+
+    /* Define gravity indicator depth */
+    # define CS_VIEW_SCENE_GRAVITY      10.0
 
 /* 
     Header - Preprocessor macros

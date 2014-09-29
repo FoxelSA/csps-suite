@@ -207,8 +207,8 @@
                     if ( ( csQPos.qrStatus == LP_TRUE ) && ( csQOri.qrStatus == LP_TRUE ) ) {
 
                         /* Compute flat meters using equatorial radius */
-                        csQPos.qrLongitude *= CS_SCENE_RAD2METER; 
-                        csQPos.qrLatitude  *= CS_SCENE_RAD2METER;
+                        csQPos.qrLongitude *= CS_VIEW_SCENE_RAD2METER; 
+                        csQPos.qrLatitude  *= CS_VIEW_SCENE_RAD2METER;
 
                         /* Save initial position */
                         if ( csIF == 0 ) {
@@ -239,8 +239,12 @@
                             glColor3f( 0.94, 0.94, 0.94 );
 
                             /* Send position vertex */
-                            glVertex3d( csPX, -csIZ, csPZ );
-                            glVertex3d( csPX,  csPY, csPZ );
+                            glVertex3d( csPX, csPY - CS_VIEW_SCENE_GRAVITY, csPZ );
+                            glVertex3d( csPX, csPY, csPZ );
+
+                            /* Send position vertex */
+                            glVertex3d( csMX, csMY - CS_VIEW_SCENE_GRAVITY, csMZ );
+                            glVertex3d( csPX, csPY - CS_VIEW_SCENE_GRAVITY, csPZ );
 
                         } csMF = 1;
 
@@ -248,9 +252,9 @@
                         csMX = csPX; csMY = csPY; csMZ = csPZ;
 
                         /* Compute frame vectors */
-                        csXX = csPX + csQOri.qrfxx * CS_SCENE_FRAME; csXY = csPY + csQOri.qrfxz * CS_SCENE_FRAME; csXZ = csPZ + csQOri.qrfxy * CS_SCENE_FRAME;
-                        csYX = csPX + csQOri.qrfyx * CS_SCENE_FRAME; csYY = csPY + csQOri.qrfyz * CS_SCENE_FRAME; csYZ = csPZ + csQOri.qrfyy * CS_SCENE_FRAME;
-                        csZX = csPX + csQOri.qrfzx * CS_SCENE_FRAME; csZY = csPY + csQOri.qrfzz * CS_SCENE_FRAME; csZZ = csPZ + csQOri.qrfzy * CS_SCENE_FRAME;
+                        csXX = csPX + csQOri.qrfxx * CS_VIEW_SCENE_FRAME; csXY = csPY + csQOri.qrfxz * CS_VIEW_SCENE_FRAME; csXZ = csPZ + csQOri.qrfxy * CS_VIEW_SCENE_FRAME;
+                        csYX = csPX + csQOri.qrfyx * CS_VIEW_SCENE_FRAME; csYY = csPY + csQOri.qrfyz * CS_VIEW_SCENE_FRAME; csYZ = csPZ + csQOri.qrfyy * CS_VIEW_SCENE_FRAME;
+                        csZX = csPX + csQOri.qrfzx * CS_VIEW_SCENE_FRAME; csZY = csPY + csQOri.qrfzz * CS_VIEW_SCENE_FRAME; csZZ = csPZ + csQOri.qrfzy * CS_VIEW_SCENE_FRAME;
 
                         /* Update color */
                         glColor3f( 0.70, 0.20, 0.10 );
@@ -353,12 +357,6 @@
 
                 /* Update color */
                 glColor3f( 0.90, 0.90, 0.90 );
-
-                /* Send vertex */
-                glVertex3f( csMinLon - CS_VIEW_SCENE_BOX, -csIZ, csMinLat - CS_VIEW_SCENE_BOX );
-                glVertex3f( csMaxLon + CS_VIEW_SCENE_BOX, -csIZ, csMinLat - CS_VIEW_SCENE_BOX );
-                glVertex3f( csMaxLon + CS_VIEW_SCENE_BOX, -csIZ, csMaxLat + CS_VIEW_SCENE_BOX );
-                glVertex3f( csMinLon - CS_VIEW_SCENE_BOX, -csIZ, csMaxLat + CS_VIEW_SCENE_BOX );
                 
                 /* Send vertex */
                 glVertex3f( csMinLon - CS_VIEW_SCENE_BOX, csMinAlt - CS_VIEW_SCENE_BOX, csMinLat - CS_VIEW_SCENE_BOX );
