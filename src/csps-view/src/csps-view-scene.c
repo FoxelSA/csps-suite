@@ -189,7 +189,7 @@
         glNewList( csTag, GL_COMPILE ); {
 
             /* Update line width */
-            glLineWidth( 3.0 );
+            glLineWidth( 2.0 );
 
             /* Begin primitive */
             glBegin( GL_LINES ); {
@@ -236,7 +236,7 @@
                             glVertex3d( csPX, csPY, csPZ );
 
                             /* Update color */
-                            glColor3f( 0.98, 0.98, 0.98 );
+                            glColor3f( 0.94, 0.94, 0.94 );
 
                             /* Send position vertex */
                             glVertex3d( csPX, -csIZ, csPZ );
@@ -325,25 +325,6 @@
                 }
 
                 /* Update color */
-               glColor3f( 0.96, 0.96, 0.96 );
-
-                /* Display box */
-                glVertex3f( csMinLon - CS_VIEW_SCENE_BOX, csMaxAlt + CS_VIEW_SCENE_BOX, csMinLat - CS_VIEW_SCENE_BOX );
-                glVertex3f( csMaxLon + CS_VIEW_SCENE_BOX, csMaxAlt + CS_VIEW_SCENE_BOX, csMinLat - CS_VIEW_SCENE_BOX );
-                glVertex3f( csMinLon - CS_VIEW_SCENE_BOX, csMaxAlt + CS_VIEW_SCENE_BOX, csMaxLat + CS_VIEW_SCENE_BOX );
-                glVertex3f( csMaxLon + CS_VIEW_SCENE_BOX, csMaxAlt + CS_VIEW_SCENE_BOX, csMaxLat + CS_VIEW_SCENE_BOX );
-                glVertex3f( csMinLon - CS_VIEW_SCENE_BOX, csMaxAlt + CS_VIEW_SCENE_BOX, csMinLat - CS_VIEW_SCENE_BOX );
-                glVertex3f( csMinLon - CS_VIEW_SCENE_BOX, csMaxAlt + CS_VIEW_SCENE_BOX, csMaxLat + CS_VIEW_SCENE_BOX );
-                glVertex3f( csMaxLon + CS_VIEW_SCENE_BOX, csMaxAlt + CS_VIEW_SCENE_BOX, csMinLat - CS_VIEW_SCENE_BOX );
-                glVertex3f( csMaxLon + CS_VIEW_SCENE_BOX, csMaxAlt + CS_VIEW_SCENE_BOX, csMaxLat + CS_VIEW_SCENE_BOX );
-                glVertex3f( csMaxLon + CS_VIEW_SCENE_BOX, csMinAlt - CS_VIEW_SCENE_BOX, csMinLat - CS_VIEW_SCENE_BOX );
-                glVertex3f( csMaxLon + CS_VIEW_SCENE_BOX, csMaxAlt + CS_VIEW_SCENE_BOX, csMinLat - CS_VIEW_SCENE_BOX );
-                glVertex3f( csMinLon - CS_VIEW_SCENE_BOX, csMinAlt - CS_VIEW_SCENE_BOX, csMaxLat + CS_VIEW_SCENE_BOX );
-                glVertex3f( csMinLon - CS_VIEW_SCENE_BOX, csMaxAlt + CS_VIEW_SCENE_BOX, csMaxLat + CS_VIEW_SCENE_BOX );
-                glVertex3f( csMaxLon + CS_VIEW_SCENE_BOX, csMinAlt - CS_VIEW_SCENE_BOX, csMaxLat + CS_VIEW_SCENE_BOX );
-                glVertex3f( csMaxLon + CS_VIEW_SCENE_BOX, csMaxAlt + CS_VIEW_SCENE_BOX, csMaxLat + CS_VIEW_SCENE_BOX );
-
-                /* Update color */
                 glColor3f( 0.70, 0.20, 0.10 );
 
                 /* Draw referential frame - x-vector */
@@ -371,7 +352,7 @@
             glBegin( GL_QUADS );
 
                 /* Update color */
-                glColor3f( 0.96, 0.96, 0.96 );
+                glColor3f( 0.90, 0.90, 0.90 );
 
                 /* Send vertex */
                 glVertex3f( csMinLon - CS_VIEW_SCENE_BOX, -csIZ, csMinLat - CS_VIEW_SCENE_BOX );
