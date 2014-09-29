@@ -99,12 +99,34 @@
 
     /*! \brief Scene main function
      *  
-     *  Main scene drawing function.
+     *  This function display the scene.
      */
 
     void cs_view_scene ( void );
 
+    /*! \brief Scene creation function
+     *  
+     *  This function create an OpenGL display lists
+     *  at startup that contains the parts of the 
+     *  entire scene rendered by the software.
+     *
+     *  If CS_FLAG_CREATE is provided as csFlag, the
+     *  function create the display list. Otherwise,
+     *  the display list is deleted.
+     *  
+     *  \param csFlag Creation/deletion flag
+     */
+
     void cs_view_scene_compile( int csFlag );
+
+    /*! \brief Specific scene compilation function
+     *  
+     *  This function create a display list that
+     *  contains position and orientation of the
+     *  camera and the earth frame.
+     *  
+     *  \param csTag OpenGL display list value
+     */
 
     void cs_view_scene_track( GLuint csTag );
 

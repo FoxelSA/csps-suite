@@ -114,7 +114,27 @@
 
     void cs_view_event_keyboard ( unsigned char key, int x, int y );
 
+    /*! \brief Mouse button callback functions
+     *
+     *  This function is called as GLUT callback on mouse 
+     *  button events.
+     *
+     *  \param button Mouse button
+     *  \param state Mouse button state
+     *  \param x Mouse x coordinates
+     *  \param y Mouse y coordinates
+     */
+
     void cs_view_event_mouse ( int button, int state, int x, int y );
+
+    /*! \brief Mouse motion callback functions
+     *
+     *  This function is called as GLUT callback on mouse 
+     *  motion events.
+     *
+     *  \param x Mouse x coordinates
+     *  \param y Mouse y coordinates
+     */
 
     void cs_view_event_move ( int x, int y );
 

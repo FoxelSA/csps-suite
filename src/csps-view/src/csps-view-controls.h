@@ -88,6 +88,19 @@
     Header - Function prototypes
  */
 
+    /*! \brief Camera position and orientation reset
+     *  
+     *  This function expect initial camera position and orientation
+     *  provided using CS_VIEW_CONTROLS_SET and the parameters. If
+     *  flag CS_VIEW_CONTROLS_RESET is sent, the position and orientation
+     *  of the camera is reset using data previously provided.
+     *  
+     *  \param csFlag Usage flag
+     *  \param csMeanLon Reset longitude value
+     *  \param csMeanLat Reset latitude value
+     *  \param csMeanAlt Reset altitude value
+     */
+
     void cs_view_controls_reset ( int csFlag, double csMeanLon, double csMeanLat, double csMeanAlt );
 
 /* 

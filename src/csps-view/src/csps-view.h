@@ -118,7 +118,7 @@
     /*! \brief Software main function
      *  
      *  The main function simply initialize graphic library and launches
-     *  event callback function. A infinite loop is performed until escape
+     *  event callback functions. A infinite loop is performed until escape
      *  key is pressed.
      *  
      *  \param argc Standard main parameter
