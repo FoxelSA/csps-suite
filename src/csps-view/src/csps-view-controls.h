@@ -36,7 +36,7 @@
  *      Attribution" section of <http://foxel.ch/license>.
  */
 
-    /*! \file   csps-view-event.h
+    /*! \file   csps-view-controls.h
      *  \author Nils Hamel (n.hamel@foxel.ch)
      *   
      *  OpenGLUT callbacks function definition for keyboard and mouse.
