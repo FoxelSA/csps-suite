@@ -69,6 +69,7 @@
     # include <stdio.h>
     # include <stdlib.h>
     # include <string.h>
+    # include <float.h>
     # include <csps-all.h>
 
 /* 
@@ -101,6 +102,10 @@
 
     /* Define standard output */
     # define CS_OUT             stdout
+
+    /* Define detection results */
+    # define CS_FALSE           0
+    # define CS_TRUE            1
 
 /* 
     Header - Preprocessor macros
@@ -142,6 +147,43 @@
      *  \param stag Short-form argument string (-a)
      *  \return Index of parameter in argv
      */
+
+    int cs_frustum_intersection(
+
+        double * csFXa,
+        double * csFYa,
+        double * csFZa,
+        double * csFXb,
+        double * csFYb,
+        double * csFZb
+
+    );
+
+    void cs_frustum_summit( 
+
+        double * csNadir, 
+        double * csRight, 
+        double * csPosition, 
+        double   csPixel, 
+        double   csFocal, 
+        double   csWidth, 
+        double   csHeight, 
+        double   csNear, 
+        double   csFar,
+        double * csFX,
+        double * csFY,
+        double * csFZ
+
+    );
+
+    void cs_frustum_extremum( 
+
+        double * csArray, 
+        int csSize, 
+        double * csMaximum, 
+        double * csMinimum
+
+    );
 
     int  cs_stda ( int argc, char ** argv, const char * const ltag, const char * const stag );
 
