@@ -148,40 +148,40 @@
      *  \return Index of parameter in argv
      */
 
-    int cs_frustum_intersection(
+    void cs_frustum_summit( 
 
-        double * csFXa,
-        double * csFYa,
-        double * csFZa,
-        double * csFXb,
-        double * csFYb,
-        double * csFZb
+        const double const * csNadir, 
+        const double const * csRight, 
+        const double const * csPosition, 
+        const double         csPixel, 
+        const double         csFocal, 
+        const double         csWidth, 
+        const double         csHeight, 
+        const double         csNear, 
+        const double         csFar,
+        double *             csFX,
+        double *             csFY,
+        double *             csFZ
 
     );
 
-    void cs_frustum_summit( 
+    int cs_frustum_intersection(
 
-        double * csNadir, 
-        double * csRight, 
-        double * csPosition, 
-        double   csPixel, 
-        double   csFocal, 
-        double   csWidth, 
-        double   csHeight, 
-        double   csNear, 
-        double   csFar,
-        double * csFX,
-        double * csFY,
-        double * csFZ
+        const double const * csFXa,
+        const double const * csFYa,
+        const double const * csFZa,
+        const double const * csFXb,
+        const double const * csFYb,
+        const double const * csFZb
 
     );
 
     void cs_frustum_extremum( 
 
-        double * csArray, 
-        int csSize, 
-        double * csMaximum, 
-        double * csMinimum
+        const double const * csArray, 
+        const int            csSize, 
+        double *             csMaximum, 
+        double *             csMinimum 
 
     );
 

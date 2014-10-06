@@ -52,24 +52,36 @@
         /* Structure path variables */
         char csPath[256] = { 0 };
 
+        /* Camera designation variables */
+        char csCameraA[256] = { 0 };
+        char csCameraB[256] = { 0 };
+
+        /* Channel designation variables */
+        int csChannelA = 0;
+        int csChannelB = 0;
+
+        /* Sensor size variables */
+        double csNPlane =  1.0;
+        double csFPlane = 30.0;
+
         /* Timestamps variables */
         lp_Time_t csTSA = lp_Time_s( 0 );
         lp_Time_t csTUA = lp_Time_s( 0 );
         lp_Time_t csTSB = lp_Time_s( 0 );
         lp_Time_t csTUB = lp_Time_s( 0 );
 
-        /* Sensor size variables */
-        double csNPlane =  1.0;
-        double csFPlane = 30.0;
-
         /* Search in parameters */
-        cs_stdp( cs_stda( argc, argv, "--path"         , "-p" ), argv,   csPath   , CS_STRING );
-        cs_stdp( cs_stda( argc, argv, "--second-a"     , "-a" ), argv, & csTSA    , CS_ULLONG );
-        cs_stdp( cs_stda( argc, argv, "--microsecond-a", "-u" ), argv, & csTUA    , CS_ULLONG );
-        cs_stdp( cs_stda( argc, argv, "--second-b"     , "-b" ), argv, & csTSB    , CS_ULLONG );
-        cs_stdp( cs_stda( argc, argv, "--microsecond-b", "-v" ), argv, & csTUB    , CS_ULLONG );
-        cs_stdp( cs_stda( argc, argv, "--near-plane"   , "-n" ), argv, & csNPlane , CS_DOUBLE );
-        cs_stdp( cs_stda( argc, argv, "--far-plane"    , "-f" ), argv, & csFPlane , CS_DOUBLE );
+        cs_stdp( cs_stda( argc, argv, "--path"         , "-p" ), argv,   csPath    , CS_STRING );
+        cs_stdp( cs_stda( argc, argv, "--camera-a"     , "-c" ), argv,   csCameraA , CS_STRING );
+        cs_stdp( cs_stda( argc, argv, "--camera-b"     , "-d" ), argv,   csCameraB , CS_STRING );
+        cs_stdp( cs_stda( argc, argv, "--channel-a"    , "-i" ), argv, & csChannelA, CS_INT    );
+        cs_stdp( cs_stda( argc, argv, "--channel-b"    , "-j" ), argv, & csChannelB, CS_INT    );
+        cs_stdp( cs_stda( argc, argv, "--plane-near"   , "-n" ), argv, & csNPlane  , CS_DOUBLE );
+        cs_stdp( cs_stda( argc, argv, "--plane-far"    , "-f" ), argv, & csFPlane  , CS_DOUBLE );
+        cs_stdp( cs_stda( argc, argv, "--second-a"     , "-a" ), argv, & csTSA     , CS_ULLONG );
+        cs_stdp( cs_stda( argc, argv, "--microsecond-a", "-u" ), argv, & csTUA     , CS_ULLONG );
+        cs_stdp( cs_stda( argc, argv, "--second-b"     , "-b" ), argv, & csTSB     , CS_ULLONG );
+        cs_stdp( cs_stda( argc, argv, "--microsecond-b", "-v" ), argv, & csTUB     , CS_ULLONG );
 
         /* Execution switch */
         if ( cs_stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
@@ -87,17 +99,124 @@
     }
 
 /*
+    Source - Eyesis4Pi frustum vectors composer
+*/
+
+    void cs_frustum_eyesis4pi( 
+
+        const char const * csCamera, 
+        const int          csChannel, 
+        double const *     csNadir, 
+        double const *     csRight
+
+    ) {
+
+        
+
+    }
+
+/*
+    Source - Frustum polyhedron summit computer
+ */
+
+    void cs_frustum_summit( 
+
+        const double const * csNadir, 
+        const double const * csRight, 
+        const double const * csPosition, 
+        const double         csPixel, 
+        const double         csFocal, 
+        const double         csWidth, 
+        const double         csHeight, 
+        const double         csNear, 
+        const double         csFar,
+        double *             csFX,
+        double *             csFY,
+        double *             csFZ
+
+    ) {
+
+        /* Bottom vector variables */
+        double csBottom[3] = {
+
+            csNadir[1] * csRight[2] - csNadir[2] * csRight[1],
+            csNadir[2] * csRight[0] - csNadir[0] * csRight[2],
+            csNadir[0] * csRight[1] - csNadir[1] * csRight[0],
+
+        };
+
+        /* Nadir near point variables */
+        double csNearPoint[3] = {
+
+            csPosition[0] + csNadir[0] * csNear,
+            csPosition[1] + csNadir[1] * csNear,
+            csPosition[2] + csNadir[2] * csNear
+
+        };
+
+        /* Nadir far point variables */
+        double csFarPoint[3] = {
+
+            csPosition[0] + csNadir[0] * csFar,
+            csPosition[1] + csNadir[1] * csFar,
+            csPosition[2] + csNadir[2] * csFar
+
+        };
+
+        /* Normalized sensor size variables */
+        double csNormalWidth  = ( ( csWidth  / 2.0 ) * csPixel ) / csFocal;
+        double csNormalHeight = ( ( csHeight / 2.0 ) * csPixel ) / csFocal;
+
+        /* Compute frustum polyhedron summits x-near */
+        csFX[0] = csNearPoint[0] + ( csRight[0] * csNormalWidth * csNear ) + ( csBottom[0] * csNormalHeight * csNear );
+        csFX[1] = csNearPoint[0] - ( csRight[0] * csNormalWidth * csNear ) + ( csBottom[0] * csNormalHeight * csNear );
+        csFX[2] = csNearPoint[0] - ( csRight[0] * csNormalWidth * csNear ) - ( csBottom[0] * csNormalHeight * csNear );
+        csFX[3] = csNearPoint[0] + ( csRight[0] * csNormalWidth * csNear ) - ( csBottom[0] * csNormalHeight * csNear );
+
+        /* Compute frustum polyhedron summits y-near */
+        csFY[0] = csNearPoint[1] + ( csRight[1] * csNormalWidth * csNear ) + ( csBottom[1] * csNormalHeight * csNear );
+        csFY[1] = csNearPoint[1] - ( csRight[1] * csNormalWidth * csNear ) + ( csBottom[1] * csNormalHeight * csNear );
+        csFY[2] = csNearPoint[1] - ( csRight[1] * csNormalWidth * csNear ) - ( csBottom[1] * csNormalHeight * csNear );
+        csFY[3] = csNearPoint[1] + ( csRight[1] * csNormalWidth * csNear ) - ( csBottom[1] * csNormalHeight * csNear );
+
+        /* Compute frustum polyhedron summits z-near */
+        csFZ[0] = csNearPoint[2] + ( csRight[2] * csNormalWidth * csNear ) + ( csBottom[2] * csNormalHeight * csNear );
+        csFZ[1] = csNearPoint[2] - ( csRight[2] * csNormalWidth * csNear ) + ( csBottom[2] * csNormalHeight * csNear );
+        csFZ[2] = csNearPoint[2] - ( csRight[2] * csNormalWidth * csNear ) - ( csBottom[2] * csNormalHeight * csNear );
+        csFZ[3] = csNearPoint[2] + ( csRight[2] * csNormalWidth * csNear ) - ( csBottom[2] * csNormalHeight * csNear );
+
+        /* Compute frustum polyhedron summits x-far */
+        csFX[4] = csFarPoint[0] + ( csRight[0] * csNormalWidth * csFar ) + ( csBottom[0] * csNormalHeight * csFar );
+        csFX[5] = csFarPoint[0] - ( csRight[0] * csNormalWidth * csFar ) + ( csBottom[0] * csNormalHeight * csFar );
+        csFX[6] = csFarPoint[0] - ( csRight[0] * csNormalWidth * csFar ) - ( csBottom[0] * csNormalHeight * csFar );
+        csFX[7] = csFarPoint[0] + ( csRight[0] * csNormalWidth * csFar ) - ( csBottom[0] * csNormalHeight * csFar );
+
+        /* Compute frustum polyhedron summits y-far */
+        csFY[4] = csFarPoint[1] + ( csRight[1] * csNormalWidth * csFar ) + ( csBottom[1] * csNormalHeight * csFar );
+        csFY[5] = csFarPoint[1] - ( csRight[1] * csNormalWidth * csFar ) + ( csBottom[1] * csNormalHeight * csFar );
+        csFY[6] = csFarPoint[1] - ( csRight[1] * csNormalWidth * csFar ) - ( csBottom[1] * csNormalHeight * csFar );
+        csFY[7] = csFarPoint[1] + ( csRight[1] * csNormalWidth * csFar ) - ( csBottom[1] * csNormalHeight * csFar );
+
+        /* Compute frustum polyhedron summits z-far */
+        csFZ[4] = csFarPoint[2] + ( csRight[2] * csNormalWidth * csFar ) + ( csBottom[2] * csNormalHeight * csFar );
+        csFZ[5] = csFarPoint[2] - ( csRight[2] * csNormalWidth * csFar ) + ( csBottom[2] * csNormalHeight * csFar );
+        csFZ[6] = csFarPoint[2] - ( csRight[2] * csNormalWidth * csFar ) - ( csBottom[2] * csNormalHeight * csFar );
+        csFZ[7] = csFarPoint[2] + ( csRight[2] * csNormalWidth * csFar ) - ( csBottom[2] * csNormalHeight * csFar );
+
+    }
+
+/*
     Source - Frustum intersection detection
  */
 
     int cs_frustum_intersection(
 
-        double * csFXa,
-        double * csFYa,
-        double * csFZa,
-        double * csFXb,
-        double * csFYb,
-        double * csFZb
+        const double const * csFXa,
+        const double const * csFYa,
+        const double const * csFZa,
+        const double const * csFXb,
+        const double const * csFYb,
+        const double const * csFZb
 
     ) {
 
@@ -179,100 +298,17 @@
     }
 
 /*
-    Source - Frustum polyhedron summit computer
- */
-
-    void cs_frustum_summit( 
-
-        double * csNadir, 
-        double * csRight, 
-        double * csPosition, 
-        double   csPixel, 
-        double   csFocal, 
-        double   csWidth, 
-        double   csHeight, 
-        double   csNear, 
-        double   csFar,
-        double * csFX,
-        double * csFY,
-        double * csFZ
-
-    ) {
-
-        /* Bottom vector variables */
-        double csBottom[3] = {
-
-            csNadir[1] * csRight[2] - csNadir[2] * csRight[1],
-            csNadir[2] * csRight[0] - csNadir[0] * csRight[2],
-            csNadir[0] * csRight[1] - csNadir[1] * csRight[0],
-
-        };
-
-        /* Nadir near point variables */
-        double csNearPoint[3] = {
-
-            csPosition[0] + csNadir[0] * csNear,
-            csPosition[1] + csNadir[1] * csNear,
-            csPosition[2] + csNadir[2] * csNear
-
-        };
-
-        /* Nadir far point variables */
-        double csFarPoint[3] = {
-
-            csPosition[0] + csNadir[0] * csFar,
-            csPosition[1] + csNadir[1] * csFar,
-            csPosition[2] + csNadir[2] * csFar
-
-        };
-
-        /* Normalized sensor size variables */
-        double csNormalWidth  = ( ( csWidth  / 2.0 ) * csPixel ) / csFocal;
-        double csNormalHeight = ( ( csHeight / 2.0 ) * csPixel ) / csFocal;
-
-        /* Compute frustum polyhedron summits x-near */
-        csFX[0] = csNearPoint[0] + ( csRight[0] * csNormalWidth * csNear ) + ( csBottom[0] * csNormalHeight * csNear );
-        csFX[1] = csNearPoint[0] - ( csRight[0] * csNormalWidth * csNear ) + ( csBottom[0] * csNormalHeight * csNear );
-        csFX[2] = csNearPoint[0] - ( csRight[0] * csNormalWidth * csNear ) - ( csBottom[0] * csNormalHeight * csNear );
-        csFX[3] = csNearPoint[0] + ( csRight[0] * csNormalWidth * csNear ) - ( csBottom[0] * csNormalHeight * csNear );
-
-        /* Compute frustum polyhedron summits y-near */
-        csFY[0] = csNearPoint[1] + ( csRight[1] * csNormalWidth * csNear ) + ( csBottom[1] * csNormalHeight * csNear );
-        csFY[1] = csNearPoint[1] - ( csRight[1] * csNormalWidth * csNear ) + ( csBottom[1] * csNormalHeight * csNear );
-        csFY[2] = csNearPoint[1] - ( csRight[1] * csNormalWidth * csNear ) - ( csBottom[1] * csNormalHeight * csNear );
-        csFY[3] = csNearPoint[1] + ( csRight[1] * csNormalWidth * csNear ) - ( csBottom[1] * csNormalHeight * csNear );
-
-        /* Compute frustum polyhedron summits z-near */
-        csFZ[0] = csNearPoint[2] + ( csRight[2] * csNormalWidth * csNear ) + ( csBottom[2] * csNormalHeight * csNear );
-        csFZ[1] = csNearPoint[2] - ( csRight[2] * csNormalWidth * csNear ) + ( csBottom[2] * csNormalHeight * csNear );
-        csFZ[2] = csNearPoint[2] - ( csRight[2] * csNormalWidth * csNear ) - ( csBottom[2] * csNormalHeight * csNear );
-        csFZ[3] = csNearPoint[2] + ( csRight[2] * csNormalWidth * csNear ) - ( csBottom[2] * csNormalHeight * csNear );
-
-        /* Compute frustum polyhedron summits x-far */
-        csFX[4] = csFarPoint[0] + ( csRight[0] * csNormalWidth * csFar ) + ( csBottom[0] * csNormalHeight * csFar );
-        csFX[5] = csFarPoint[0] - ( csRight[0] * csNormalWidth * csFar ) + ( csBottom[0] * csNormalHeight * csFar );
-        csFX[6] = csFarPoint[0] - ( csRight[0] * csNormalWidth * csFar ) - ( csBottom[0] * csNormalHeight * csFar );
-        csFX[7] = csFarPoint[0] + ( csRight[0] * csNormalWidth * csFar ) - ( csBottom[0] * csNormalHeight * csFar );
-
-        /* Compute frustum polyhedron summits y-far */
-        csFY[4] = csFarPoint[1] + ( csRight[1] * csNormalWidth * csFar ) + ( csBottom[1] * csNormalHeight * csFar );
-        csFY[5] = csFarPoint[1] - ( csRight[1] * csNormalWidth * csFar ) + ( csBottom[1] * csNormalHeight * csFar );
-        csFY[6] = csFarPoint[1] - ( csRight[1] * csNormalWidth * csFar ) - ( csBottom[1] * csNormalHeight * csFar );
-        csFY[7] = csFarPoint[1] + ( csRight[1] * csNormalWidth * csFar ) - ( csBottom[1] * csNormalHeight * csFar );
-
-        /* Compute frustum polyhedron summits z-far */
-        csFZ[4] = csFarPoint[2] + ( csRight[2] * csNormalWidth * csFar ) + ( csBottom[2] * csNormalHeight * csFar );
-        csFZ[5] = csFarPoint[2] - ( csRight[2] * csNormalWidth * csFar ) + ( csBottom[2] * csNormalHeight * csFar );
-        csFZ[6] = csFarPoint[2] - ( csRight[2] * csNormalWidth * csFar ) - ( csBottom[2] * csNormalHeight * csFar );
-        csFZ[7] = csFarPoint[2] + ( csRight[2] * csNormalWidth * csFar ) - ( csBottom[2] * csNormalHeight * csFar );
-
-    }
-
-/*
     Source - Static array extremums extractor
 */
 
-    void cs_frustum_extremum( double * csArray, int csSize, double * csMaximum, double * csMinimum ) {
+    void cs_frustum_extremum( 
+
+        const double const * csArray, 
+        const int            csSize, 
+        double *             csMaximum, 
+        double *             csMinimum 
+
+    ) {
 
         /* Parsing variables */
         int csParse = 0;

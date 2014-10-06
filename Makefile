@@ -18,7 +18,7 @@
 #   make - Configuration - Libraries
 #
 
-    MAKE_DEPENDS:=$(MAKE_LIBRAR)/libcsps
+    MAKE_DEPENDS:=$(MAKE_LIBRAR)/libcsps $(MAKE_LIBRAR)/libfastcal
 
 #
 #   make - Build - Default
