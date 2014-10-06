@@ -137,7 +137,7 @@
                         /* Reset descriptor data */
                         csDescriptors[csStack].dsFlag  = CS_FALSE;
                         csDescriptors[csStack].dsFirst = 0;
-                        csDescriptors[csStack].dsLast  = 0;                        
+                        csDescriptors[csStack].dsLast  = 0;
 
                         /* Search file initial and final IMU timestamp */
                         while ( ( csRead = fread( csRec, 1, LP_DEVICE_EYESIS4PI_RECLEN, csHandle ) ) == LP_DEVICE_EYESIS4PI_RECLEN ) {
@@ -156,7 +156,10 @@
                         }
 
                         /* Broken file check */
-                        fprintf( CS_OUT, "\t%s : %s\n", csRead == 0 ? "Stacking " : "Borken   ", strrchr( csDescriptors[csStack++].dsName, '/' ) + 1 );
+                        fprintf( CS_OUT, "\t%s : %s\n", csRead == 0 ? "Stacking " : "Borken   ", strrchr( csDescriptors[csStack].dsName, '/' ) + 1 );
+
+                        /* Update stack size */
+                        csStack ++;
 
                     }
 
@@ -219,7 +222,7 @@
             csCurrent = csStack;
 
             /* Reset infemum buffer */
-            csInfemum = lp_Time_s( 0xFFFFFFFF00000000 );
+            csInfemum = lp_Time_s( 0xFFFFFFFFFFFFFFFF );
 
             /* Search oldest unappended file */
             for ( csParse = 0; csParse < csStack; csParse ++ ) {
