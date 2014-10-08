@@ -70,7 +70,7 @@
  */
 
     /* Define geoposition to meter factor */
-    # define CS_VIEW_SCENE_RAD2METER    177170.472222
+    # define CS_VIEW_SCENE_RAD2METER    111134.093193
 
     /* Define frame size */
     # define CS_VIEW_SCENE_FRAME        2.0

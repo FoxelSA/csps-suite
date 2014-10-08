@@ -37,7 +37,7 @@
  */
 
     /*! \file   csps-frustum.h
-     *  \author Nils Hamel (n.hamel@foxel.ch)
+     *  \author Nils Hamel <n.hamel@foxel.ch>
      *   
      *  Software main header
      */
@@ -81,7 +81,7 @@
     # define CS_HELP "Usage summary :\n"            \
     "  csps-frustum [Arguments] [Parameters] ...\n" \
     "Short arguments and parameters summary :\n"    \
-    "  -p Path\n"                                   \
+    "  -p Record segment directory\n"               \
     "csps-cones - csps-suite\n"                     \
     "Copyright (c) 2013-2014 FOXEL SA\n"
 

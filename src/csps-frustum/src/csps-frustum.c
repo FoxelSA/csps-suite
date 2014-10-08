@@ -181,8 +181,8 @@
                         csRightB[5] = csRightB[0] * csQorienB.qrfxz + csRightB[1] * csQorienB.qrfyz + csRightB[2] * csQorienB.qrfzz;
 
                         /* Synchronize second position to relative earth */
-                        csPositionB[0] += ( csQpositB.qrLongitude - csQpositA.qrLongitude ) * ( 6367514.500000 + csQpositA.qrAltitude );
-                        csPositionB[1] += ( csQpositB.qrLatitude  - csQpositA.qrLatitude  ) * ( 6367514.500000 + csQpositA.qrAltitude );
+                        csPositionB[0] += ( csQpositB.qrLongitude - csQpositA.qrLongitude ) * ( ( ( 6367514.500000 + csQpositA.qrAltitude ) * 2.0 * LF_PI / 360.0 ) );
+                        csPositionB[1] += ( csQpositB.qrLatitude  - csQpositA.qrLatitude  ) * ( ( ( 6367514.500000 + csQpositA.qrAltitude ) * 2.0 * LF_PI / 360.0 ) );
                         csPositionB[2] += ( csQpositB.qrAltitude  - csQpositA.qrAltitude  );
 
                         /* Compute frustum A summits */

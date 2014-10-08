@@ -63,12 +63,12 @@
         int csWindow = 0;
 
         /* Search in parameters */
-        cs_stdp( cs_stda( argc, argv, "--root"      , "-r" ), argv, csPath.ptRoot, CS_STRING );
+        cs_stdp( cs_stda( argc, argv, "--path"      , "-p" ), argv, csPath.ptRoot, CS_STRING );
         cs_stdp( cs_stda( argc, argv, "--cam-stream", "-c" ), argv, csPath.ptCAMm, CS_STRING );
         cs_stdp( cs_stda( argc, argv, "--gps-stream", "-g" ), argv, csPath.ptGPSm, CS_STRING );
         cs_stdp( cs_stda( argc, argv, "--imu-stream", "-i" ), argv, csPath.ptIMUm, CS_STRING );
         cs_stdp( cs_stda( argc, argv, "--cam-tag"   , "-a" ), argv, csPath.ptCAMd, CS_STRING );
-        cs_stdp( cs_stda( argc, argv, "--gps-tag"   , "-p" ), argv, csPath.ptGPSd, CS_STRING );
+        cs_stdp( cs_stda( argc, argv, "--gps-tag"   , "-s" ), argv, csPath.ptGPSd, CS_STRING );
         cs_stdp( cs_stda( argc, argv, "--imu-tag"   , "-m" ), argv, csPath.ptIMUd, CS_STRING );
 
         /* Execution switch */
