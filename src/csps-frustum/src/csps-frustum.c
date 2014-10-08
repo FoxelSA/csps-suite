@@ -255,11 +255,11 @@
 
     void cs_frustum_eyesis4pi( 
 
-        char const * const csCamera, 
-        int const          csChannel, 
-        double     * const csNadir, 
-        double     * const csRight,
-        double     * const csPosition
+        char   const * const csCamera, 
+        int    const         csChannel, 
+        double       * const csNadir, 
+        double       * const csRight,
+        double       * const csPosition
 
     ) {
 

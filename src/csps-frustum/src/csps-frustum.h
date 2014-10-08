@@ -36,13 +36,13 @@
  *      Attribution" section of <http://foxel.ch/license>.
  */
 
-    /*! \file   csps-process.h
+    /*! \file   csps-frustum.h
      *  \author Nils Hamel (n.hamel@foxel.ch)
      *   
      *  Software main header
      */
 
-    /*! \mainpage csps-audit
+    /*! \mainpage csps-frustum
      *
      *  Front-end suite for CSPS library.
      */
@@ -126,9 +126,12 @@
 
     /*! \brief Software main function
      *  
-     *  The main function enumerates standard directories, usually created
-     *  using csps-append software, and calls the libcsps topology interpreter
-     *  for each segment stored in the found directories.
+     *  The main function is responsible for determining if two camera
+     *  sensors have an intersection in thier frustum. It asks the
+     *  frustum vectors and eyesis frame position in order to synchronize
+     *  them on earth through libcsps. The frustum are then built and
+     *  compared. If frustums have an intersection, the function display
+     *  TRUE on the standard output, FALSE otherwise.
      *  
      *  \param argc Standard main parameter
      *  \param argv Standard main parameter
@@ -136,28 +139,48 @@
 
     int main ( int argc, char ** argv );
 
-    /*! \brief Search agrument position in argv
+    /*! \brief Frustum vector in eyesis4pi frame
      *  
-     *  This function search in the argv string array the position of the argument
-     *  defined through ltag/stag and return the index of the corresponding parameter
-     *  in argv.
-     *  
-     *  \param argc Standard main parameter
-     *  \param argv Standard main parameter
-     *  \param ltag Long-form argument string (--argument)
-     *  \param stag Short-form argument string (-a)
-     *  \return Index of parameter in argv
+     *  This function builds, using calibration data of the wanted sensor
+     *  of the desired camera, the two vectors that define the sensor
+     *  frustum.
+     *
+     *  \param csCamera Camera device (MAC address)
+     *  \param csChannel Camera sensor index
+     *  \param csNadir Three-entries vector that recieve the frustum nadir vector
+     *  \param csRight Three-entries vector that recieve the frustum right vector
+     *  \param csPosition Three-entries vector that recieve the frustum origin in eyesis4pi frame
      */
 
     void cs_frustum_eyesis4pi( 
 
-        char const * const csCamera, 
-        int const          csChannel, 
-        double     * const csNadir, 
-        double     * const csRight,
-        double     * const csPosition
+        char   const * const csCamera, 
+        int    const         csChannel, 
+        double       * const csNadir, 
+        double       * const csRight,
+        double       * const csPosition
 
     );
+
+    /*! \brief Frustum summit computer
+     *
+     *  This function takes the frustum definition vectors, the position
+     *  vector and the camera calibration data to build the summit of
+     *  the sensor frustum.
+     *
+     *  \param csNadir Three-entries vector that contains the frustum nadir vector
+     *  \param csRight Three-entries vector that contains the frustum right vector
+     *  \param csPosition Three-entries vector that contains the frustum origin
+     *  \param csPixel Size, in meters, of the sensor pixels
+     *  \param csFocal Focal length, in meters, of the sensor lense
+     *  \param csWidth Width, in pixels, of the sensor
+     *  \param csHeight Height, in pixels, of the sensor
+     *  \param csNear Near plane of the built frustum
+     *  \param csFar far plane of the built frustum
+     *  \param csFX Eight-entries array that recieve the frustum summits x-coordinates
+     *  \param csFY Eight-entries array that recieve the frustum summits y-coordinates
+     *  \param csFZ Eight-entries array that recieve the frustum summits z-coordinates
+     */
 
     void cs_frustum_summit( 
 
@@ -176,6 +199,22 @@
 
     );
 
+    /*! \brief Frustum intersection detector
+     *
+     *  This function considers the summits of two frustums in order
+     *  to determine if they have an intersection. The intersection
+     *  condition is mathematically based on the fact that frustum are
+     *  convex polyhedrons.
+     *
+     *  \param csFXa Eight-entries array that contains the first frustum summits x-coordinates
+     *  \param csFYa Eight-entries array that contains the first frustum summit y-coordinates
+     *  \param csFZa Eight-entries array that contains the first frustum summit z-coordinates
+     *  \param csFXb Eight-entries array that contains the second frustum summit x-coordinates
+     *  \param csFYb Eight-entries array that contains the second frustum summit y-coordinates
+     *  \param csFZb Eight-entries array that contains the second frustum summit z-coordinates
+     *  \return Returns CS_TRUE if an intersection is detected, CS_FALSE otherwise
+     */
+
     int cs_frustum_intersection(
 
         const double const * csFXa,
@@ -187,6 +226,17 @@
 
     );
 
+    /*! \brief Double arrays extremums extraction
+     *
+     *  This function extracts extremum values, that are minimum and
+     *  maximum, from an array of double.
+     *  
+     *  \param csArray Pointer to double array
+     *  \param csSize Size of the double array, in type units
+     *  \param csMaximum Maximum value reciever
+     *  \param csMinimum Minimum value reciever
+     */
+
     void cs_frustum_extremum( 
 
         const double const * csArray, 
@@ -195,6 +245,19 @@
         double *             csMinimum 
 
     );
+
+    /*! \brief Search agrument position in argv
+     *  
+     *  This function search in the argv string array the position of the argument
+     *  defined through ltag/stag and return the index of the corresponding parameter
+     *  in argv.
+     *  
+     *  \param argc Standard main parameter
+     *  \param argv Standard main parameter
+     *  \param ltag Long-form argument string (--argument)
+     *  \param stag Short-form argument string (-a)
+     *  \return Index of parameter in argv
+     */
 
     int  cs_stda ( int argc, char ** argv, const char * const ltag, const char * const stag );
 
