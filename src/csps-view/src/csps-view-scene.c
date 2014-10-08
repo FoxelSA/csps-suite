@@ -44,7 +44,7 @@
     # include "csps-view-scene.h"
 
 /* 
-    Source - General variables (GLUT only)
+    Source - Global variables (GLUT!)
  */
 
     extern cs_view_position csPosition;
@@ -98,7 +98,7 @@
     Source - Scene display lists
  */
 
-    void cs_view_scene_compile( int csFlag ) {
+    void cs_view_scene_compile( int const csFlag ) {
 
         /* Verify exectution flag */
         if ( csFlag == CS_FLAG_CREATE ) {
@@ -134,7 +134,7 @@
     Source - Camera track
  */
 
-    void cs_view_scene_track( GLuint csTag ) {
+    void cs_view_scene_track( GLuint const csTag ) {
 
         /* Parsing variables */
         lp_Size_t csParse = 0;

@@ -37,7 +37,7 @@
  */
 
     /*! \file   csps-view-scene.h
-     *  \author Nils Hamel (n.hamel@foxel.ch)
+     *  \author Nils Hamel <n.hamel@foxel.ch>
      *   
      *  OpenGL scene drawing.
      */
@@ -97,38 +97,39 @@
     Header - Function prototypes
  */
 
-    /*! \brief Scene main function
+    /*! \brief Scene rendering function
      *  
-     *  This function display the scene.
+     *  This function is called in software main infinite 
+     *  loop for entire scene rendering.
      */
 
     void cs_view_scene ( void );
 
-    /*! \brief Scene creation function
+    /*! \brief Scene creation/deletion function
      *  
      *  This function create an OpenGL display lists
      *  at startup that contains the parts of the 
      *  entire scene rendered by the software.
      *
      *  If CS_FLAG_CREATE is provided as csFlag, the
-     *  function create the display list. Otherwise,
-     *  the display list is deleted.
+     *  function create the display lists. Otherwise,
+     *  the display lists are deleted.
      *  
      *  \param csFlag Creation/deletion flag
      */
 
-    void cs_view_scene_compile( int csFlag );
+    void cs_view_scene_compile ( int const csFlag );
 
     /*! \brief Specific scene compilation function
      *  
      *  This function create a display list that
-     *  contains position and orientation of the
-     *  camera and the earth frame.
+     *  contains positions and orientations of the
+     *  camera and the flat earth model frame.
      *  
      *  \param csTag OpenGL display list value
      */
 
-    void cs_view_scene_track( GLuint csTag );
+    void cs_view_scene_track( GLuint const csTag );
 
 /* 
     Header - C/C++ compatibility

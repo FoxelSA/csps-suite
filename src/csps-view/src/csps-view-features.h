@@ -37,9 +37,9 @@
  */
 
     /*! \file   csps-view-features.h
-     *  \author Nils Hamel (n.hamel@foxel.ch)
+     *  \author Nils Hamel <n.hamel@foxel.ch>
      *   
-     *  csps-view general features definition.
+     *  General features definition
      */
 
 /* 
@@ -113,11 +113,11 @@
      *  \var cs_view_position_struct::psAY
      *  Left/Right rotation
      *  \var cs_view_position_struct::psLon
-     *  Longitude (x) position
+     *  Longitude position
      *  \var cs_view_position_struct::psLat
-     *  Latitude (-z) position
+     *  Latitude position
      *  \var cs_view_position_struct::psAlt
-     *  Altitude (y) position
+     *  Altitude position
      *  \var cs_view_position_struct::psVel
      *  Motion velocity factor
      */ 
@@ -137,7 +137,7 @@
      *  \brief Keyboard events structure
      *
      *  This structure stores information about keyboard
-     *  event.
+     *  events.
      *
      *  \var cs_view_keyboard_struct::kbExit
      *  Exit key flag
@@ -156,10 +156,10 @@
      *  \brief Mouse events structure
      *
      *  This structure stores information about mouse
-     *  event.
+     *  events.
      *
      *  \var cs_view_mouse_struct::msMode
-     *  Current mouse mode, in function of pressed button
+     *  Current mouse mode, according to pressed button
      *  \var cs_view_mouse_struct::msX
      *  Mouse x position memory
      *  \var cs_view_mouse_struct::msY
@@ -178,7 +178,7 @@
      *  \brief OpenGL display lists structure
      *
      *  This structure stores information about OpenGL
-     *  display list index.
+     *  display lists.
      *
      *  \var cs_view_list_struct::lsTrack
      *  Display list index of camera position and orientation
@@ -198,13 +198,13 @@
      *  record.
      *
      *  \var cs_view_path_struct::ptRoot
-     *  CSPS structure to display main path
+     *  CSPS structure to display segment path
      *  \var cs_view_path_struct::ptCAMm
      *  Stream initiator module to consider for camera record
      *  \var cs_view_path_struct::ptGPSm
      *  Stream initiator module to consider for GPS positions
      *  \var cs_view_path_struct::ptIMUm
-     *  Stream initiator module to consider for IMU orientation
+     *  Stream initiator module to consider for IMU orientations
      *  \var cs_view_path_struct::ptCAMd
      *  Camera device tag to consider
      *  \var cs_view_path_struct::ptGPSd

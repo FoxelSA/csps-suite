@@ -44,7 +44,7 @@
     # include "csps-view-event.h"
 
 /* 
-    Source - General variables (GLUT only)
+    Source - Global variables (GLUT!)
  */
 
     extern cs_view_position csPosition;

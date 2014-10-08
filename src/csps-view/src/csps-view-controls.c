@@ -44,7 +44,7 @@
     # include "csps-view-controls.h"
 
 /* 
-    Source - General variables (GLUT only)
+    Source - Global variables (GLUT!)
  */
 
     extern cs_view_position csPosition;
@@ -57,7 +57,7 @@
     Source - Initial position reset
  */
 
-    void cs_view_controls_reset( int csFlag, double csMeanLon, double csMeanLat, double csMeanAlt ) {
+    void cs_view_controls_reset( int const csFlag, double const csMeanLon, double const csMeanLat, double const csMeanAlt ) {
 
         /* Declare static variables */
         static double csInitLon = 0.0;

@@ -37,7 +37,7 @@
  */
 
     /*! \file   csps-view.h
-     *  \author Nils Hamel (n.hamel@foxel.ch)
+     *  \author Nils Hamel <n.hamel@foxel.ch>
      *   
      *  Software main header
      */

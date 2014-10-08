@@ -37,9 +37,9 @@
  */
 
     /*! \file   csps-view-event.h
-     *  \author Nils Hamel (n.hamel@foxel.ch)
+     *  \author Nils Hamel <n.hamel@foxel.ch>
      *   
-     *  OpenGLUT callbacks function definition for keyboard and mouse.
+     *  OpenGLUT callback functions
      */
 
 /* 
@@ -94,7 +94,7 @@
     /*! \brief Window reshape callback function
      *  
      *  This function is called as GLUT callback on window
-     *  reshape.
+     *  reshape events.
      *  
      *  \param width Width of the window
      *  \param height Height of the window
@@ -108,8 +108,8 @@
      *  events.
      *
      *  \param key Keycode
-     *  \param x Mouse x coordinates at keyevent
-     *  \param y Mouse y coordinates at keyevent
+     *  \param x Mouse x coordinate at keyevent
+     *  \param y Mouse y coordinate at keyevent
      */
 
     void cs_view_event_keyboard ( unsigned char key, int x, int y );
@@ -121,8 +121,8 @@
      *
      *  \param button Mouse button
      *  \param state Mouse button state
-     *  \param x Mouse x coordinates
-     *  \param y Mouse y coordinates
+     *  \param x Mouse x coordinate
+     *  \param y Mouse y coordinate
      */
 
     void cs_view_event_mouse ( int button, int state, int x, int y );
@@ -132,8 +132,8 @@
      *  This function is called as GLUT callback on mouse 
      *  motion events.
      *
-     *  \param x Mouse x coordinates
-     *  \param y Mouse y coordinates
+     *  \param x Mouse x coordinate
+     *  \param y Mouse y coordinate
      */
 
     void cs_view_event_move ( int x, int y );

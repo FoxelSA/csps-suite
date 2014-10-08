@@ -37,9 +37,9 @@
  */
 
     /*! \file   csps-view-controls.h
-     *  \author Nils Hamel (n.hamel@foxel.ch)
+     *  \author Nils Hamel <n.hamel@foxel.ch>
      *   
-     *  OpenGLUT callbacks function definition for keyboard and mouse.
+     *  OpenGL scene camera management
      */
 
 /* 
@@ -101,7 +101,7 @@
      *  \param csMeanAlt Reset altitude value
      */
 
-    void cs_view_controls_reset ( int csFlag, double csMeanLon, double csMeanLat, double csMeanAlt );
+    void cs_view_controls_reset( int const csFlag, double const csMeanLon, double const csMeanLat, double const csMeanAlt );
 
 /* 
     Header - C/C++ compatibility

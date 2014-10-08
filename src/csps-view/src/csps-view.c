@@ -44,7 +44,7 @@
     # include "csps-view.h"
 
 /* 
-    Source - General variables
+    Source - Global variables (GLUT!)
  */
 
     cs_view_position csPosition = { 0, 0, 0, 0, 0 };
@@ -83,7 +83,7 @@
             glutInit( & argc, argv );
 
             /* Initialize windows parameters */
-            glutInitWindowSize( 1920, 1200 );
+            glutInitWindowSize( glutGet( GLUT_SCREEN_WIDTH ), glutGet( GLUT_SCREEN_HEIGHT ) );
 
             /* Create windows */
             csWindow = glutCreateWindow( "csps-view" );
