@@ -52,6 +52,12 @@
         /* Structure path variables */
         char csPath[256] = { 0 };
 
+        /* Stream pointer variables */
+        char csGPSd[256] = { 0 };
+        char csGPSm[256] = { 0 };
+        char csIMUd[256] = { 0 };
+        char csIMUm[256] = { 0 };
+
         /* Camera designation variables */
         char csCameraA[256] = { 0 };
         char csCameraB[256] = { 0 };
@@ -74,6 +80,10 @@
         cs_stdp( cs_stda( argc, argv, "--path"         , "-p" ), argv,   csPath    , CS_STRING );
         cs_stdp( cs_stda( argc, argv, "--camera-a"     , "-c" ), argv,   csCameraA , CS_STRING );
         cs_stdp( cs_stda( argc, argv, "--camera-b"     , "-d" ), argv,   csCameraB , CS_STRING );
+        cs_stdp( cs_stda( argc, argv, "--gps-tag"      , "-g" ), argv,   csGPSd    , CS_STRING );
+        cs_stdp( cs_stda( argc, argv, "--gps-mod"      , "-m" ), argv,   csGPSm    , CS_STRING );
+        cs_stdp( cs_stda( argc, argv, "--imu-tag"      , "-i" ), argv,   csIMUd    , CS_STRING );
+        cs_stdp( cs_stda( argc, argv, "--imu-mod"      , "-k" ), argv,   csIMUm    , CS_STRING );
         cs_stdp( cs_stda( argc, argv, "--channel-a"    , "-i" ), argv, & csChannelA, CS_INT    );
         cs_stdp( cs_stda( argc, argv, "--channel-b"    , "-j" ), argv, & csChannelB, CS_INT    );
         cs_stdp( cs_stda( argc, argv, "--plane-near"   , "-n" ), argv, & csNPlane  , CS_DOUBLE );
@@ -91,6 +101,147 @@
 
         } else {
 
+            /* Check camera devices consistency */
+            if ( 
+
+                ( ( strcasecmp( csCameraA, LF_EYESIS4PI_1 ) == 0 ) ||( strcasecmp( csCameraA, LF_EYESIS4PI_2 ) == 0 ) ) &&
+                ( ( strcasecmp( csCameraB, LF_EYESIS4PI_1 ) == 0 ) ||( strcasecmp( csCameraB, LF_EYESIS4PI_2 ) == 0 ) )
+
+            ) {
+
+                /* Check channels consistency */
+                if ( ( csChannelA >= 0 ) && ( csChannelA < 26 ) && ( csChannelB >= 0 ) && ( csChannelB < 26 ) ) {
+
+                    /* CSPS query structures */
+                    lp_QueryPosition    csQpositA;
+                    lp_QueryPosition    csQpositB;
+                    lp_QueryOrientation csQorienA;
+                    lp_QueryOrientation csQorienB;
+
+                    /* CSPS timestamp variables */
+                    lp_Time_t csTimeA = lp_timestamp_compose( csTSA, csTUA );
+                    lp_Time_t csTimeB = lp_timestamp_compose( csTSB, csTUB );
+
+                    /* CSPS query - Positions */
+                    csQpositA = lp_query_position_by_timestamp( csPath, LP_DEVICE_TYPE_GPS, csGPSd, csGPSm, csTimeA );
+                    csQpositB = lp_query_position_by_timestamp( csPath, LP_DEVICE_TYPE_GPS, csGPSd, csGPSm, csTimeB );
+
+                    /* CSPS query - Orientations */
+                    csQorienA = lp_query_orientation_by_timestamp( csPath, LP_DEVICE_TYPE_IMU, csIMUd, csIMUm, csTimeA );
+                    csQorienB = lp_query_orientation_by_timestamp( csPath, LP_DEVICE_TYPE_IMU, csIMUd, csIMUm, csTimeB );
+
+                    /* Check query status */
+                    if ( 
+
+                        ( csQpositA.qrStatus == LP_TRUE ) && 
+                        ( csQpositB.qrStatus == LP_TRUE ) && 
+                        ( csQorienA.qrStatus == LP_TRUE ) && 
+                        ( csQorienB.qrStatus == LP_TRUE ) 
+
+                    ) {
+
+                        /* Frustum nadir vector variables */
+                        double csNadirA[6] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+                        double csNadirB[6] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+
+                        /* Frustum right vector variables */
+                        double csRightA[6] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+                        double csRightB[6] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+
+                        /* Relative position variables */
+                        double csPositionA[3] = { 0.0, 0.0, 0.0 };
+                        double csPositionB[3] = { 0.0, 0.0, 0.0 };
+
+                        /* Frustums summits variables */
+                        double csFrustumAx[8] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, };
+                        double csFrustumAy[8] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, };
+                        double csFrustumAz[8] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, };
+                        double csFrustumBx[8] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, };
+                        double csFrustumBy[8] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, };
+                        double csFrustumBz[8] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, };
+
+                        /* Obtain eyesis4pi frame nadir/right/position vector */
+                        cs_frustum_eyesis4pi( csCameraA, csChannelA, csNadirA, csRightA, csPositionA );
+                        cs_frustum_eyesis4pi( csCameraB, csChannelB, csNadirB, csRightB, csPositionB );
+
+                        /* Synchronize frustums nadir to earth */
+                        csNadirA[3] = csNadirA[0] * csQorienA.qrfxx + csNadirA[1] * csQorienA.qrfyx + csNadirA[2] * csQorienA.qrfzx;
+                        csNadirA[4] = csNadirA[0] * csQorienA.qrfxy + csNadirA[1] * csQorienA.qrfyy + csNadirA[2] * csQorienA.qrfzy;
+                        csNadirA[5] = csNadirA[0] * csQorienA.qrfxz + csNadirA[1] * csQorienA.qrfyz + csNadirA[2] * csQorienA.qrfzz;
+                        csNadirB[3] = csNadirB[0] * csQorienB.qrfxx + csNadirB[1] * csQorienB.qrfyx + csNadirB[2] * csQorienB.qrfzx;
+                        csNadirB[4] = csNadirB[0] * csQorienB.qrfxy + csNadirB[1] * csQorienB.qrfyy + csNadirB[2] * csQorienB.qrfzy;
+                        csNadirB[5] = csNadirB[0] * csQorienB.qrfxz + csNadirB[1] * csQorienB.qrfyz + csNadirB[2] * csQorienB.qrfzz;
+
+                        /* Synchronize frustums right to earth */
+                        csRightA[3] = csRightA[0] * csQorienA.qrfxx + csRightA[1] * csQorienA.qrfyx + csRightA[2] * csQorienA.qrfzx;
+                        csRightA[4] = csRightA[0] * csQorienA.qrfxy + csRightA[1] * csQorienA.qrfyy + csRightA[2] * csQorienA.qrfzy;
+                        csRightA[5] = csRightA[0] * csQorienA.qrfxz + csRightA[1] * csQorienA.qrfyz + csRightA[2] * csQorienA.qrfzz;
+                        csRightB[3] = csRightB[0] * csQorienB.qrfxx + csRightB[1] * csQorienB.qrfyx + csRightB[2] * csQorienB.qrfzx;
+                        csRightB[4] = csRightB[0] * csQorienB.qrfxy + csRightB[1] * csQorienB.qrfyy + csRightB[2] * csQorienB.qrfzy;
+                        csRightB[5] = csRightB[0] * csQorienB.qrfxz + csRightB[1] * csQorienB.qrfyz + csRightB[2] * csQorienB.qrfzz;
+
+                        /* Synchronize second position to relative earth */
+                        csPositionB[0] += ( csQpositB.qrLongitude - csQpositA.qrLongitude ) * ( 6367514.500000 + csQpositA.qrAltitude );
+                        csPositionB[1] += ( csQpositB.qrLatitude  - csQpositA.qrLatitude  ) * ( 6367514.500000 + csQpositA.qrAltitude );
+                        csPositionB[2] += ( csQpositB.qrAltitude  - csQpositA.qrAltitude  );
+
+                        /* Compute frustum A summits */
+                        cs_frustum_summit( 
+
+                            csNadirA,
+                            csRightA,
+                            csPositionA,
+                            lf_query_sensor( csCameraA, LF_EYESIS4PI_PIXELSIZE, csChannelA, NULL ),
+                            lf_query_sensor( csCameraA, LF_EYESIS4PI_FOCAL    , csChannelA, NULL ),
+                            lf_query_sensor( csCameraA, LF_EYESIS4PI_SENWIDTH , csChannelA, NULL ),
+                            lf_query_sensor( csCameraA, LF_EYESIS4PI_SENHEIGHT, csChannelA, NULL ),
+                            csNPlane,
+                            csFPlane,
+                            csFrustumAx,
+                            csFrustumAy,
+                            csFrustumAz
+
+                        );
+
+                        /* Compute frustum B summits */
+                        cs_frustum_summit( 
+
+                            csNadirB,
+                            csRightB,
+                            csPositionB,
+                            lf_query_sensor( csCameraB, LF_EYESIS4PI_PIXELSIZE, csChannelB, NULL ),
+                            lf_query_sensor( csCameraB, LF_EYESIS4PI_FOCAL    , csChannelB, NULL ),
+                            lf_query_sensor( csCameraB, LF_EYESIS4PI_SENWIDTH , csChannelB, NULL ),
+                            lf_query_sensor( csCameraB, LF_EYESIS4PI_SENHEIGHT, csChannelB, NULL ),
+                            csNPlane,
+                            csFPlane,
+                            csFrustumBx,
+                            csFrustumBy,
+                            csFrustumBz
+
+                        );
+
+                        /* Frustum intersection detection */
+                        if ( cs_frustum_intersection( 
+
+                            csFrustumAx,
+                            csFrustumAy,
+                            csFrustumAz,
+                            csFrustumBx,
+                            csFrustumBy,
+                            csFrustumBz
+
+                        ) == CS_TRUE ) fprintf( CS_OUT, "TRUE" ); else fprintf( CS_OUT, "FALSE" );
+                
+                    /* Display message */
+                    } else { fprintf( CS_OUT, "Error : CSPS query by timestamp failed\n" ); }
+
+                /* Display message */
+                } else { fprintf( CS_OUT, "Error : Device sensor index out of calibration range\n" ); }
+
+            /* Display message */
+            } else { fprintf( CS_OUT, "Error : Unknown camera device\n" ); }
+
         }
 
         /* Return to system */
@@ -104,14 +255,47 @@
 
     void cs_frustum_eyesis4pi( 
 
-        const char const * csCamera, 
-        const int          csChannel, 
-        double const *     csNadir, 
-        double const *     csRight
+        char const * const csCamera, 
+        int const          csChannel, 
+        double     * const csNadir, 
+        double     * const csRight,
+        double     * const csPosition
 
     ) {
 
-        
+        /* Calibration data variables */
+        double csAzimuth   = - lf_query_sensor( csCamera, LF_EYESIS4PI_AZIMUTH, csChannel, NULL ) - lf_query_sensor( csCamera, LF_EYESIS4PI_HEADING, csChannel, NULL ) + ( LF_PI / 2.0 );
+        double csElevation = - lf_query_sensor( csCamera, LF_EYESIS4PI_ELEVATION, csChannel, NULL );
+        double csRoll      = + lf_query_sensor( csCamera, LF_EYESIS4PI_ROLL, csChannel, NULL );
+        double csRadius    = + lf_query_sensor( csCamera, LF_EYESIS4PI_RADIUS, csChannel, NULL );
+        double csHeight    = + lf_query_sensor( csCamera, LF_EYESIS4PI_HEIGHT, csChannel, NULL );
+        double csPupil     = - lf_query_sensor( csCamera, LF_EYESIS4PI_PUPFORWARD, csChannel, NULL );
+
+        /* Extract roll remanant */
+        csRoll = ( csRoll < 0.0 ) ? ( - ( LF_PI / 2.0 ) - csRoll ) : ( + ( LF_PI / 2.0 ) - csRoll );
+
+        /* Trigonometric value variables */
+        double csCosA = cos( csAzimuth   );
+        double csSinA = sin( csAzimuth   );
+        double csCosE = cos( csElevation );
+        double csSinE = sin( csElevation );
+        double csCosR = cos( csRoll      );
+        double csSinR = sin( csRoll      );
+
+        /* Compute frustum-nadir vectors */
+        csNadir[0] = + csCosA * csCosE;
+        csNadir[1] = + csSinA * csCosE;
+        csNadir[2] = - csSinE;
+
+        /* Compute frustum-right vectors */
+        csRight[0] = + csCosA * csSinE * csSinR - csSinA * csCosR;
+        csRight[1] = + csSinA * csSinE * csSinR + csCosA * csCosR;
+        csRight[2] = + csCosE * csSinR;
+
+        /* Compute position vector */
+        csPosition[0] = + ( csRadius - csPupil ) * csCosA;
+        csPosition[1] = + ( csRadius - csPupil ) * csSinA;
+        csPosition[2] = + ( csSinE * csPupil ) + csHeight;
 
     }
 

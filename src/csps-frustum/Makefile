@@ -21,7 +21,7 @@
 #   make - Configuration - Libraries
 #
 
-    MAKE_LINKLIB:=-lm -linter -lcsps -lfastcal
+    MAKE_LINKLIB:=-lm -lfastcal -linter -lcsps
     MAKE_INCLUDE:=$(MAKE_LIBRAR)/libcsps $(MAKE_LIBRAR)/libcsps/lib/libinter $(MAKE_LIBRAR)/libfastcal
 
 #
