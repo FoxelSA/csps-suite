@@ -71,6 +71,7 @@
     # include <string.h>
     # include <float.h>
     # include <csps-all.h>
+    # include <fastcal-all.h>
 
 /* 
     Header - Preprocessor definitions
