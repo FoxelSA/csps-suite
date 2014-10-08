@@ -305,18 +305,18 @@
 
     void cs_frustum_summit( 
 
-        const double const * csNadir, 
-        const double const * csRight, 
-        const double const * csPosition, 
-        const double         csPixel, 
-        const double         csFocal, 
-        const double         csWidth, 
-        const double         csHeight, 
-        const double         csNear, 
-        const double         csFar,
-        double *             csFX,
-        double *             csFY,
-        double *             csFZ
+        double const * const csNadir, 
+        double const * const csRight, 
+        double const * const csPosition, 
+        double const         csPixel, 
+        double const         csFocal, 
+        double const         csWidth, 
+        double const         csHeight, 
+        double const         csNear, 
+        double const         csFar,
+        double       * const csFX,
+        double       * const csFY,
+        double       * const csFZ
 
     ) {
 
@@ -395,12 +395,12 @@
 
     int cs_frustum_intersection(
 
-        const double const * csFXa,
-        const double const * csFYa,
-        const double const * csFZa,
-        const double const * csFXb,
-        const double const * csFYb,
-        const double const * csFZb
+        double const * const csFXa,
+        double const * const csFYa,
+        double const * const csFZa,
+        double const * const csFXb,
+        double const * const csFYb,
+        double const * const csFZb
 
     ) {
 
@@ -487,10 +487,10 @@
 
     void cs_frustum_extremum( 
 
-        const double const * csArray, 
-        const int            csSize, 
-        double *             csMaximum, 
-        double *             csMinimum 
+        double const * const csArray, 
+        int    const         csSize, 
+        double       * const csMaximum, 
+        double       * const csMinimum 
 
     ) {
 
