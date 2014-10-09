@@ -290,13 +290,13 @@
         csFrustum->fsSX[2] = csFrustum->fsNPP[0] - ( csFrustum->fsLef[0] * csFrustum->fsLefApp * csFrustum->fsNear ) - ( csFrustum->fsTop[0] * csFrustum->fsTopApp * csFrustum->fsNear );
         csFrustum->fsSX[3] = csFrustum->fsNPP[0] + ( csFrustum->fsLef[0] * csFrustum->fsLefApp * csFrustum->fsNear ) - ( csFrustum->fsTop[0] * csFrustum->fsTopApp * csFrustum->fsNear );
 
-        /* Compute frustum polyhedron summits y-near */
+        /* Compute frustum summits in earth frame y-near-coordinates */
         csFrustum->fsSY[0] = csFrustum->fsNPP[1] + ( csFrustum->fsLef[1] * csFrustum->fsLefApp * csFrustum->fsNear ) + ( csFrustum->fsTop[1] * csFrustum->fsTopApp * csFrustum->fsNear );
         csFrustum->fsSY[1] = csFrustum->fsNPP[1] - ( csFrustum->fsLef[1] * csFrustum->fsLefApp * csFrustum->fsNear ) + ( csFrustum->fsTop[1] * csFrustum->fsTopApp * csFrustum->fsNear );
         csFrustum->fsSY[2] = csFrustum->fsNPP[1] - ( csFrustum->fsLef[1] * csFrustum->fsLefApp * csFrustum->fsNear ) - ( csFrustum->fsTop[1] * csFrustum->fsTopApp * csFrustum->fsNear );
         csFrustum->fsSY[3] = csFrustum->fsNPP[1] + ( csFrustum->fsLef[1] * csFrustum->fsLefApp * csFrustum->fsNear ) - ( csFrustum->fsTop[1] * csFrustum->fsTopApp * csFrustum->fsNear );
 
-        /* Compute frustum polyhedron summits z-near */
+        /* Compute frustum summits in earth frame z-near-coordinates */
         csFrustum->fsSZ[0] = csFrustum->fsNPP[2] + ( csFrustum->fsLef[2] * csFrustum->fsLefApp * csFrustum->fsNear ) + ( csFrustum->fsTop[2] * csFrustum->fsTopApp * csFrustum->fsNear );
         csFrustum->fsSZ[1] = csFrustum->fsNPP[2] - ( csFrustum->fsLef[2] * csFrustum->fsLefApp * csFrustum->fsNear ) + ( csFrustum->fsTop[2] * csFrustum->fsTopApp * csFrustum->fsNear );
         csFrustum->fsSZ[2] = csFrustum->fsNPP[2] - ( csFrustum->fsLef[2] * csFrustum->fsLefApp * csFrustum->fsNear ) - ( csFrustum->fsTop[2] * csFrustum->fsTopApp * csFrustum->fsNear );
@@ -308,13 +308,13 @@
         csFrustum->fsSX[6] = csFrustum->fsFPP[0] - ( csFrustum->fsLef[0] * csFrustum->fsLefApp * csFrustum->fsFar ) - ( csFrustum->fsTop[0] * csFrustum->fsTopApp * csFrustum->fsFar );
         csFrustum->fsSX[7] = csFrustum->fsFPP[0] + ( csFrustum->fsLef[0] * csFrustum->fsLefApp * csFrustum->fsFar ) - ( csFrustum->fsTop[0] * csFrustum->fsTopApp * csFrustum->fsFar );
 
-        /* Compute frustum polyhedron summits y-far */
+        /* Compute frustum summits in earth frame y-far-coordinates */
         csFrustum->fsSY[4] = csFrustum->fsFPP[1] + ( csFrustum->fsLef[1] * csFrustum->fsLefApp * csFrustum->fsFar ) + ( csFrustum->fsTop[1] * csFrustum->fsTopApp * csFrustum->fsFar );
         csFrustum->fsSY[5] = csFrustum->fsFPP[1] - ( csFrustum->fsLef[1] * csFrustum->fsLefApp * csFrustum->fsFar ) + ( csFrustum->fsTop[1] * csFrustum->fsTopApp * csFrustum->fsFar );
         csFrustum->fsSY[6] = csFrustum->fsFPP[1] - ( csFrustum->fsLef[1] * csFrustum->fsLefApp * csFrustum->fsFar ) - ( csFrustum->fsTop[1] * csFrustum->fsTopApp * csFrustum->fsFar );
         csFrustum->fsSY[7] = csFrustum->fsFPP[1] + ( csFrustum->fsLef[1] * csFrustum->fsLefApp * csFrustum->fsFar ) - ( csFrustum->fsTop[1] * csFrustum->fsTopApp * csFrustum->fsFar );
 
-        /* Compute frustum polyhedron summits z-far */
+        /* Compute frustum summits in earth frame z-far-coordinates */
         csFrustum->fsSZ[4] = csFrustum->fsFPP[2] + ( csFrustum->fsLef[2] * csFrustum->fsLefApp * csFrustum->fsFar ) + ( csFrustum->fsTop[2] * csFrustum->fsTopApp * csFrustum->fsFar );
         csFrustum->fsSZ[5] = csFrustum->fsFPP[2] - ( csFrustum->fsLef[2] * csFrustum->fsLefApp * csFrustum->fsFar ) + ( csFrustum->fsTop[2] * csFrustum->fsTopApp * csFrustum->fsFar );
         csFrustum->fsSZ[6] = csFrustum->fsFPP[2] - ( csFrustum->fsLef[2] * csFrustum->fsLefApp * csFrustum->fsFar ) - ( csFrustum->fsTop[2] * csFrustum->fsTopApp * csFrustum->fsFar );
@@ -340,14 +340,16 @@
         int csParse = 0;
 
         /* Edge point coordinates variables */
-        double csPx = 0.0;
-        double csPy = 0.0;
-        double csPz = 0.0;
-        double csFx = 0.0;
-        double csFy = 0.0;
-        double csFz = 0.0;
+        double csInterX = 0.0;
+        double csInterY = 0.0;
+        double csInterZ = 0.0;
 
-        /* Progressive rational [0,1] range variables */
+        /* Edge point component variables */
+        double csCompX = 0.0;
+        double csCompY = 0.0;
+        double csCompZ = 0.0;
+
+        /* Progressive rational range variables */
         double csStp = 1.0;
         double csPow = 2.0;
         double csPtn = 1.0 / 2.0;
@@ -362,20 +364,20 @@
             for ( csParse = 0; csParse < 12; csParse ++ ) {
 
                 /* Compute edge point in first frustum origin centered frame */
-                csPx = csPtn * ( csFrus_B->fsSX[csEdge[csParse][0]] - csFrus_B->fsSX[csEdge[csParse][1]] ) + csFrus_B->fsSX[csEdge[csParse][1]] - csFrus_A->fsOrg[0];
-                csPy = csPtn * ( csFrus_B->fsSY[csEdge[csParse][0]] - csFrus_B->fsSY[csEdge[csParse][1]] ) + csFrus_B->fsSY[csEdge[csParse][1]] - csFrus_A->fsOrg[1];
-                csPz = csPtn * ( csFrus_B->fsSZ[csEdge[csParse][0]] - csFrus_B->fsSZ[csEdge[csParse][1]] ) + csFrus_B->fsSZ[csEdge[csParse][1]] - csFrus_A->fsOrg[2];
+                csInterX = csPtn * ( csFrus_B->fsSX[csEdge[csParse][0]] - csFrus_B->fsSX[csEdge[csParse][1]] ) + csFrus_B->fsSX[csEdge[csParse][1]] - csFrus_A->fsOrg[0];
+                csInterY = csPtn * ( csFrus_B->fsSY[csEdge[csParse][0]] - csFrus_B->fsSY[csEdge[csParse][1]] ) + csFrus_B->fsSY[csEdge[csParse][1]] - csFrus_A->fsOrg[1];
+                csInterZ = csPtn * ( csFrus_B->fsSZ[csEdge[csParse][0]] - csFrus_B->fsSZ[csEdge[csParse][1]] ) + csFrus_B->fsSZ[csEdge[csParse][1]] - csFrus_A->fsOrg[2];
 
                 /* Compute edge point coordinate in frist frustum nadir/left/top basis */
-                csFx = csFrus_A->fsNad[0] * csPx + csFrus_A->fsNad[1] * csPy + csFrus_A->fsNad[2] * csPz;
-                csFy = csFrus_A->fsLef[0] * csPx + csFrus_A->fsLef[1] * csPy + csFrus_A->fsLef[2] * csPz;
-                csFz = csFrus_A->fsTop[0] * csPx + csFrus_A->fsTop[1] * csPy + csFrus_A->fsTop[2] * csPz;
+                csCompX = csFrus_A->fsNad[0] * csInterX + csFrus_A->fsNad[1] * csInterY + csFrus_A->fsNad[2] * csInterZ;
+                csCompY = csFrus_A->fsLef[0] * csInterX + csFrus_A->fsLef[1] * csInterY + csFrus_A->fsLef[2] * csInterZ;
+                csCompZ = csFrus_A->fsTop[0] * csInterX + csFrus_A->fsTop[1] * csInterY + csFrus_A->fsTop[2] * csInterZ;
 
                 /* Verify intersection condition - principal direction */
-                if ( ( csFx >= csFrus_A->fsNear ) && ( csFx <= csFrus_A->fsFar ) ) {
+                if ( ( csCompX >= csFrus_A->fsNear ) && ( csCompX <= csFrus_A->fsFar ) ) {
 
                     /* Verify intersection condition - secondary plane */
-                    if ( ( fabs( csFy ) <= ( csFx * csFrus_A->fsLefApp ) ) && ( fabs( csFz ) <= ( csFx * csFrus_A->fsTopApp ) ) ) {
+                    if ( ( fabs( csCompY ) <= ( csCompX * csFrus_A->fsLefApp ) ) && ( fabs( csCompZ ) <= ( csCompX * csFrus_A->fsTopApp ) ) ) {
 
                         /* Trigger intersection condition */
                         csResult = CS_TRUE;

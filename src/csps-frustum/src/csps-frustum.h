@@ -120,19 +120,53 @@
     Header - Structures
  */
 
+    /*! \struct cs_Frustum_struct
+     *  \brief Frustum definition
+     *
+     *  The structure stores the geometrical definition
+     *  of a frustum.
+     *
+     *  \var cs_Frustum_struct::fsNad
+     *  Nadir vector (principal direction)
+     *  \var cs_Frustum_struct::fsLef
+     *  Left vector
+     *  \var cs_Frustum_struct::fsTop
+     *  Top vector
+     *  \var cs_Frustum_struct::fsOrg
+     *  Frustum origin
+     *  \var cs_Frustum_struct::fsNPP
+     *  Frustum near principal point
+     *  \var cs_Frustum_struct::fsFPP
+     *  Frustum far principal point
+     *  \var cs_Frustum_struct::fsLefApp
+     *  Frustum left apperture parameter
+     *  \var cs_Frustum_struct::fsTopApp
+     *  Frustum top apperture parameter
+     *  \var cs_Frustum_struct::fsNear
+     *  Frustum near plane distance to origin
+     *  \var cs_Frustum_struct::fsFar
+     *  Frustum far plane distance to origin
+     *  \var cs_Frustum_struct::fsSX
+     *  Frustum summit x-coordinates
+     *  \var cs_Frustum_struct::fsSY
+     *  Frustum summit y-coordinates
+     *  \var cs_Frustum_struct::fsSZ
+     *  Frustum summit z-coordinates
+     */ 
+
     typedef struct cs_Frustum_struct {
 
-        /* Frustum nadir/left/top vector (orthonormal) */
+        /* Frustum nadir/left/top vectors */
         double fsNad[3];
         double fsLef[3];
         double fsTop[3];
 
-        /* Frustum origin/near principal/far principal points */
+        /* Frustum origin/near/far points */
         double fsOrg[3];
         double fsNPP[3];
         double fsFPP[3];
 
-        /* Frustum left/top apperture parameters */
+        /* Frustum left/top appertures */
         double fsLefApp;
         double fsTopApp;
 
@@ -153,12 +187,14 @@
 
     /*! \brief Software main function
      *  
-     *  The main function is responsible for determining if two camera
-     *  sensors have an intersection in thier frustum. It asks the
-     *  frustum vectors and eyesis frame position in order to synchronize
-     *  them on earth through libcsps. The frustum are then built and
-     *  compared. If frustums have an intersection, the function display
-     *  TRUE on the standard output, FALSE otherwise.
+     *  The main function is responsible for verifying
+     *  if two camera sensors frustum have a common
+     *  volume. It asks the frustum definition of the
+     *  two sensor and call the detection algorithm.
+     *  
+     *  When an intersection is detected, the software
+     *  output TRUE string in standard output and
+     *  FALSE otherwise.
      *  
      *  \param argc Standard main parameter
      *  \param argv Standard main parameter
@@ -167,7 +203,43 @@
     int main ( int argc, char ** argv );
 
     /*! \brief Eyesis4Pi frustum composer
-
+     *
+     *  This function create the frustum definition
+     *  of a given sensor of an eyesis4pi device. It
+     *  takes calibration data into account to
+     *  precisely place the frustum according to the
+     *  camera.
+     *
+     *  Moreover, the function takes a rotation matrix
+     *  and a position vector in order to compute the
+     *  frustum in earth or other frame.
+     *  
+     *  \param csCamera     Camera MAC address
+     *  \param csChannel    Camera sensor index
+     *  \param csEFxx       X-component of rotated
+     *                      x-unit vector
+     *  \param csEFxy       Y-component of rotated
+     *                      x-unit vector
+     *  \param csEFxz       Z-component of rotated
+     *                      x-unit vector
+     *  \param csEFyx       X-component of rotated
+     *                      y-unit vector
+     *  \param csEFyy       Y-component of rotated
+     *                      y-unit vector
+     *  \param csEFyz       Z-component of rotated
+     *                      y-unit vector
+     *  \param csEFzx       X-component of rotated
+     *                      z-unit vector
+     *  \param csEFzy       Y-component of rotated
+     *                      z-unit vector
+     *  \param csEFzz       Z-component of rotated
+     *                      z-unit vector
+     *  \param csEFpx       X-coordinate of device
+     *  \param csEFpy       Y-coordinate of device
+     *  \param csEFpz       Z-coordinate of device
+     *  \param csNear       Frustum near plane
+     *  \param csFar        Frustum far plane
+     *  \param csFrustum    Returned frustum definition
      */
 
     void cs_frustum_eyesis4pi(
@@ -193,7 +265,19 @@
     );
 
     /*! \brief Frustum intersection detection
-
+     * 
+     *  This function takes to frustum definitions and
+     *  determine if an polyhedral intersection appears.
+     *  
+     *  The intersection detection method is not an
+     *  absolute method and intersection volume that
+     *  are below a given size can be missed.
+     *
+     *  \param csFrus_A First frustum definition
+     *  \param csFrus_B Second frustum definition
+     *
+     *  \returns        Returns CS_TRUE on intersection
+     *                  and CS_FALSE otherwise.
      */
 
     int cs_frustum_intersection(
@@ -203,31 +287,36 @@
 
     );
 
-    /*! \brief Search agrument position in argv
+    /*! \brief Arguments common handler
      *  
-     *  This function search in the argv string array the position of the argument
-     *  defined through ltag/stag and return the index of the corresponding parameter
-     *  in argv.
+     *  This function searches in the argv string array 
+     *  the position of the argument defined through 
+     *  ltag/stag and returns the detected index.
      *  
-     *  \param argc Standard main parameter
-     *  \param argv Standard main parameter
-     *  \param ltag Long-form argument string (--argument)
-     *  \param stag Short-form argument string (-a)
-     *  \return Index of parameter in argv
+     *  \param argc     Standard main parameter
+     *  \param argv     Standard main parameter
+     *  \param ltag     Long-form argument string
+     *  \param stag     Short-form argument string
+     *
+     *  \return         Index of parameter in argv
      */
 
     int  cs_stda ( int argc, char ** argv, const char * const ltag, const char * const stag );
 
-    /*! \brief Parameter reader in argv
+    /*! \brief Parameters common handler
      *  
-     *  This function interpret the parameter in the desired type and return it through
-     *  the param variable. The argi variable is typically set using stda function. If
-     *  argi is set to CS_NULL, the function does nothing.
+     *  This function interprets the parameter in the 
+     *  desired type and returns it through the param 
+     *  variable. The argi variable is typically set 
+     *  using stda function. If argi is set to CS_NULL, 
+     *  the function does nothing.
      *  
-     *  \param argi Index of the parameter in argv
-     *  \param argv Standard main parameter
-     *  \param param Pointer to the variable that recieve the parameter
-     *  \param type Type to use for parameter interpretation
+     *  \param argi     Index of the parameter in argv
+     *  \param argv     Standard main parameter
+     *  \param param    Pointer to the variable that recieve 
+     *                  the interpreted parameter
+     *  \param type     Type to use for parameter 
+     *                  interpretation
      */
 
     void cs_stdp ( int argi, char ** argv, void * param, int type );
