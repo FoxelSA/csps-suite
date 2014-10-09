@@ -120,6 +120,33 @@
     Header - Structures
  */
 
+    typedef struct cs_Frustum_struct {
+
+        /* Frustum nadir/left/top vector (orthonormal) */
+        double fsNad[3];
+        double fsLef[3];
+        double fsTop[3];
+
+        /* Frustum origin/near principal/far principal points */
+        double fsOrg[3];
+        double fsNPP[3];
+        double fsFPP[3];
+
+        /* Frustum left/top apperture parameters */
+        double fsLefApp;
+        double fsTopApp;
+
+        /* Frustum near/far planes */
+        double fsNear;
+        double fsFar;
+
+        /* Frustum summit arrays */
+        double fsSX[8];
+        double fsSY[8];
+        double fsSZ[8];
+
+    } cs_Frustum_t;
+
 /* 
     Header - Function prototypes
  */
@@ -139,110 +166,40 @@
 
     int main ( int argc, char ** argv );
 
-    /*! \brief Frustum vector in eyesis4pi frame
-     *  
-     *  This function builds, using calibration data of the wanted sensor
-     *  of the desired camera, the two vectors that define the sensor
-     *  frustum.
-     *
-     *  \param csCamera Camera device (MAC address)
-     *  \param csChannel Camera sensor index
-     *  \param csNadir Three-entries vector that recieve the frustum nadir vector
-     *  \param csRight Three-entries vector that recieve the frustum right vector
-     *  \param csPosition Three-entries vector that recieve the frustum origin in eyesis4pi frame
+    /*! \brief Eyesis4Pi frustum composer
+
      */
 
-    void cs_frustum_eyesis4pi( 
+    void cs_frustum_eyesis4pi(
 
-        char   const * const csCamera, 
-        int    const         csChannel, 
-        double       * const csNadir, 
-        double       * const csRight,
-        double       * const csPosition
+        char         const * const csCamera, 
+        int          const         csChannel, 
+        double       const         csEFxx,
+        double       const         csEFxy,
+        double       const         csEFxz,
+        double       const         csEFyx,
+        double       const         csEFyy,
+        double       const         csEFyz,
+        double       const         csEFzx,
+        double       const         csEFzy,
+        double       const         csEFzz,
+        double       const         csEFpx,
+        double       const         csEFpy,
+        double       const         csEFpz,
+        double       const         csNear,
+        double       const         csFar,
+        cs_Frustum_t       * const csFrustum
 
     );
 
-    /*! \brief Frustum summit computer
-     *
-     *  This function takes the frustum definition vectors, the position
-     *  vector and the camera calibration data to build the summit of
-     *  the sensor frustum.
-     *
-     *  \param csNadir Three-entries vector that contains the frustum nadir vector
-     *  \param csRight Three-entries vector that contains the frustum right vector
-     *  \param csPosition Three-entries vector that contains the frustum origin
-     *  \param csPixel Size, in meters, of the sensor pixels
-     *  \param csFocal Focal length, in meters, of the sensor lense
-     *  \param csWidth Width, in pixels, of the sensor
-     *  \param csHeight Height, in pixels, of the sensor
-     *  \param csNear Near plane of the built frustum
-     *  \param csFar far plane of the built frustum
-     *  \param csFX Eight-entries array that recieve the frustum summits x-coordinates
-     *  \param csFY Eight-entries array that recieve the frustum summits y-coordinates
-     *  \param csFZ Eight-entries array that recieve the frustum summits z-coordinates
-     */
+    /*! \brief Frustum intersection detection
 
-    void cs_frustum_summit( 
-
-        double const * const csNadir, 
-        double const * const csRight, 
-        double const * const csPosition, 
-        double const         csPixel, 
-        double const         csFocal, 
-        double const         csWidth, 
-        double const         csHeight, 
-        double const         csNear, 
-        double const         csFar,
-        double       * const csFX,
-        double       * const csFY,
-        double       * const csFZ
-
-    );
-
-    /*! \brief Frustum intersection detector
-     *
-     *  This function considers the summits of two frustums in order
-     *  to determine if they have an intersection. The intersection
-     *  condition is mathematically based on the fact that frustum are
-     *  convex polyhedrons.
-     *
-     *  \param csFXa Eight-entries array that contains the first frustum summits x-coordinates
-     *  \param csFYa Eight-entries array that contains the first frustum summit y-coordinates
-     *  \param csFZa Eight-entries array that contains the first frustum summit z-coordinates
-     *  \param csFXb Eight-entries array that contains the second frustum summit x-coordinates
-     *  \param csFYb Eight-entries array that contains the second frustum summit y-coordinates
-     *  \param csFZb Eight-entries array that contains the second frustum summit z-coordinates
-     *  \return Returns CS_TRUE if an intersection is detected, CS_FALSE otherwise
      */
 
     int cs_frustum_intersection(
 
-        double const * const csFXa,
-        double const * const csFYa,
-        double const * const csFZa,
-        double const * const csFXb,
-        double const * const csFYb,
-        double const * const csFZb
-
-    );
-
-    /*! \brief Double arrays extremums extraction
-     *
-     *  This function extracts extremum values, that are minimum and
-     *  maximum, from an array of double.
-     *  
-     *  \param csArray Pointer to double array
-     *  \param csSize Size of the double array, in type units
-     *  \param csMaximum Maximum value reciever
-     *  \param csMinimum Minimum value reciever
-     */
-
-    void cs_frustum_extremum( 
-
-        double const * const csArray, 
-        int    const         csSize, 
-        double       * const csMaximum, 
-        double       * const csMinimum 
+        cs_Frustum_t const * const csFrus_A,
+        cs_Frustum_t const * const csFrus_B
 
     );
 

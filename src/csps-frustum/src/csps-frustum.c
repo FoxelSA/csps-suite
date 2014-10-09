@@ -140,98 +140,40 @@
 
                     ) {
 
-                        /* Frustum nadir vector variables */
-                        double csNadirA[6] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-                        double csNadirB[6] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+                        /* Frustums variables */
+                        cs_Frustum_t csFrus_A, csFrus_B;
 
-                        /* Frustum right vector variables */
-                        double csRightA[6] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-                        double csRightB[6] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+                        /* Compute corrected positions - Local flat earth model */
+                        csQpositB.qrLongitude = ( csQpositB.qrLongitude - csQpositA.qrLongitude ) * ( ( ( 6367514.5 + csQpositA.qrAltitude ) * LF_PI / 180.0 ) );
+                        csQpositB.qrLatitude  = ( csQpositB.qrLatitude  - csQpositA.qrLatitude  ) * ( ( ( 6367514.5 + csQpositA.qrAltitude ) * LF_PI / 180.0 ) );
+                        csQpositB.qrAltitude  = ( csQpositB.qrAltitude  - csQpositA.qrAltitude  );
 
-                        /* Relative position variables */
-                        double csPositionA[3] = { 0.0, 0.0, 0.0 };
-                        double csPositionB[3] = { 0.0, 0.0, 0.0 };
+                        /* Compute frustum of first camera */
+                        cs_frustum_eyesis4pi( 
 
-                        /* Frustums summits variables */
-                        double csFrustumAx[8] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, };
-                        double csFrustumAy[8] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, };
-                        double csFrustumAz[8] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, };
-                        double csFrustumBx[8] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, };
-                        double csFrustumBy[8] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, };
-                        double csFrustumBz[8] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, };
-
-                        /* Obtain eyesis4pi frame nadir/right/position vector */
-                        cs_frustum_eyesis4pi( csCameraA, csChannelA, csNadirA, csRightA, csPositionA );
-                        cs_frustum_eyesis4pi( csCameraB, csChannelB, csNadirB, csRightB, csPositionB );
-
-                        /* Synchronize frustums nadir to earth */
-                        csNadirA[3] = csNadirA[0] * csQorienA.qrfxx + csNadirA[1] * csQorienA.qrfyx + csNadirA[2] * csQorienA.qrfzx;
-                        csNadirA[4] = csNadirA[0] * csQorienA.qrfxy + csNadirA[1] * csQorienA.qrfyy + csNadirA[2] * csQorienA.qrfzy;
-                        csNadirA[5] = csNadirA[0] * csQorienA.qrfxz + csNadirA[1] * csQorienA.qrfyz + csNadirA[2] * csQorienA.qrfzz;
-                        csNadirB[3] = csNadirB[0] * csQorienB.qrfxx + csNadirB[1] * csQorienB.qrfyx + csNadirB[2] * csQorienB.qrfzx;
-                        csNadirB[4] = csNadirB[0] * csQorienB.qrfxy + csNadirB[1] * csQorienB.qrfyy + csNadirB[2] * csQorienB.qrfzy;
-                        csNadirB[5] = csNadirB[0] * csQorienB.qrfxz + csNadirB[1] * csQorienB.qrfyz + csNadirB[2] * csQorienB.qrfzz;
-
-                        /* Synchronize frustums right to earth */
-                        csRightA[3] = csRightA[0] * csQorienA.qrfxx + csRightA[1] * csQorienA.qrfyx + csRightA[2] * csQorienA.qrfzx;
-                        csRightA[4] = csRightA[0] * csQorienA.qrfxy + csRightA[1] * csQorienA.qrfyy + csRightA[2] * csQorienA.qrfzy;
-                        csRightA[5] = csRightA[0] * csQorienA.qrfxz + csRightA[1] * csQorienA.qrfyz + csRightA[2] * csQorienA.qrfzz;
-                        csRightB[3] = csRightB[0] * csQorienB.qrfxx + csRightB[1] * csQorienB.qrfyx + csRightB[2] * csQorienB.qrfzx;
-                        csRightB[4] = csRightB[0] * csQorienB.qrfxy + csRightB[1] * csQorienB.qrfyy + csRightB[2] * csQorienB.qrfzy;
-                        csRightB[5] = csRightB[0] * csQorienB.qrfxz + csRightB[1] * csQorienB.qrfyz + csRightB[2] * csQorienB.qrfzz;
-
-                        /* Synchronize second position to relative earth */
-                        csPositionB[0] += ( csQpositB.qrLongitude - csQpositA.qrLongitude ) * ( ( ( 6367514.500000 + csQpositA.qrAltitude ) * 2.0 * LF_PI / 360.0 ) );
-                        csPositionB[1] += ( csQpositB.qrLatitude  - csQpositA.qrLatitude  ) * ( ( ( 6367514.500000 + csQpositA.qrAltitude ) * 2.0 * LF_PI / 360.0 ) );
-                        csPositionB[2] += ( csQpositB.qrAltitude  - csQpositA.qrAltitude  );
-
-                        /* Compute frustum A summits */
-                        cs_frustum_summit( 
-
-                            csNadirA,
-                            csRightA,
-                            csPositionA,
-                            lf_query_sensor( csCameraA, LF_EYESIS4PI_PIXELSIZE, csChannelA, NULL ),
-                            lf_query_sensor( csCameraA, LF_EYESIS4PI_FOCAL    , csChannelA, NULL ),
-                            lf_query_sensor( csCameraA, LF_EYESIS4PI_SENWIDTH , csChannelA, NULL ),
-                            lf_query_sensor( csCameraA, LF_EYESIS4PI_SENHEIGHT, csChannelA, NULL ),
-                            csNPlane,
-                            csFPlane,
-                            csFrustumAx,
-                            csFrustumAy,
-                            csFrustumAz
+                            csCameraA, csChannelA,
+                            csQorienA.qrfxx, csQorienA.qrfxy, csQorienA.qrfxz,
+                            csQorienA.qrfyx, csQorienA.qrfyy, csQorienA.qrfyz,
+                            csQorienA.qrfzx, csQorienA.qrfzy, csQorienA.qrfzz,
+                            0.0, 0.0, 0.0,
+                            csNPlane, csFPlane, & csFrus_A
 
                         );
 
-                        /* Compute frustum B summits */
-                        cs_frustum_summit( 
+                        /* Compute frustum of second camera */
+                        cs_frustum_eyesis4pi( 
 
-                            csNadirB,
-                            csRightB,
-                            csPositionB,
-                            lf_query_sensor( csCameraB, LF_EYESIS4PI_PIXELSIZE, csChannelB, NULL ),
-                            lf_query_sensor( csCameraB, LF_EYESIS4PI_FOCAL    , csChannelB, NULL ),
-                            lf_query_sensor( csCameraB, LF_EYESIS4PI_SENWIDTH , csChannelB, NULL ),
-                            lf_query_sensor( csCameraB, LF_EYESIS4PI_SENHEIGHT, csChannelB, NULL ),
-                            csNPlane,
-                            csFPlane,
-                            csFrustumBx,
-                            csFrustumBy,
-                            csFrustumBz
+                            csCameraB, csChannelB,
+                            csQorienB.qrfxx, csQorienB.qrfxy, csQorienB.qrfxz,
+                            csQorienB.qrfyx, csQorienB.qrfyy, csQorienB.qrfyz,
+                            csQorienB.qrfzx, csQorienB.qrfzy, csQorienB.qrfzz,
+                            csQpositB.qrLongitude, csQpositB.qrLatitude, csQpositB.qrAltitude,
+                            csNPlane, csFPlane, & csFrus_B
 
                         );
 
                         /* Frustum intersection detection */
-                        if ( cs_frustum_intersection( 
-
-                            csFrustumAx,
-                            csFrustumAy,
-                            csFrustumAz,
-                            csFrustumBx,
-                            csFrustumBy,
-                            csFrustumBz
-
-                        ) == CS_TRUE ) fprintf( CS_OUT, "TRUE" ); else fprintf( CS_OUT, "FALSE" );
+                        if ( cs_frustum_intersection( & csFrus_A, & csFrus_B ) == CS_TRUE ) fprintf( CS_OUT, "TRUE" ); else fprintf( CS_OUT, "FALSE" );
                 
                     /* Display message */
                     } else { fprintf( CS_OUT, "Error : CSPS query by timestamp failed\n" ); }
@@ -250,142 +192,133 @@
     }
 
 /*
-    Source - Eyesis4Pi frustum vectors composer
+    Source - Eyesis4Pi frustum composer
 */
 
-    void cs_frustum_eyesis4pi( 
+    void cs_frustum_eyesis4pi(
 
-        char   const * const csCamera, 
-        int    const         csChannel, 
-        double       * const csNadir, 
-        double       * const csRight,
-        double       * const csPosition
-
-    ) {
-
-        /* Calibration data variables */
-        double csAzimuth   = - lf_query_sensor( csCamera, LF_EYESIS4PI_AZIMUTH, csChannel, NULL ) - lf_query_sensor( csCamera, LF_EYESIS4PI_HEADING, csChannel, NULL ) + ( LF_PI / 2.0 );
-        double csElevation = - lf_query_sensor( csCamera, LF_EYESIS4PI_ELEVATION, csChannel, NULL );
-        double csRoll      = + lf_query_sensor( csCamera, LF_EYESIS4PI_ROLL, csChannel, NULL );
-        double csRadius    = + lf_query_sensor( csCamera, LF_EYESIS4PI_RADIUS, csChannel, NULL );
-        double csHeight    = + lf_query_sensor( csCamera, LF_EYESIS4PI_HEIGHT, csChannel, NULL );
-        double csPupil     = - lf_query_sensor( csCamera, LF_EYESIS4PI_PUPFORWARD, csChannel, NULL );
-
-        /* Extract roll remanant */
-        csRoll = ( csRoll < 0.0 ) ? ( - ( LF_PI / 2.0 ) - csRoll ) : ( + ( LF_PI / 2.0 ) - csRoll );
-
-        /* Trigonometric value variables */
-        double csCosA = cos( csAzimuth   );
-        double csSinA = sin( csAzimuth   );
-        double csCosE = cos( csElevation );
-        double csSinE = sin( csElevation );
-        double csCosR = cos( csRoll      );
-        double csSinR = sin( csRoll      );
-
-        /* Compute frustum-nadir vectors */
-        csNadir[0] = + csCosA * csCosE;
-        csNadir[1] = + csSinA * csCosE;
-        csNadir[2] = - csSinE;
-
-        /* Compute frustum-right vectors */
-        csRight[0] = + csCosA * csSinE * csSinR - csSinA * csCosR;
-        csRight[1] = + csSinA * csSinE * csSinR + csCosA * csCosR;
-        csRight[2] = + csCosE * csSinR;
-
-        /* Compute position vector */
-        csPosition[0] = + ( csRadius - csPupil ) * csCosA;
-        csPosition[1] = + ( csRadius - csPupil ) * csSinA;
-        csPosition[2] = + ( csSinE * csPupil ) + csHeight;
-
-    }
-
-/*
-    Source - Frustum polyhedron summit computer
- */
-
-    void cs_frustum_summit( 
-
-        double const * const csNadir, 
-        double const * const csRight, 
-        double const * const csPosition, 
-        double const         csPixel, 
-        double const         csFocal, 
-        double const         csWidth, 
-        double const         csHeight, 
-        double const         csNear, 
-        double const         csFar,
-        double       * const csFX,
-        double       * const csFY,
-        double       * const csFZ
+        char         const * const csCamera, 
+        int          const         csChannel, 
+        double       const         csEFxx,
+        double       const         csEFxy,
+        double       const         csEFxz,
+        double       const         csEFyx,
+        double       const         csEFyy,
+        double       const         csEFyz,
+        double       const         csEFzx,
+        double       const         csEFzy,
+        double       const         csEFzz,
+        double       const         csEFpx,
+        double       const         csEFpy,
+        double       const         csEFpz,
+        double       const         csNear,
+        double       const         csFar,
+        cs_Frustum_t       * const csFrustum
 
     ) {
 
-        /* Bottom vector variables */
-        double csBottom[3] = {
+        /* Eyesis4pi frame variables */
+        double csEyesisframe[3] = { 0.0, 0.0, 0.0 };
 
-            csNadir[1] * csRight[2] - csNadir[2] * csRight[1],
-            csNadir[2] * csRight[0] - csNadir[0] * csRight[2],
-            csNadir[0] * csRight[1] - csNadir[1] * csRight[0],
+        /* Eyesis4pi device calibration variables */
+        double csAzimuth   = - lf_query_sensor( csCamera, LF_EYESIS4PI_AZIMUTH   , csChannel, NULL );
+        double csHeading   = - lf_query_sensor( csCamera, LF_EYESIS4PI_HEADING   , csChannel, NULL );
+        double csElevation = - lf_query_sensor( csCamera, LF_EYESIS4PI_ELEVATION , csChannel, NULL );
+        double csRoll      = - lf_query_sensor( csCamera, LF_EYESIS4PI_ROLL      , csChannel, NULL );
+        double csRadius    = + lf_query_sensor( csCamera, LF_EYESIS4PI_RADIUS    , csChannel, NULL );
+        double csHeight    = + lf_query_sensor( csCamera, LF_EYESIS4PI_HEIGHT    , csChannel, NULL );
+        double csPupil     = - lf_query_sensor( csCamera, LF_EYESIS4PI_PUPFORWARD, csChannel, NULL );        
+        double csPixel     = + lf_query_sensor( csCamera, LF_EYESIS4PI_PIXELSIZE , csChannel, NULL );
+        double csFocal     = + lf_query_sensor( csCamera, LF_EYESIS4PI_FOCAL     , csChannel, NULL );
+        double csSenWidth  = + lf_query_sensor( csCamera, LF_EYESIS4PI_SENWIDTH  , csChannel, NULL );
+        double csSenHeight = + lf_query_sensor( csCamera, LF_EYESIS4PI_SENHEIGHT , csChannel, NULL );
 
-        };
+        /* Compute corrected azimuth angle */
+        csAzimuth = csAzimuth + csHeading + ( LF_PI / 2.0 );
 
-        /* Nadir near point variables */
-        double csNearPoint[3] = {
+        /* Compute frustum left/top appertures */
+        csFrustum->fsLefApp = ( ( csSenWidth  / 2.0 ) * csPixel ) / csFocal;
+        csFrustum->fsTopApp = ( ( csSenHeight / 2.0 ) * csPixel ) / csFocal;
 
-            csPosition[0] + csNadir[0] * csNear,
-            csPosition[1] + csNadir[1] * csNear,
-            csPosition[2] + csNadir[2] * csNear
+        /* Compute frustum near/far planes */
+        csFrustum->fsNear = csNear;
+        csFrustum->fsFar  = csFar;
 
-        };
+        /* Compute frustum nadir-vector in eyesis frame */
+        csEyesisframe[0] = + cos( csElevation ) * cos( csAzimuth );
+        csEyesisframe[1] = + cos( csElevation ) * sin( csAzimuth );
+        csEyesisframe[2] = - sin( csElevation );
 
-        /* Nadir far point variables */
-        double csFarPoint[3] = {
+        /* Compute frustum nadir-vector in earth frame */
+        csFrustum->fsNad[0] = csEyesisframe[0] * csEFxx + csEyesisframe[1] * csEFyx + csEyesisframe[2] * csEFzx;
+        csFrustum->fsNad[1] = csEyesisframe[0] * csEFxy + csEyesisframe[1] * csEFyy + csEyesisframe[2] * csEFzy;
+        csFrustum->fsNad[2] = csEyesisframe[0] * csEFxz + csEyesisframe[1] * csEFyz + csEyesisframe[2] * csEFzz;
 
-            csPosition[0] + csNadir[0] * csFar,
-            csPosition[1] + csNadir[1] * csFar,
-            csPosition[2] + csNadir[2] * csFar
+        /* Compute frustum left-vector in eyesis frame */
+        csEyesisframe[0] = + sin( csElevation ) * sin( csRoll ) * cos( csAzimuth ) - cos( csRoll ) * sin( csAzimuth );
+        csEyesisframe[1] = + sin( csElevation ) * sin( csRoll ) * sin( csAzimuth ) + cos( csRoll ) * cos( csAzimuth );
+        csEyesisframe[2] = + cos( csElevation ) * sin( csRoll );
 
-        };
+        /* Compute frustum nadir-vector in earth frame */
+        csFrustum->fsLef[0] = csEyesisframe[0] * csEFxx + csEyesisframe[1] * csEFyx + csEyesisframe[2] * csEFzx;
+        csFrustum->fsLef[1] = csEyesisframe[0] * csEFxy + csEyesisframe[1] * csEFyy + csEyesisframe[2] * csEFzy;
+        csFrustum->fsLef[2] = csEyesisframe[0] * csEFxz + csEyesisframe[1] * csEFyz + csEyesisframe[2] * csEFzz;
 
-        /* Normalized sensor size variables */
-        double csNormalWidth  = ( ( csWidth  / 2.0 ) * csPixel ) / csFocal;
-        double csNormalHeight = ( ( csHeight / 2.0 ) * csPixel ) / csFocal;
+        /* Compute frustum top-vector in earth frame */
+        csFrustum->fsTop[0] = csFrustum->fsNad[1] * csFrustum->fsLef[2] - csFrustum->fsNad[2] * csFrustum->fsLef[1];
+        csFrustum->fsTop[1] = csFrustum->fsNad[2] * csFrustum->fsLef[0] - csFrustum->fsNad[0] * csFrustum->fsLef[2];
+        csFrustum->fsTop[2] = csFrustum->fsNad[0] * csFrustum->fsLef[1] - csFrustum->fsNad[1] * csFrustum->fsLef[0];
 
-        /* Compute frustum polyhedron summits x-near */
-        csFX[0] = csNearPoint[0] + ( csRight[0] * csNormalWidth * csNear ) + ( csBottom[0] * csNormalHeight * csNear );
-        csFX[1] = csNearPoint[0] - ( csRight[0] * csNormalWidth * csNear ) + ( csBottom[0] * csNormalHeight * csNear );
-        csFX[2] = csNearPoint[0] - ( csRight[0] * csNormalWidth * csNear ) - ( csBottom[0] * csNormalHeight * csNear );
-        csFX[3] = csNearPoint[0] + ( csRight[0] * csNormalWidth * csNear ) - ( csBottom[0] * csNormalHeight * csNear );
+        /* Compute frustum origin point in earth frame */
+        csFrustum->fsOrg[0] = + csEFpx + ( csRadius - csPupil ) * cos( csAzimuth );
+        csFrustum->fsOrg[1] = + csEFpy + ( csRadius - csPupil ) * sin( csAzimuth );
+        csFrustum->fsOrg[2] = + csEFpz + ( sin( csElevation ) * csPupil ) + csHeight;
+
+        /* Compute frustum near-principal point in earth frame */
+        csFrustum->fsNPP[0] = csFrustum->fsOrg[0] + csFrustum->fsNad[0] * csFrustum->fsNear;
+        csFrustum->fsNPP[1] = csFrustum->fsOrg[1] + csFrustum->fsNad[1] * csFrustum->fsNear;
+        csFrustum->fsNPP[2] = csFrustum->fsOrg[2] + csFrustum->fsNad[2] * csFrustum->fsNear;
+
+        /* Compute frustum far-principal point in earth frame */
+        csFrustum->fsFPP[0] = csFrustum->fsOrg[0] + csFrustum->fsNad[0] * csFrustum->fsFar;
+        csFrustum->fsFPP[1] = csFrustum->fsOrg[1] + csFrustum->fsNad[1] * csFrustum->fsFar;
+        csFrustum->fsFPP[2] = csFrustum->fsOrg[2] + csFrustum->fsNad[2] * csFrustum->fsFar;
+
+        /* Compute frustum summits in earth frame x-near-coordinates */
+        csFrustum->fsSX[0] = csFrustum->fsNPP[0] + ( csFrustum->fsLef[0] * csFrustum->fsLefApp * csFrustum->fsNear ) + ( csFrustum->fsTop[0] * csFrustum->fsTopApp * csFrustum->fsNear );
+        csFrustum->fsSX[1] = csFrustum->fsNPP[0] - ( csFrustum->fsLef[0] * csFrustum->fsLefApp * csFrustum->fsNear ) + ( csFrustum->fsTop[0] * csFrustum->fsTopApp * csFrustum->fsNear );
+        csFrustum->fsSX[2] = csFrustum->fsNPP[0] - ( csFrustum->fsLef[0] * csFrustum->fsLefApp * csFrustum->fsNear ) - ( csFrustum->fsTop[0] * csFrustum->fsTopApp * csFrustum->fsNear );
+        csFrustum->fsSX[3] = csFrustum->fsNPP[0] + ( csFrustum->fsLef[0] * csFrustum->fsLefApp * csFrustum->fsNear ) - ( csFrustum->fsTop[0] * csFrustum->fsTopApp * csFrustum->fsNear );
 
         /* Compute frustum polyhedron summits y-near */
-        csFY[0] = csNearPoint[1] + ( csRight[1] * csNormalWidth * csNear ) + ( csBottom[1] * csNormalHeight * csNear );
-        csFY[1] = csNearPoint[1] - ( csRight[1] * csNormalWidth * csNear ) + ( csBottom[1] * csNormalHeight * csNear );
-        csFY[2] = csNearPoint[1] - ( csRight[1] * csNormalWidth * csNear ) - ( csBottom[1] * csNormalHeight * csNear );
-        csFY[3] = csNearPoint[1] + ( csRight[1] * csNormalWidth * csNear ) - ( csBottom[1] * csNormalHeight * csNear );
+        csFrustum->fsSY[0] = csFrustum->fsNPP[1] + ( csFrustum->fsLef[1] * csFrustum->fsLefApp * csFrustum->fsNear ) + ( csFrustum->fsTop[1] * csFrustum->fsTopApp * csFrustum->fsNear );
+        csFrustum->fsSY[1] = csFrustum->fsNPP[1] - ( csFrustum->fsLef[1] * csFrustum->fsLefApp * csFrustum->fsNear ) + ( csFrustum->fsTop[1] * csFrustum->fsTopApp * csFrustum->fsNear );
+        csFrustum->fsSY[2] = csFrustum->fsNPP[1] - ( csFrustum->fsLef[1] * csFrustum->fsLefApp * csFrustum->fsNear ) - ( csFrustum->fsTop[1] * csFrustum->fsTopApp * csFrustum->fsNear );
+        csFrustum->fsSY[3] = csFrustum->fsNPP[1] + ( csFrustum->fsLef[1] * csFrustum->fsLefApp * csFrustum->fsNear ) - ( csFrustum->fsTop[1] * csFrustum->fsTopApp * csFrustum->fsNear );
 
         /* Compute frustum polyhedron summits z-near */
-        csFZ[0] = csNearPoint[2] + ( csRight[2] * csNormalWidth * csNear ) + ( csBottom[2] * csNormalHeight * csNear );
-        csFZ[1] = csNearPoint[2] - ( csRight[2] * csNormalWidth * csNear ) + ( csBottom[2] * csNormalHeight * csNear );
-        csFZ[2] = csNearPoint[2] - ( csRight[2] * csNormalWidth * csNear ) - ( csBottom[2] * csNormalHeight * csNear );
-        csFZ[3] = csNearPoint[2] + ( csRight[2] * csNormalWidth * csNear ) - ( csBottom[2] * csNormalHeight * csNear );
+        csFrustum->fsSZ[0] = csFrustum->fsNPP[2] + ( csFrustum->fsLef[2] * csFrustum->fsLefApp * csFrustum->fsNear ) + ( csFrustum->fsTop[2] * csFrustum->fsTopApp * csFrustum->fsNear );
+        csFrustum->fsSZ[1] = csFrustum->fsNPP[2] - ( csFrustum->fsLef[2] * csFrustum->fsLefApp * csFrustum->fsNear ) + ( csFrustum->fsTop[2] * csFrustum->fsTopApp * csFrustum->fsNear );
+        csFrustum->fsSZ[2] = csFrustum->fsNPP[2] - ( csFrustum->fsLef[2] * csFrustum->fsLefApp * csFrustum->fsNear ) - ( csFrustum->fsTop[2] * csFrustum->fsTopApp * csFrustum->fsNear );
+        csFrustum->fsSZ[3] = csFrustum->fsNPP[2] + ( csFrustum->fsLef[2] * csFrustum->fsLefApp * csFrustum->fsNear ) - ( csFrustum->fsTop[2] * csFrustum->fsTopApp * csFrustum->fsNear );
 
-        /* Compute frustum polyhedron summits x-far */
-        csFX[4] = csFarPoint[0] + ( csRight[0] * csNormalWidth * csFar ) + ( csBottom[0] * csNormalHeight * csFar );
-        csFX[5] = csFarPoint[0] - ( csRight[0] * csNormalWidth * csFar ) + ( csBottom[0] * csNormalHeight * csFar );
-        csFX[6] = csFarPoint[0] - ( csRight[0] * csNormalWidth * csFar ) - ( csBottom[0] * csNormalHeight * csFar );
-        csFX[7] = csFarPoint[0] + ( csRight[0] * csNormalWidth * csFar ) - ( csBottom[0] * csNormalHeight * csFar );
+        /* Compute frustum summits in earth frame x-far-coordinates */
+        csFrustum->fsSX[4] = csFrustum->fsFPP[0] + ( csFrustum->fsLef[0] * csFrustum->fsLefApp * csFrustum->fsFar ) + ( csFrustum->fsTop[0] * csFrustum->fsTopApp * csFrustum->fsFar );
+        csFrustum->fsSX[5] = csFrustum->fsFPP[0] - ( csFrustum->fsLef[0] * csFrustum->fsLefApp * csFrustum->fsFar ) + ( csFrustum->fsTop[0] * csFrustum->fsTopApp * csFrustum->fsFar );
+        csFrustum->fsSX[6] = csFrustum->fsFPP[0] - ( csFrustum->fsLef[0] * csFrustum->fsLefApp * csFrustum->fsFar ) - ( csFrustum->fsTop[0] * csFrustum->fsTopApp * csFrustum->fsFar );
+        csFrustum->fsSX[7] = csFrustum->fsFPP[0] + ( csFrustum->fsLef[0] * csFrustum->fsLefApp * csFrustum->fsFar ) - ( csFrustum->fsTop[0] * csFrustum->fsTopApp * csFrustum->fsFar );
 
         /* Compute frustum polyhedron summits y-far */
-        csFY[4] = csFarPoint[1] + ( csRight[1] * csNormalWidth * csFar ) + ( csBottom[1] * csNormalHeight * csFar );
-        csFY[5] = csFarPoint[1] - ( csRight[1] * csNormalWidth * csFar ) + ( csBottom[1] * csNormalHeight * csFar );
-        csFY[6] = csFarPoint[1] - ( csRight[1] * csNormalWidth * csFar ) - ( csBottom[1] * csNormalHeight * csFar );
-        csFY[7] = csFarPoint[1] + ( csRight[1] * csNormalWidth * csFar ) - ( csBottom[1] * csNormalHeight * csFar );
+        csFrustum->fsSY[4] = csFrustum->fsFPP[1] + ( csFrustum->fsLef[1] * csFrustum->fsLefApp * csFrustum->fsFar ) + ( csFrustum->fsTop[1] * csFrustum->fsTopApp * csFrustum->fsFar );
+        csFrustum->fsSY[5] = csFrustum->fsFPP[1] - ( csFrustum->fsLef[1] * csFrustum->fsLefApp * csFrustum->fsFar ) + ( csFrustum->fsTop[1] * csFrustum->fsTopApp * csFrustum->fsFar );
+        csFrustum->fsSY[6] = csFrustum->fsFPP[1] - ( csFrustum->fsLef[1] * csFrustum->fsLefApp * csFrustum->fsFar ) - ( csFrustum->fsTop[1] * csFrustum->fsTopApp * csFrustum->fsFar );
+        csFrustum->fsSY[7] = csFrustum->fsFPP[1] + ( csFrustum->fsLef[1] * csFrustum->fsLefApp * csFrustum->fsFar ) - ( csFrustum->fsTop[1] * csFrustum->fsTopApp * csFrustum->fsFar );
 
         /* Compute frustum polyhedron summits z-far */
-        csFZ[4] = csFarPoint[2] + ( csRight[2] * csNormalWidth * csFar ) + ( csBottom[2] * csNormalHeight * csFar );
-        csFZ[5] = csFarPoint[2] - ( csRight[2] * csNormalWidth * csFar ) + ( csBottom[2] * csNormalHeight * csFar );
-        csFZ[6] = csFarPoint[2] - ( csRight[2] * csNormalWidth * csFar ) - ( csBottom[2] * csNormalHeight * csFar );
-        csFZ[7] = csFarPoint[2] + ( csRight[2] * csNormalWidth * csFar ) - ( csBottom[2] * csNormalHeight * csFar );
+        csFrustum->fsSZ[4] = csFrustum->fsFPP[2] + ( csFrustum->fsLef[2] * csFrustum->fsLefApp * csFrustum->fsFar ) + ( csFrustum->fsTop[2] * csFrustum->fsTopApp * csFrustum->fsFar );
+        csFrustum->fsSZ[5] = csFrustum->fsFPP[2] - ( csFrustum->fsLef[2] * csFrustum->fsLefApp * csFrustum->fsFar ) + ( csFrustum->fsTop[2] * csFrustum->fsTopApp * csFrustum->fsFar );
+        csFrustum->fsSZ[6] = csFrustum->fsFPP[2] - ( csFrustum->fsLef[2] * csFrustum->fsLefApp * csFrustum->fsFar ) - ( csFrustum->fsTop[2] * csFrustum->fsTopApp * csFrustum->fsFar );
+        csFrustum->fsSZ[7] = csFrustum->fsFPP[2] + ( csFrustum->fsLef[2] * csFrustum->fsLefApp * csFrustum->fsFar ) - ( csFrustum->fsTop[2] * csFrustum->fsTopApp * csFrustum->fsFar );
 
     }
 
@@ -395,120 +328,77 @@
 
     int cs_frustum_intersection(
 
-        double const * const csFXa,
-        double const * const csFYa,
-        double const * const csFZa,
-        double const * const csFXb,
-        double const * const csFYb,
-        double const * const csFZb
+        cs_Frustum_t const * const csFrus_A,
+        cs_Frustum_t const * const csFrus_B
 
     ) {
 
-        /* X-Extremum variables */
-        double csXAmin = 0.0;
-        double csXAmax = 0.0;
-        double csXBmin = 0.0;
-        double csXBmax = 0.0;
+        /* Frustum segment index variables */
+        static int csEdge[12][2] = { { 1, 0 }, { 2, 1 }, { 3, 2 }, { 0, 3 }, { 5, 4 }, { 6, 5 }, { 7, 6 }, { 4, 7 }, { 4, 0 }, { 5, 1 }, { 6, 2 }, { 7, 3 } };
 
-        /* Y-Extremum variables */
-        double csYAmin = 0.0;
-        double csYAmax = 0.0;
-        double csYBmin = 0.0;
-        double csYBmax = 0.0;
-
-        /* Z-Extremum variables */
-        double csZAmin = 0.0;
-        double csZAmax = 0.0;
-        double csZBmin = 0.0;
-        double csZBmax = 0.0;
-
-        /* Result variables */
-        int csCondition = 0;
-
-        /* Extract x-extremums */
-        cs_frustum_extremum( csFXa, 8, & ( csXAmax ), & ( csXAmin ) );
-        cs_frustum_extremum( csFXb, 8, & ( csXBmax ), & ( csXBmin ) );
-
-        /* Extract y-extremums */
-        cs_frustum_extremum( csFYa, 8, & ( csYAmax ), & ( csYAmin ) );
-        cs_frustum_extremum( csFYb, 8, & ( csYBmax ), & ( csYBmin ) );
-
-        /* Extract z-extremums */
-        cs_frustum_extremum( csFZa, 8, & ( csZAmax ), & ( csZAmin ) );
-        cs_frustum_extremum( csFZb, 8, & ( csZBmax ), & ( csZBmin ) );
-
-        /* Primary condition on x-direction */
-        if ( csXAmin < csXBmin ) {
-
-            /* Secondary condition on x-direction */
-            if ( csXBmin < csXAmax ) csCondition ++;
-
-        } else {
-
-            /* Secondary condition on x-direction */
-            if ( csXAmin < csXBmax ) csCondition ++;
-
-        }
-
-        /* Primary condition on y-direction */
-        if ( csYAmin < csYBmin ) {
-
-            /* Secondary condition on y-direction */
-            if ( csYBmin < csYAmax ) csCondition ++;
-
-        } else {
-
-            /* Secondary condition on y-direction */
-            if ( csYAmin < csYBmax ) csCondition ++;
-
-        }
-
-        /* Primary condition on z-direction */
-        if ( csZAmin < csZBmin ) {
-
-            /* Secondary condition on z-direction */
-            if ( csZBmin < csZAmax ) csCondition ++;
-
-        } else {
-
-            /* Secondary condition on z-direction */
-            if ( csZAmin < csZBmax ) csCondition ++;
-
-        }
-
-        /* Return results */
-        if ( csCondition == 3 ) return( CS_TRUE ); else return( CS_FALSE );
-
-    }
-
-/*
-    Source - Static array extremums extractor
-*/
-
-    void cs_frustum_extremum( 
-
-        double const * const csArray, 
-        int    const         csSize, 
-        double       * const csMaximum, 
-        double       * const csMinimum 
-
-    ) {
-
-        /* Parsing variables */
+        /* Secondary loop variables */
         int csParse = 0;
 
-        /* Initialize extremums */
-        * ( csMaximum ) = -DBL_MAX;
-        * ( csMinimum ) = +DBL_MAX;
+        /* Edge point coordinates variables */
+        double csPx = 0.0;
+        double csPy = 0.0;
+        double csPz = 0.0;
+        double csFx = 0.0;
+        double csFy = 0.0;
+        double csFz = 0.0;
 
-        /* Parse the array */
-        for ( csParse = 0; csParse < csSize; csParse ++ ) {
+        /* Progressive rational [0,1] range variables */
+        double csStp = 1.0;
+        double csPow = 2.0;
+        double csPtn = 1.0 / 2.0;
 
-            /* Update extremums */
-            if ( csArray[csParse] > * ( csMaximum ) ) * ( csMaximum ) = csArray[csParse];
-            if ( csArray[csParse] < * ( csMinimum ) ) * ( csMinimum ) = csArray[csParse];
+        /* Return variables */
+        int csResult = CS_FALSE;
+
+        /* Progressive edge inclusion detection */
+        while ( ( csPow < 64 ) && ( csResult == CS_FALSE ) ) {
+
+            /* Secondary loop on polyhedron edges */
+            for ( csParse = 0; csParse < 12; csParse ++ ) {
+
+                /* Compute edge point in first frustum origin centered frame */
+                csPx = csPtn * ( csFrus_B->fsSX[csEdge[csParse][0]] - csFrus_B->fsSX[csEdge[csParse][1]] ) + csFrus_B->fsSX[csEdge[csParse][1]] - csFrus_A->fsOrg[0];
+                csPy = csPtn * ( csFrus_B->fsSY[csEdge[csParse][0]] - csFrus_B->fsSY[csEdge[csParse][1]] ) + csFrus_B->fsSY[csEdge[csParse][1]] - csFrus_A->fsOrg[1];
+                csPz = csPtn * ( csFrus_B->fsSZ[csEdge[csParse][0]] - csFrus_B->fsSZ[csEdge[csParse][1]] ) + csFrus_B->fsSZ[csEdge[csParse][1]] - csFrus_A->fsOrg[2];
+
+                /* Compute edge point coordinate in frist frustum nadir/left/top basis */
+                csFx = csFrus_A->fsNad[0] * csPx + csFrus_A->fsNad[1] * csPy + csFrus_A->fsNad[2] * csPz;
+                csFy = csFrus_A->fsLef[0] * csPx + csFrus_A->fsLef[1] * csPy + csFrus_A->fsLef[2] * csPz;
+                csFz = csFrus_A->fsTop[0] * csPx + csFrus_A->fsTop[1] * csPy + csFrus_A->fsTop[2] * csPz;
+
+                /* Verify intersection condition - principal direction */
+                if ( ( csFx >= csFrus_A->fsNear ) && ( csFx <= csFrus_A->fsFar ) ) {
+
+                    /* Verify intersection condition - secondary plane */
+                    if ( ( fabs( csFy ) <= ( csFx * csFrus_A->fsLefApp ) ) && ( fabs( csFz ) <= ( csFx * csFrus_A->fsTopApp ) ) ) {
+
+                        /* Trigger intersection condition */
+                        csResult = CS_TRUE;
+
+                    }
+
+                }
+
+            }
+
+            /* Compute next point */
+            if ( ( csPtn += csStp ) > 1.0 ) {
+
+                /* Parsing next rational scale */
+                csStp = 1.0 / ( csPow );
+                csPtn = 1.0 / ( csPow *= 2.0 );
+
+            }
 
         }
+
+        /* Return intersection detection results */
+        return( csResult );
 
     }
 
