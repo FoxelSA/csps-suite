@@ -180,7 +180,7 @@
      *  \param csFile Considered file path
      */
 
-    void cs_audit_audit ( const char * const csFile );
+    void cs_audit_audit( char const * const csFile );
 
     /*! \brief File length extractor
      *
@@ -191,7 +191,7 @@
      *  \return Returns file size in bytes - Zero is returned on error
      */
 
-    long cs_audit_filesize ( const char * const csFile );
+    long cs_audit_filesize( char const * const csFile );
 
     /*! \brief Arguments common handler
      *  

@@ -116,7 +116,7 @@
     Source - Audit procedure
  */
 
-    void cs_audit_audit( const char * const csFile ) {
+    void cs_audit_audit( char const * const csFile ) {
 
         /* Records buffer variables */
         unsigned char csRec[LP_DEVICE_EYESIS4PI_RECLEN] = { 0 };
@@ -280,7 +280,7 @@
     Source - File length extractor
  */
 
-    long cs_audit_filesize( const char * const csFile ) {
+    long cs_audit_filesize( char const * const csFile ) {
 
         /* Returned variables */
         long csSize = 0L;

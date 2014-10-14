@@ -223,7 +223,7 @@
      *  \return Returns created stack size
      */
 
-    int cs_append_create ( char * csPath, cs_Descriptor_t * csDescriptor );
+    int cs_append_create( char const * const csPath, cs_Descriptor_t * const csDescriptors );
 
     /*! \brief Contigous logs appending
      *  
@@ -235,7 +235,7 @@
      *  \param csStack          Size of the filled descriptors stack
      */
 
-    void cs_append_append ( char * csPath, cs_Descriptor_t * csDescriptors, int csStack );
+    void cs_append_append( char const * const csPath, cs_Descriptor_t * const csDescriptors, int const csStack );
 
     /*! \brief Appending coprocess
      *  
@@ -248,7 +248,7 @@
      *  \return Returns the last IMU timestamp stored by the provided descriptor
      */     
 
-    lp_Time_t cs_append_push( cs_Descriptor_t * csDescriptor, FILE * csHandle );
+    lp_Time_t cs_append_push( cs_Descriptor_t * const csDescriptor, FILE * const csHandle );
 
     /*! \brief Arguments common handler
      *  

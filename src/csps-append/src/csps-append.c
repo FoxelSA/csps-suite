@@ -92,7 +92,7 @@
     Source - Raw logs analysis
 */
 
-    int cs_append_create( char * csPath, cs_Descriptor_t * csDescriptors ) {
+    int cs_append_create( char const * const csPath, cs_Descriptor_t * const csDescriptors ) {
 
         /* Records buffer variables */
         unsigned char csRec[LP_DEVICE_EYESIS4PI_RECLEN] = { 0 };
@@ -182,7 +182,7 @@
     Source - Contigous logs appending
 */
 
-    void cs_append_append( char * csPath, cs_Descriptor_t * csDescriptors, int csStack ) {
+    void cs_append_append( char const * const csPath, cs_Descriptor_t * const csDescriptors, int const csStack ) {
 
         /* Remaining segment variables */
         int csRemains = csStack;
@@ -326,7 +326,7 @@
     Source - Appending coprocess
 */
 
-    lp_Time_t cs_append_push( cs_Descriptor_t * csDescriptor, FILE * csHandle ) {
+    lp_Time_t cs_append_push( cs_Descriptor_t * const csDescriptor, FILE * const csHandle ) {
 
         /* Buffer variables */
         unsigned char csBuffer[CS_BUFFER_SIZE] = { 0 };
