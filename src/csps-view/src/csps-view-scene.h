@@ -99,21 +99,19 @@
 
     /*! \brief Scene rendering function
      *  
-     *  This function is called in software main infinite 
-     *  loop for entire scene rendering.
+     *  This function is called in software main infinite loop for entire scene
+     *  rendering.
      */
 
     void cs_view_scene ( void );
 
     /*! \brief Scene creation/deletion function
      *  
-     *  This function create an OpenGL display lists
-     *  at startup that contains the parts of the 
-     *  entire scene rendered by the software.
+     *  This function create an OpenGL display lists at startup that contains
+     *  the parts of the entire scene rendered by the software.
      *
-     *  If CS_FLAG_CREATE is provided as csFlag, the
-     *  function create the display lists. Otherwise,
-     *  the display lists are deleted.
+     *  If CS_FLAG_CREATE is provided as csFlag, the function create the display
+     *  lists. Otherwise, the display lists are deleted.
      *  
      *  \param csFlag Creation/deletion flag
      */
@@ -122,9 +120,8 @@
 
     /*! \brief Specific scene compilation function
      *  
-     *  This function create a display list that
-     *  contains positions and orientations of the
-     *  camera and the flat earth model frame.
+     *  This function create a display list that contains positions and
+     *  orientations of the camera and the flat earth model frame.
      *  
      *  \param csTag OpenGL display list value
      */

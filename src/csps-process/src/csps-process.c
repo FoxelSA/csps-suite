@@ -64,10 +64,10 @@
         time_t csTime;
 
         /* Search in parameters */
-        cs_stdp( cs_stda( argc, argv,  "--path", "-p" ), argv, csPath , CS_STRING );
+        stdp( stda( argc, argv,  "--path", "-p" ), argv, csPath , CS_STRING );
 
         /* Execution switch */
-        if ( cs_stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
+        if ( stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
 
             /* Display help summary */
             printf( CS_HELP );
@@ -149,7 +149,7 @@
     Source - Arguments common handler
  */
 
-    int cs_stda( int argc, char ** argv, const char * const ltag, const char * const stag ) {
+    int stda( int argc, char ** argv, char const * const ltag, char const * const stag ) {
 
         /* Search for argument */
         while ( ( -- argc ) > 0 ) {
@@ -171,7 +171,7 @@
     Source - Parameters common handler
  */
 
-    void cs_stdp( int argi, char ** argv, void * param, int type ) {
+    void stdp( int argi, char ** argv, void * const param, int const type ) {
 
         /* Index consistency */
         if ( argi == CS_NULL ) return;

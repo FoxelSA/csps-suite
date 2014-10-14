@@ -59,8 +59,7 @@
         char csIMUm[256] = { 0 };
 
         /* Camera designation variables */
-        char csCameraA[256] = { 0 };
-        char csCameraB[256] = { 0 };
+        char csCamera[256] = { 0 };
 
         /* Channel designation variables */
         int csChannelA = 0;
@@ -77,24 +76,23 @@
         lp_Time_t csTUB = lp_Time_s( 0 );
 
         /* Search in parameters */
-        cs_stdp( cs_stda( argc, argv, "--path"         , "-p" ), argv,   csPath    , CS_STRING );
-        cs_stdp( cs_stda( argc, argv, "--camera-a"     , "-c" ), argv,   csCameraA , CS_STRING );
-        cs_stdp( cs_stda( argc, argv, "--camera-b"     , "-d" ), argv,   csCameraB , CS_STRING );
-        cs_stdp( cs_stda( argc, argv, "--gps-tag"      , "-g" ), argv,   csGPSd    , CS_STRING );
-        cs_stdp( cs_stda( argc, argv, "--gps-mod"      , "-m" ), argv,   csGPSm    , CS_STRING );
-        cs_stdp( cs_stda( argc, argv, "--imu-tag"      , "-i" ), argv,   csIMUd    , CS_STRING );
-        cs_stdp( cs_stda( argc, argv, "--imu-mod"      , "-k" ), argv,   csIMUm    , CS_STRING );
-        cs_stdp( cs_stda( argc, argv, "--channel-a"    , "-i" ), argv, & csChannelA, CS_INT    );
-        cs_stdp( cs_stda( argc, argv, "--channel-b"    , "-j" ), argv, & csChannelB, CS_INT    );
-        cs_stdp( cs_stda( argc, argv, "--plane-near"   , "-n" ), argv, & csNPlane  , CS_DOUBLE );
-        cs_stdp( cs_stda( argc, argv, "--plane-far"    , "-f" ), argv, & csFPlane  , CS_DOUBLE );
-        cs_stdp( cs_stda( argc, argv, "--second-a"     , "-a" ), argv, & csTSA     , CS_ULLONG );
-        cs_stdp( cs_stda( argc, argv, "--microsecond-a", "-u" ), argv, & csTUA     , CS_ULLONG );
-        cs_stdp( cs_stda( argc, argv, "--second-b"     , "-b" ), argv, & csTSB     , CS_ULLONG );
-        cs_stdp( cs_stda( argc, argv, "--microsecond-b", "-v" ), argv, & csTUB     , CS_ULLONG );
+        stdp( stda( argc, argv, "--path"         , "-p" ), argv,   csPath    , CS_STRING );
+        stdp( stda( argc, argv, "--camera"       , "-c" ), argv,   csCamera  , CS_STRING );
+        stdp( stda( argc, argv, "--gps-tag"      , "-g" ), argv,   csGPSd    , CS_STRING );
+        stdp( stda( argc, argv, "--gps-mod"      , "-m" ), argv,   csGPSm    , CS_STRING );
+        stdp( stda( argc, argv, "--imu-tag"      , "-i" ), argv,   csIMUd    , CS_STRING );
+        stdp( stda( argc, argv, "--imu-mod"      , "-k" ), argv,   csIMUm    , CS_STRING );
+        stdp( stda( argc, argv, "--channel-a"    , "-r" ), argv, & csChannelA, CS_INT    );
+        stdp( stda( argc, argv, "--channel-b"    , "-s" ), argv, & csChannelB, CS_INT    );
+        stdp( stda( argc, argv, "--plane-near"   , "-n" ), argv, & csNPlane  , CS_DOUBLE );
+        stdp( stda( argc, argv, "--plane-far"    , "-f" ), argv, & csFPlane  , CS_DOUBLE );
+        stdp( stda( argc, argv, "--second-a"     , "-a" ), argv, & csTSA     , CS_ULLONG );
+        stdp( stda( argc, argv, "--microsecond-a", "-u" ), argv, & csTUA     , CS_ULLONG );
+        stdp( stda( argc, argv, "--second-b"     , "-b" ), argv, & csTSB     , CS_ULLONG );
+        stdp( stda( argc, argv, "--microsecond-b", "-v" ), argv, & csTUB     , CS_ULLONG );
 
         /* Execution switch */
-        if ( cs_stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
+        if ( stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
 
             /* Display help summary */
             printf( CS_HELP );
@@ -102,12 +100,7 @@
         } else {
 
             /* Check camera devices consistency */
-            if ( 
-
-                ( ( strcasecmp( csCameraA, LF_EYESIS4PI_1 ) == 0 ) ||( strcasecmp( csCameraA, LF_EYESIS4PI_2 ) == 0 ) ) &&
-                ( ( strcasecmp( csCameraB, LF_EYESIS4PI_1 ) == 0 ) ||( strcasecmp( csCameraB, LF_EYESIS4PI_2 ) == 0 ) )
-
-            ) {
+            if ( ( strcasecmp( csCamera, LF_EYESIS4PI_1 ) == 0 ) || ( strcasecmp( csCamera, LF_EYESIS4PI_2 ) == 0 ) ) {
 
                 /* Check channels consistency */
                 if ( ( csChannelA >= 0 ) && ( csChannelA < 26 ) && ( csChannelB >= 0 ) && ( csChannelB < 26 ) ) {
@@ -151,7 +144,7 @@
                         /* Compute frustum of first camera */
                         cs_frustum_eyesis4pi( 
 
-                            csCameraA, csChannelA,
+                            csCamera, csChannelA,
                             csQorienA.qrfxx, csQorienA.qrfxy, csQorienA.qrfxz,
                             csQorienA.qrfyx, csQorienA.qrfyy, csQorienA.qrfyz,
                             csQorienA.qrfzx, csQorienA.qrfzy, csQorienA.qrfzz,
@@ -163,7 +156,7 @@
                         /* Compute frustum of second camera */
                         cs_frustum_eyesis4pi( 
 
-                            csCameraB, csChannelB,
+                            csCamera, csChannelB,
                             csQorienB.qrfxx, csQorienB.qrfxy, csQorienB.qrfxz,
                             csQorienB.qrfyx, csQorienB.qrfyy, csQorienB.qrfyz,
                             csQorienB.qrfzx, csQorienB.qrfzy, csQorienB.qrfzz,
@@ -408,7 +401,7 @@
     Source - Arguments common handler
  */
 
-    int cs_stda( int argc, char ** argv, const char * const ltag, const char * const stag ) {
+    int stda( int argc, char ** argv, char const * const ltag, char const * const stag ) {
 
         /* Search for argument */
         while ( ( -- argc ) > 0 ) {
@@ -430,7 +423,7 @@
     Source - Parameters common handler
  */
 
-    void cs_stdp( int argi, char ** argv, void * param, int type ) {
+    void stdp( int argi, char ** argv, void * const param, int const type ) {
 
         /* Index consistency */
         if ( argi == CS_NULL ) return;

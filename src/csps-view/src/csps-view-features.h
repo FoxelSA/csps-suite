@@ -102,27 +102,26 @@
     Header - Structures
  */
 
-    /*! \struct cs_view_position_struct
+    /*! \struct cs_View_Position_struct
      *  \brief Camera position and orientation
      *
-     *  This structure stores information about OpenGL
-     *  camera point of view.
+     *  This structure stores information about OpenGL camera point of view.
      *
-     *  \var cs_view_position_struct::psAX
+     *  \var cs_View_Position_struct::psAX
      *  Up/Down rotation
-     *  \var cs_view_position_struct::psAY
+     *  \var cs_View_Position_struct::psAY
      *  Left/Right rotation
-     *  \var cs_view_position_struct::psLon
+     *  \var cs_View_Position_struct::psLon
      *  Longitude position
-     *  \var cs_view_position_struct::psLat
+     *  \var cs_View_Position_struct::psLat
      *  Latitude position
-     *  \var cs_view_position_struct::psAlt
+     *  \var cs_View_Position_struct::psAlt
      *  Altitude position
-     *  \var cs_view_position_struct::psVel
+     *  \var cs_View_Position_struct::psVel
      *  Motion velocity factor
      */ 
 
-    typedef struct cs_view_position_struct {
+    typedef struct cs_View_Position_struct {
 
         double psAX;
         double psAY;
@@ -131,89 +130,85 @@
         double psAlt;
         double psVel;
 
-    } cs_view_position;
+    } cs_View_Position_t;
 
-    /*! \struct cs_view_keyboard_struct
+    /*! \struct cs_View_Keyboard_struct
      *  \brief Keyboard events structure
      *
-     *  This structure stores information about keyboard
-     *  events.
+     *  This structure stores information about keyboard events.
      *
-     *  \var cs_view_keyboard_struct::kbExit
+     *  \var cs_View_Keyboard_struct::kbExit
      *  Exit key flag
-     *  \var cs_view_keyboard_struct::kbKey
+     *  \var cs_View_Keyboard_struct::kbKey
      *  Keycode associated with event
      */
 
-    typedef struct cs_view_keyboard_struct {
+    typedef struct cs_View_Keyboard_struct {
 
         int   kbExit;
         int   kbKey;
 
-    } cs_view_keyboard;
+    } cs_View_Keyboard_t;
 
-    /*! \struct cs_view_mouse_struct
+    /*! \struct cs_View_Mouse_struct
      *  \brief Mouse events structure
      *
-     *  This structure stores information about mouse
-     *  events.
+     *  This structure stores information about mouse events.
      *
-     *  \var cs_view_mouse_struct::msMode
+     *  \var cs_View_Mouse_struct::msMode
      *  Current mouse mode, according to pressed button
-     *  \var cs_view_mouse_struct::msX
+     *  \var cs_View_Mouse_struct::msX
      *  Mouse x position memory
-     *  \var cs_view_mouse_struct::msY
+     *  \var cs_View_Mouse_struct::msY
      *  Mouse y position memory
      */
 
-    typedef struct cs_view_mouse_struct {
+    typedef struct cs_View_Mouse_struct {
 
         int msMode;
         int msX;
         int msY;
 
-    } cs_view_mouse;
+    } cs_View_Mouse_t;
 
-    /*! \struct cs_view_list_struct
+    /*! \struct cs_View_List_struct
      *  \brief OpenGL display lists structure
      *
-     *  This structure stores information about OpenGL
-     *  display lists.
+     *  This structure stores information about OpenGL display lists.
      *
-     *  \var cs_view_list_struct::lsTrack
+     *  \var cs_View_List_struct::lsTrack
      *  Display list index of camera position and orientation
      */
 
-    typedef struct cs_view_list_struct {
+    typedef struct cs_View_List_struct {
 
         GLuint lsTrack;
 
-    } cs_view_list;
+    } cs_View_List_t;
 
-    /*! \struct cs_view_path_struct 
+    /*! \struct cs_View_Path_struct 
      *  \brief Path storage structure
      *
-     *  This structure stores information path used to
-     *  import camera position and orientation at each
-     *  record.
+     *  This structure stores information path used to import camera position
+     *  and orientation at each record.
      *
-     *  \var cs_view_path_struct::ptRoot
+     *  \var cs_View_Path_struct::ptRoot
      *  CSPS structure to display segment path
-     *  \var cs_view_path_struct::ptCAMm
+     *  \var cs_View_Path_struct::ptCAMm
      *  Stream initiator module to consider for camera record
-     *  \var cs_view_path_struct::ptGPSm
+     *  \var cs_View_Path_struct::ptGPSm
      *  Stream initiator module to consider for GPS positions
-     *  \var cs_view_path_struct::ptIMUm
+     *  \var cs_View_Path_struct::ptIMUm
      *  Stream initiator module to consider for IMU orientations
-     *  \var cs_view_path_struct::ptCAMd
+     *  \var cs_View_Path_struct::ptCAMd
      *  Camera device tag to consider
-     *  \var cs_view_path_struct::ptGPSd
+     *  \var cs_View_Path_struct::ptGPSd
      *  GPS device tag to consider
-     *  \var cs_view_path_struct::ptIMUd
+     *  \var cs_View_Path_struct::ptIMUd
      *  IMU device tag to consider
      */
 
-    typedef struct cs_view_path_struct {
+    typedef struct cs_View_Path_struct {
 
         char ptRoot[256];
         char ptCAMm[256];
@@ -223,7 +218,7 @@
         char ptGPSd[256];
         char ptIMUd[256];
 
-    } cs_view_path;
+    } cs_View_Path_t;
 
 /* 
     Header - Function prototypes

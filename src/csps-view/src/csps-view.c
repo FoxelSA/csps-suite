@@ -47,11 +47,11 @@
     Source - Global variables (GLUT!)
  */
 
-    cs_view_position csPosition = { 0, 0, 0, 0, 0 };
-    cs_view_keyboard csKeyboard = { 0, 0 };
-    cs_view_mouse    csMouse    = { 0 };
-    cs_view_list     csList     = { 0 };
-    cs_view_path     csPath     = { "", "mod-DSIDE", "mod-SGNQF", "mod-IFETI", "eyesis4pi", "ls20031", "adis16375" };
+    cs_View_Position_t csPosition = { 0, 0, 0, 0, 0 };
+    cs_View_Keyboard_t csKeyboard = { 0, 0 };
+    cs_View_Mouse_t    csMouse    = { 0 };
+    cs_View_List_t     csList     = { 0 };
+    cs_View_Path_t     csPath     = { "", "mod-DSIDE", "mod-SGNQF", "mod-IFETI", "eyesis4pi", "ls20031", "adis16375" };
 
 /*
     Source - Software main function
@@ -63,16 +63,16 @@
         int csWindow = 0;
 
         /* Search in parameters */
-        cs_stdp( cs_stda( argc, argv, "--path"      , "-p" ), argv, csPath.ptRoot, CS_STRING );
-        cs_stdp( cs_stda( argc, argv, "--cam-stream", "-c" ), argv, csPath.ptCAMm, CS_STRING );
-        cs_stdp( cs_stda( argc, argv, "--gps-stream", "-g" ), argv, csPath.ptGPSm, CS_STRING );
-        cs_stdp( cs_stda( argc, argv, "--imu-stream", "-i" ), argv, csPath.ptIMUm, CS_STRING );
-        cs_stdp( cs_stda( argc, argv, "--cam-tag"   , "-a" ), argv, csPath.ptCAMd, CS_STRING );
-        cs_stdp( cs_stda( argc, argv, "--gps-tag"   , "-s" ), argv, csPath.ptGPSd, CS_STRING );
-        cs_stdp( cs_stda( argc, argv, "--imu-tag"   , "-m" ), argv, csPath.ptIMUd, CS_STRING );
+        stdp( stda( argc, argv, "--path"      , "-p" ), argv, csPath.ptRoot, CS_STRING );
+        stdp( stda( argc, argv, "--cam-stream", "-c" ), argv, csPath.ptCAMm, CS_STRING );
+        stdp( stda( argc, argv, "--gps-stream", "-g" ), argv, csPath.ptGPSm, CS_STRING );
+        stdp( stda( argc, argv, "--imu-stream", "-i" ), argv, csPath.ptIMUm, CS_STRING );
+        stdp( stda( argc, argv, "--cam-tag"   , "-a" ), argv, csPath.ptCAMd, CS_STRING );
+        stdp( stda( argc, argv, "--gps-tag"   , "-s" ), argv, csPath.ptGPSd, CS_STRING );
+        stdp( stda( argc, argv, "--imu-tag"   , "-m" ), argv, csPath.ptIMUd, CS_STRING );
 
         /* Execution switch */
-        if ( cs_stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
+        if ( stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
 
             /* Display help summary */
             printf( CS_HELP );
@@ -135,7 +135,7 @@
     Source - Arguments common handler
  */
 
-    int cs_stda( int argc, char ** argv, const char * const ltag, const char * const stag ) {
+    int stda( int argc, char ** argv, char const * const ltag, char const * const stag ) {
 
         /* Search for argument */
         while ( ( -- argc ) > 0 ) {
@@ -157,7 +157,7 @@
     Source - Parameters common handler
  */
 
-    void cs_stdp( int argi, char ** argv, void * param, int type ) {
+    void stdp( int argi, char ** argv, void * const param, int const type ) {
 
         /* Index consistency */
         if ( argi == CS_NULL ) return;

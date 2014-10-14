@@ -50,7 +50,7 @@
     int main ( int argc, char ** argv ) {
 
         /* Descriptors table variables */
-        cs_Descriptor csDescriptor[CS_STACK_SIZE];
+        cs_Descriptor_t csDescriptor[CS_STACK_SIZE];
 
         /* Structure path variables */
         char csPath[256] = { 0 };
@@ -59,10 +59,10 @@
         time_t csTime;
 
         /* Search in parameters */
-        cs_stdp( cs_stda( argc, argv,  "--path", "-p" ), argv, csPath , CS_STRING );
+        stdp( stda( argc, argv,  "--path", "-p" ), argv, csPath , CS_STRING );
 
         /* Execution switch */
-        if ( cs_stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
+        if ( stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
 
             /* Display help summary */
             printf( CS_HELP );
@@ -92,7 +92,7 @@
     Source - Raw logs analysis
 */
 
-    int cs_append_create( char * csPath, cs_Descriptor * csDescriptors ) {
+    int cs_append_create( char * csPath, cs_Descriptor_t * csDescriptors ) {
 
         /* Records buffer variables */
         unsigned char csRec[LP_DEVICE_EYESIS4PI_RECLEN] = { 0 };
@@ -182,7 +182,7 @@
     Source - Contigous logs appending
 */
 
-    void cs_append_append( char * csPath, cs_Descriptor * csDescriptors, int csStack ) {
+    void cs_append_append( char * csPath, cs_Descriptor_t * csDescriptors, int csStack ) {
 
         /* Remaining segment variables */
         int csRemains = csStack;
@@ -326,7 +326,7 @@
     Source - Appending coprocess
 */
 
-    lp_Time_t cs_append_push( cs_Descriptor * csDescriptor, FILE * csHandle ) {
+    lp_Time_t cs_append_push( cs_Descriptor_t * csDescriptor, FILE * csHandle ) {
 
         /* Buffer variables */
         unsigned char csBuffer[CS_BUFFER_SIZE] = { 0 };
@@ -355,7 +355,7 @@
     Source - Arguments common handler
  */
 
-    int cs_stda( int argc, char ** argv, const char * const ltag, const char * const stag ) {
+    int stda( int argc, char ** argv, char const * const ltag, char const * const stag ) {
 
         /* Search for argument */
         while ( ( -- argc ) > 0 ) {
@@ -377,7 +377,7 @@
     Source - Parameters common handler
  */
 
-    void cs_stdp( int argi, char ** argv, void * param, int type ) {
+    void stdp( int argi, char ** argv, void * const param, int const type ) {
 
         /* Index consistency */
         if ( argi == CS_NULL ) return;

@@ -37,14 +37,38 @@
  */
 
     /*! \file   csps-append.h
-     *  \author Nils Hamel (n.hamel@foxel.ch)
+     *  \author Nils Hamel <n.hamel@foxel.ch>
      *   
      *  Software main header
      */
 
-    /*! \mainpage csps-audit
+    /*! \mainpage csps-append
      *
-     *  Front-end suite for CSPS library.
+     *  \section csps-suite
+     *  \section _ CSPS library front-end suite
+     *
+     *  Not documented yet.
+     *
+     *  \section Documentation
+     *
+     *  Not documented yet.
+     *
+     *  \section Copyright
+     * 
+     *  Copyright (c) 2013-2014 FOXEL SA - http://foxel.ch \n
+     *  This program is part of the FOXEL project <http://foxel.ch>.
+     *  
+     *  Please read the COPYRIGHT.md file for more information.
+     *
+     *  \section License
+     *
+     *  This program is licensed under the terms of the GNU Affero General Public
+     *  License v3 (GNU AGPL), with two additional terms. The content is licensed
+     *  under the terms of the Creative Commons Attribution-ShareAlike 4.0
+     *  International (CC BY-SA) license.
+     *
+     *  You must read <http://foxel.ch/license> for more information about our
+     *  Licensing terms and our Usage and Attribution guidelines.
      */
 
 /* 
@@ -139,8 +163,8 @@
     /*! \struct cs_Descriptor_struct
      *  \brief Raw log file descriptor
      *
-     *  This structure stores the necessary information to perform
-     *  contigous file detection and appending.
+     *  This structure stores the necessary information to perform contigous
+     *  file detection and appending.
      *
      *  \var cs_Descriptor_struct::dsName
      *  Stores raw log file path
@@ -164,7 +188,7 @@
         lp_Time_t dsFirst;
         lp_Time_t dsLast;
 
-    } cs_Descriptor;
+    } cs_Descriptor_t;
 
     /* I know ! Screw you ! */
     typedef struct dirent DIRENT;
@@ -175,8 +199,8 @@
 
     /*! \brief Software main function
      *  
-     *  The main function calls the analysis and appending procedure in
-     *  order to perform contigous log detection and appending.
+     *  The main function calls the analysis and appending procedure in order to
+     *  perform contigous log detection and appending.
      *  
      *  \param argc Standard main parameter
      *  \param argv Standard main parameter
@@ -186,74 +210,75 @@
 
     /*! \brief Raw logs analysis
      *  
-     *  This function performs an analysis on raw log file
-     *  available in the master directory. It creates the
-     *  the descriptors stack that stores information on raw
-     *  logs in order to perform appending of contigous logs.
+     *  This function performs an analysis on raw log file available in the
+     *  master directory. It creates the the descriptors stack that stores 
+     *  information on raw logs in order to perform appending of contigous logs.
      *
      *  The descriptor stack size is limited according to
      *  CS_STACK_SIZE constant.
      *  
-     *  \param csPath Master directory
-     *  \param csStack Descriptors stack to fill up
+     *  \param  csPath          Master directory
+     *  \param  csDescriptor    Descriptors stack to fill up
+     *
      *  \return Returns created stack size
      */
 
-    int cs_append_create ( char * csPath, cs_Descriptor * csDescriptor );
+    int cs_append_create ( char * csPath, cs_Descriptor_t * csDescriptor );
 
     /*! \brief Contigous logs appending
      *  
-     *  This function performs the appending of contigous raw log
-     *  files that are provided by the descriptor stack.
+     *  This function performs the appending of contigous raw log files that are
+     *  provided by the descriptor stack.
      *  
-     *  \param csPath Master directory
-     *  \param csDescriptors Filled descriptors stack
-     *  \param csStack Size of the filled descriptors stack
+     *  \param csPath           Master directory
+     *  \param csDescriptors    Filled descriptors stack
+     *  \param csStack          Size of the filled descriptors stack
      */
 
-    void cs_append_append ( char * csPath, cs_Descriptor * csDescriptors, int csStack );
+    void cs_append_append ( char * csPath, cs_Descriptor_t * csDescriptors, int csStack );
 
     /*! \brief Appending coprocess
      *  
-     *  This function append the content of the file described by the
-     *  descriptor into the csHandle stream. The output stream has to 
-     *  be already open.
+     *  This function append the content of the file described by the descriptor
+     *  into the csHandle stream. The output stream has to be already open.
      *  
-     *  \param csDescriptor Descriptor of raw log to append
-     *  \param csHandle Stream in which appending is performed
+     *  \param  csDescriptor    Descriptor of raw log to append
+     *  \param  csHandle        Stream in which appending is performed
+     *
      *  \return Returns the last IMU timestamp stored by the provided descriptor
      */     
 
-    lp_Time_t cs_append_push( cs_Descriptor * csDescriptor, FILE * csHandle );
+    lp_Time_t cs_append_push( cs_Descriptor_t * csDescriptor, FILE * csHandle );
 
-    /*! \brief Search agrument position in argv
+    /*! \brief Arguments common handler
      *  
-     *  This function search in the argv string array the position of the argument
-     *  defined through ltag/stag and return the index of the corresponding parameter
-     *  in argv.
+     *  This function searches in the argv string array the position of the
+     *  argument defined through ltag/stag and returns the detected index.
      *  
-     *  \param argc Standard main parameter
-     *  \param argv Standard main parameter
-     *  \param ltag Long-form argument string (--argument)
-     *  \param stag Short-form argument string (-a)
-     *  \return Index of parameter in argv
+     *  \param  argc    Standard main parameter
+     *  \param  argv    Standard main parameter
+     *  \param  ltag    Long-form argument string
+     *  \param  stag    Short-form argument string
+     *
+     *  \return Returns index of parameter in argv
      */
 
-    int  cs_stda ( int argc, char ** argv, const char * const ltag, const char * const stag );
+    int stda ( int argc, char ** argv, char const * const ltag, char const * const stag );
 
-    /*! \brief Parameter reader in argv
+    /*! \brief Parameters common handler
      *  
-     *  This function interpret the parameter in the desired type and return it through
-     *  the param variable. The argi variable is typically set using stda function. If
-     *  argi is set to CS_NULL, the function does nothing.
+     *  This function interprets the parameter in the desired type and returns
+     *  it through the param variable. The argi variable is typically set using
+     *  stda function. If argi is set to CS_NULL, the function does nothing.
      *  
-     *  \param argi Index of the parameter in argv
-     *  \param argv Standard main parameter
-     *  \param param Pointer to the variable that recieve the parameter
-     *  \param type Type to use for parameter interpretation
+     *  \param argi     Index of the parameter in argv
+     *  \param argv     Standard main parameter
+     *  \param param    Pointer to the variable that recieve the interpreted
+     *                  parameter
+     *  \param type     Type to use for parameter interpretation
      */
 
-    void cs_stdp ( int argi, char ** argv, void * param, int type );
+    void stdp ( int argi, char ** argv, void * const param, int const type );
 
 /* 
     Header - C/C++ compatibility

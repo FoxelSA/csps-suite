@@ -44,7 +44,31 @@
 
     /*! \mainpage csps-view
      *
-     *  Front-end suite for CSPS library.
+     *  \section csps-suite
+     *  \section _ CSPS library front-end suite
+     *
+     *  Not documented yet.
+     *
+     *  \section Documentation
+     *
+     *  Not documented yet.
+     *
+     *  \section Copyright
+     * 
+     *  Copyright (c) 2013-2014 FOXEL SA - http://foxel.ch \n
+     *  This program is part of the FOXEL project <http://foxel.ch>.
+     *  
+     *  Please read the COPYRIGHT.md file for more information.
+     *
+     *  \section License
+     *
+     *  This program is licensed under the terms of the GNU Affero General Public
+     *  License v3 (GNU AGPL), with two additional terms. The content is licensed
+     *  under the terms of the Creative Commons Attribution-ShareAlike 4.0
+     *  International (CC BY-SA) license.
+     *
+     *  You must read <http://foxel.ch/license> for more information about our
+     *  Licensing terms and our Usage and Attribution guidelines.
      */
 
 /* 
@@ -117,9 +141,9 @@
 
     /*! \brief Software main function
      *  
-     *  The main function simply initialize graphic library and launches
-     *  event callback functions. A infinite loop is performed until escape
-     *  key is pressed.
+     *  The main function simply initialize graphic library and launches event
+     *  callback functions. A infinite loop is performed until escape key is 
+     *  pressed.
      *  
      *  \param argc Standard main parameter
      *  \param argv Standard main parameter
@@ -127,34 +151,35 @@
 
     int main ( int argc, char ** argv );
 
-    /*! \brief Search agrument position in argv
+    /*! \brief Arguments common handler
      *  
-     *  This function search in the argv string array the position of the argument
-     *  defined through ltag/stag and return the index of the corresponding parameter
-     *  in argv.
+     *  This function searches in the argv string array the position of the
+     *  argument defined through ltag/stag and returns the detected index.
      *  
-     *  \param argc Standard main parameter
-     *  \param argv Standard main parameter
-     *  \param ltag Long-form argument string (--argument)
-     *  \param stag Short-form argument string (-a)
-     *  \return Index of parameter in argv
+     *  \param  argc    Standard main parameter
+     *  \param  argv    Standard main parameter
+     *  \param  ltag    Long-form argument string
+     *  \param  stag    Short-form argument string
+     *
+     *  \return Returns index of parameter in argv
      */
 
-    int  cs_stda ( int argc, char ** argv, const char * const ltag, const char * const stag );
+    int stda ( int argc, char ** argv, char const * const ltag, char const * const stag );
 
-    /*! \brief Parameter reader in argv
+    /*! \brief Parameters common handler
      *  
-     *  This function interpret the parameter in the desired type and return it through
-     *  the param variable. The argi variable is typically set using stda function. If
-     *  argi is set to CS_NULL, the function does nothing.
+     *  This function interprets the parameter in the desired type and returns
+     *  it through the param variable. The argi variable is typically set using
+     *  stda function. If argi is set to CS_NULL, the function does nothing.
      *  
-     *  \param argi Index of the parameter in argv
-     *  \param argv Standard main parameter
-     *  \param param Pointer to the variable that recieve the parameter
-     *  \param type Type to use for parameter interpretation
+     *  \param argi     Index of the parameter in argv
+     *  \param argv     Standard main parameter
+     *  \param param    Pointer to the variable that recieve the interpreted
+     *                  parameter
+     *  \param type     Type to use for parameter interpretation
      */
 
-    void cs_stdp ( int argi, char ** argv, void * param, int type );
+    void stdp ( int argi, char ** argv, void * const param, int const type );
 
     /* Ok, well, hum ..., that's a prototype without being one ... */
     extern void glutMainLoopEvent ( void );

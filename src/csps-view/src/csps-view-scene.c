@@ -47,11 +47,11 @@
     Source - Global variables (GLUT!)
  */
 
-    extern cs_view_position csPosition;
-    extern cs_view_keyboard csKeyboard;
-    extern cs_view_mouse    csMouse;
-    extern cs_view_list     csList;
-    extern cs_view_path     csPath;
+    extern cs_View_Position_t csPosition;
+    extern cs_View_Keyboard_t csKeyboard;
+    extern cs_View_Mouse_t    csMouse;
+    extern cs_View_List_t     csList;
+    extern cs_View_Path_t     csPath;
 
 /*
     Source - Scene main function

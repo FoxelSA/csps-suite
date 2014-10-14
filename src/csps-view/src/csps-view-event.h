@@ -93,44 +93,40 @@
 
     /*! \brief Window reshape callback function
      *  
-     *  This function is called as GLUT callback on window
-     *  reshape events.
+     *  This function is called as GLUT callback on window reshape events.
      *  
-     *  \param width Width of the window
-     *  \param height Height of the window
+     *  \param width    Width of the window
+     *  \param height   Height of the window
      */
 
     void cs_view_event_reshape ( int width, int height );
 
     /*! \brief Keyboard callback functions
      *
-     *  This function is called as GLUT callback on keyboard 
-     *  events.
+     *  This function is called as GLUT callback on keyboard  events.
      *
-     *  \param key Keycode
-     *  \param x Mouse x coordinate at keyevent
-     *  \param y Mouse y coordinate at keyevent
+     *  \param key  Keycode
+     *  \param x    Mouse x coordinate at keyevent
+     *  \param y    Mouse y coordinate at keyevent
      */
 
     void cs_view_event_keyboard ( unsigned char key, int x, int y );
 
     /*! \brief Mouse button callback functions
      *
-     *  This function is called as GLUT callback on mouse 
-     *  button events.
+     *  This function is called as GLUT callback on mouse button events.
      *
-     *  \param button Mouse button
-     *  \param state Mouse button state
-     *  \param x Mouse x coordinate
-     *  \param y Mouse y coordinate
+     *  \param button   Mouse button
+     *  \param state    Mouse button state
+     *  \param x        Mouse x coordinate
+     *  \param y        Mouse y coordinate
      */
 
     void cs_view_event_mouse ( int button, int state, int x, int y );
 
     /*! \brief Mouse motion callback functions
      *
-     *  This function is called as GLUT callback on mouse 
-     *  motion events.
+     *  This function is called as GLUT callback on mouse motion events.
      *
      *  \param x Mouse x coordinate
      *  \param y Mouse y coordinate
