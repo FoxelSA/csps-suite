@@ -193,6 +193,21 @@
 
     long cs_audit_filesize( char const * const csFile );
 
+    /*! \brief Directory entity enumeration
+     *  
+     *  Enumerates entity contained in the pointed directory. The function
+     *  detects automatically if an enumeration is under way and returns, one
+     *  by one, the name of the found entity. When enumeration is terminated,
+     *  the function close itself the directory handle.
+     *
+     *  \param  csDirectory Directory to enumerates
+     *  \param  csName      String that recieve the entity name
+     *
+     *  \return Returns code indicating enumeration status
+     */
+
+    int cs_audit_enum ( char const * const csDirectory, char * const csName );
+
     /*! \brief Arguments common handler
      *  
      *  This function searches in the argv string array the position of the

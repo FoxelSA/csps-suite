@@ -308,6 +308,56 @@
     }
 
 /*
+    Source - Directory entity enumeration
+ */
+
+    int cs_audit_enum( char const * const csDirectory, char * const csName ) {
+
+        /* Directory variables */
+        static DIR    * csDirect = NULL;
+        static DIRENT * csEntity = NULL;
+
+        /* Verify enumeration mode */
+        if ( csDirect == NULL ) {
+
+            /* Create directory handle */
+            csDirect = opendir( csDirectory );
+
+            /* Return negative enumeration */
+            return( CS_FALSE );
+
+        } else {
+
+            /* Read directory entity */
+            csEntity = readdir( csDirect );
+
+            /* Check enumeration end */
+            if ( csEntity == NULL ) {
+
+                /* Delete directory handle */
+                closedir( csDirect );
+
+                /* Reset directory pointer */
+                csDirect = NULL;
+
+                /* Return negative enumeration */
+                return( CS_FALSE );
+
+            } else {
+
+                /* Copy entity name */
+                strcpy( csName, csEntity->d_name );
+
+                /* Return positive enumeration */
+                return( CS_TRUE );
+
+            }
+
+        }
+
+    }
+
+/*
     Source - Arguments common handler
  */
 
