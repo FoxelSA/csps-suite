@@ -132,9 +132,12 @@
     # define CS_FALSE           0
     # define CS_TRUE            1
 
+    /* Define directory entity type */
+    # define CS_FILE            0
+    # define CS_DIRECTORY       1
+
     /* Define directory structure */
     # define CS_PATH_PATTERN    ".log-"
-    # define CS_PATH_RAW        "/mov/1"
 
 /* 
     Header - Preprocessor macros
@@ -162,9 +165,8 @@
 
     /*! \brief Software main function
      *  
-     *  The main function enumerates all elphel camera event
-     *  logger output files. The audit process is then called
-     *  for each enumerated file.
+     *  The main function enumerates all elphel camera event logger output
+     *  files. The audit process is then called for each enumerated file.
      *  
      *  \param argc Standard main parameter
      *  \param argv Standard main parameter
@@ -178,20 +180,21 @@
      *  its content and displaying extracted informations.
      * 
      *  \param csFile Considered file path
+     *  \param csSize Size, in bytes, of the file to audit
      */
 
-    void cs_audit_audit( char const * const csFile );
+    void cs_audit_audit ( char const * const csFile, size_t const csSize );
 
-    /*! \brief File length extractor
+    /*! \brief File size extractor
      *
-     *  Extract and return file length of file.
+     *  Extract and return size of file.
      *
      *  \param  csFile Path to file
      *
      *  \return Returns file size in bytes - Zero is returned on error
      */
 
-    long cs_audit_filesize( char const * const csFile );
+    size_t cs_audit_filesize( char const * const csFile );
 
     /*! \brief Directory entity enumeration
      *  
@@ -201,12 +204,26 @@
      *  the function close itself the directory handle.
      *
      *  \param  csDirectory Directory to enumerates
-     *  \param  csName      String that recieve the entity name
+     *  \param  csName      String that recieve the entity name, appended with
+     *                      directory path
      *
      *  \return Returns code indicating enumeration status
      */
 
     int cs_audit_enum ( char const * const csDirectory, char * const csName );
+
+    /*! \brief Directory entity type detection
+     *
+     *  This function, according to the desired type (file or directory), checks
+     *  if entity type is correct.
+     *
+     *  \param  csEntity    Path to the entity
+     *  \param  csType      Type of the entity to verify
+     *
+     *  \return Returns CS_TRUE if verification passed, CS_FALSE otherwise
+     */
+
+    int cs_audit_detect ( char const * const csEntity, int const csType );
 
     /*! \brief Arguments common handler
      *  

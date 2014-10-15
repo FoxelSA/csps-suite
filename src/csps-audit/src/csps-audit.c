@@ -53,12 +53,8 @@
         char csPath[256] = { 0 };
         char csFile[256] = { 0 };
 
-        /* Directory variables */
-        DIR    * csDirect = NULL;
-        DIRENT * csEntity = NULL;
-
         /* Time variables */
-        time_t csTime;
+        time_t csTime; time( & csTime ); 
 
         /* Search in parameters */
         stdp( stda( argc, argv,  "--path", "-p" ), argv, csPath , CS_STRING );
@@ -69,41 +65,28 @@
             /* Display help summary */
             printf( CS_HELP );
 
-        } else {
-            
-            /* Retrieve time */
-            time( & csTime ); 
+        } else { 
 
             /* Display message */
-            fprintf( CS_OUT, "Audit performed using csps-audit on %sCourse : %s\n", ctime( & csTime ), strrchr( csPath, '/' ) + 1 );
+            fprintf( CS_OUT, "Audit performed using csps-audit on %sAudit path : %s\n", ctime( & csTime ), csPath );
 
-            /* Create directory handle */
-            if ( ( csDirect = opendir( strcat( csPath, "/" CS_PATH_RAW ) ) ) != NULL ) {
+            /* Directory entity enumeration */
+            while ( cs_audit_enum( csPath, csFile ) != CS_FALSE ) {
 
-                /* Enumerates directory entities */
-                while ( ( csEntity = readdir( csDirect ) ) != NULL ) {
+                /* Consider only file entity */
+                if ( cs_audit_detect( csFile, CS_FILE ) == CS_TRUE ) {
 
-                    /* Device file detection */
-                    if ( ( csEntity->d_type == DT_REG ) && ( strstr( csEntity->d_name, CS_PATH_PATTERN ) != NULL ) ) {
+                    /* Check log-file tag */
+                    if ( strstr( csFile, CS_PATH_PATTERN ) != 0 ) {
 
-                        /* Construct file path */
-                        sprintf( csFile, "%s/%s", csPath, csEntity->d_name );
-
-                        /* File audit procedure */
-                        cs_audit_audit( csFile );
+                        /* Audit enumerated log-file */
+                        cs_audit_audit( csFile, cs_audit_filesize( csFile ) );
 
                     }
 
                 }
 
-                /* Delete directory handle */
-                closedir( csDirect );
-
-                /* Display message */
-                fprintf( CS_OUT, "Done!\n" );
-
-            /* Display message */
-            } else { fprintf( CS_OUT, "Error : Unable access master directory %s.\n", csPath ); }
+            }
 
         }
 
@@ -116,7 +99,7 @@
     Source - Audit procedure
  */
 
-    void cs_audit_audit( char const * const csFile ) {
+    void cs_audit_audit( char const * const csFile, size_t const csSize ) {
 
         /* Records buffer variables */
         unsigned char csRec[LP_DEVICE_EYESIS4PI_RECLEN] = { 0 };
@@ -126,164 +109,149 @@
         lp_Time_t csIMUtime = lp_Time_s( 0 );
         lp_Time_t csIMUinit = lp_Time_s( 0 );
         lp_Time_t csIMUprev = lp_Time_s( 0 );
-        lp_Time_t csIMUstpi = lp_timestamp_compose( lp_Time_s( 4000000000 ), lp_Time_s( 0 ) );
+        lp_Time_t csIMUstpi = lp_Time_s( 0xFFFFFFFFFFFFFFFF );
         lp_Time_t csIMUstpm = lp_Time_s( 0 );
         lp_Time_t csCAMtime = lp_Time_s( 0 );
         lp_Time_t csCAMinit = lp_Time_s( 0 );
         lp_Time_t csCAMmain = lp_Time_s( 0 );
         lp_Time_t csCAMdiff = lp_Time_s( 0 );
         lp_Time_t csCAMprev = lp_Time_s( 0 );
-        lp_Time_t csCAMstpi = lp_timestamp_compose( lp_Time_s( 4000000000 ), lp_Time_s( 0 ) );
+        lp_Time_t csCAMstpi = lp_Time_s( 0xFFFFFFFFFFFFFFFF );
         lp_Time_t csCAMstpm = lp_Time_s( 0 );
         lp_Time_t csGPStime = lp_Time_s( 0 );
         lp_Time_t csGPSinit = lp_Time_s( 0 );
         lp_Time_t csGPSprev = lp_Time_s( 0 );
-        lp_Time_t csGPSstpi = lp_timestamp_compose( lp_Time_s( 4000000000 ), lp_Time_s( 0 ) );
+        lp_Time_t csGPSstpi = lp_Time_s( 0xFFFFFFFFFFFFFFFF );
         lp_Time_t csGPSstpm = lp_Time_s( 0 );
 
         /* Handle variables */
-        FILE * csHandle = NULL;
+        FILE * csHandle = fopen( csFile, "rb" );
 
-        /* Size variables */
-        long csSize = 0;
+        /* Parse file */
+        while ( fread( csRec, 1, LP_DEVICE_EYESIS4PI_RECLEN, csHandle ) == LP_DEVICE_EYESIS4PI_RECLEN ) {
 
-        /* Retrieve file size */
-        if ( ( csSize = cs_audit_filesize( csFile ) ) != 0 ) {
+            /* IMU records */
+            if ( ( csRec[3] & lp_Byte_s( 0x0F ) ) == LP_DEVICE_EYESIS4PI_IMUEVT ) {
 
-            /* Create file handle */
-            csHandle = fopen( csFile, "rb" );
+                /* Extract current timestamp */
+                csIMUtime = lp_timestamp( ( lp_Void_t * ) csRec );
 
-            /* Parse file */
-            while ( fread( csRec, 1, LP_DEVICE_EYESIS4PI_RECLEN, csHandle ) == LP_DEVICE_EYESIS4PI_RECLEN ) {
+                /* Initial timestamp check */
+                if ( csIMUinit == lp_Time_s( 0 ) ) { 
 
-                /* IMU records */
-                if ( ( csRec[3] & lp_Byte_s( 0x0F ) ) == LP_DEVICE_EYESIS4PI_IMUEVT ) {
+                    /* Memorize initial timestamp */
+                    csIMUinit = csIMUtime; 
 
-                    /* Extract current timestamp */
-                    csIMUtime = lp_timestamp( ( lp_Void_t * ) csRec );
+                } else {
 
-                    /* Initial timestamp check */
-                    if ( csIMUinit == lp_Time_s( 0 ) ) { 
+                    /* Compute step value */
+                    csDEVstep = lp_timestamp_diff( csIMUprev, csIMUtime );
 
-                        /* Memorize initial timestamp */
-                        csIMUinit = csIMUtime; 
-
-                    } else {
-
-                        /* Compute step value */
-                        csDEVstep = lp_timestamp_diff( csIMUprev, csIMUtime );
-
-                        /* Memorize step extremums */
-                        if ( lp_timestamp_ge( csDEVstep, csIMUstpm ) == LP_TRUE ) csIMUstpm = csDEVstep;
-                        if ( lp_timestamp_ge( csIMUstpi, csDEVstep ) == LP_TRUE ) csIMUstpi = csDEVstep;
-
-                    }
-
-                    /* Memorize current timestamp */
-                    csIMUprev = csIMUtime;
-
-                /* CAM records */
-                } else if ( ( csRec[3] & lp_Byte_s( 0x0F ) ) == LP_DEVICE_EYESIS4PI_MASEVT ) {
-
-                    /* Extract current timestamp */
-                    csCAMtime = lp_timestamp( ( lp_Void_t * ) csRec );
-
-                    /* Initial timestamp check */
-                    if ( csCAMinit == lp_Time_s( 0 ) ) { 
-
-                        /* Read camera record timestamp */
-                        csCAMmain = lp_timestamp( ( lp_Void_t * ) ( csRec + lp_Size_s( 8 ) ) );
-
-                        /* Compute difference */
-                        csCAMdiff = lp_timestamp_diff( csCAMmain, csCAMtime );
-
-                        /* Memorize initial timestamp */
-                        csCAMinit = csCAMtime;
-
-                    } else {
-
-                        /* Compute step value */
-                        csDEVstep = lp_timestamp_diff( csCAMprev, csCAMtime );
-
-                        /* Memorize step extremums */
-                        if ( lp_timestamp_ge( csDEVstep, csCAMstpm ) == LP_TRUE ) csCAMstpm = csDEVstep;
-                        if ( lp_timestamp_ge( csCAMstpi, csDEVstep ) == LP_TRUE ) csCAMstpi = csDEVstep;
-
-                    }
-
-                    /* Memorize current timestamp */
-                    csCAMprev = csCAMtime;
-
-                /* GPS records */
-                } else if ( ( csRec[3] & lp_Byte_s( 0x0F ) ) == LP_DEVICE_EYESIS4PI_GPSEVT ) {
-
-                    /* Extract current timestamp */
-                    csGPStime = lp_timestamp( ( lp_Void_t * ) csRec );
-
-                    /* Initial timestamp check */
-                    if ( csGPSinit == lp_Time_s( 0 ) ) {
-
-                        /* Memorize initial timestamp */
-                        csGPSinit = csGPStime;
-
-                    } else {
-
-                        /* Compute step value */
-                        csDEVstep = lp_timestamp_diff( csGPSprev, csGPStime );
-
-                        /* Memorize step extremums */
-                        if ( lp_timestamp_ge( csDEVstep, csGPSstpm ) == LP_TRUE ) csGPSstpm = csDEVstep;
-                        if ( lp_timestamp_ge( csGPSstpi, csDEVstep ) == LP_TRUE ) csGPSstpi = csDEVstep;
-
-                    }
-
-                    /* Memorize current timestamp */
-                    csGPSprev = csGPStime;
+                    /* Memorize step extremums */
+                    if ( lp_timestamp_ge( csDEVstep, csIMUstpm ) == LP_TRUE ) csIMUstpm = csDEVstep;
+                    if ( lp_timestamp_ge( csIMUstpi, csDEVstep ) == LP_TRUE ) csIMUstpi = csDEVstep;
 
                 }
 
+                /* Memorize current timestamp */
+                csIMUprev = csIMUtime;
+
+            /* Camera records */
+            } else if ( ( csRec[3] & lp_Byte_s( 0x0F ) ) == LP_DEVICE_EYESIS4PI_MASEVT ) {
+
+                /* Extract current timestamp */
+                csCAMtime = lp_timestamp( ( lp_Void_t * ) csRec );
+
+                /* Initial timestamp check */
+                if ( csCAMinit == lp_Time_s( 0 ) ) { 
+
+                    /* Read camera record timestamp */
+                    csCAMmain = lp_timestamp( ( lp_Void_t * ) ( csRec + lp_Size_s( 8 ) ) );
+
+                    /* Compute difference */
+                    csCAMdiff = lp_timestamp_diff( csCAMmain, csCAMtime );
+
+                    /* Memorize initial timestamp */
+                    csCAMinit = csCAMtime;
+
+                } else {
+
+                    /* Compute step value */
+                    csDEVstep = lp_timestamp_diff( csCAMprev, csCAMtime );
+
+                    /* Memorize step extremums */
+                    if ( lp_timestamp_ge( csDEVstep, csCAMstpm ) == LP_TRUE ) csCAMstpm = csDEVstep;
+                    if ( lp_timestamp_ge( csCAMstpi, csDEVstep ) == LP_TRUE ) csCAMstpi = csDEVstep;
+
+                }
+
+                /* Memorize current timestamp */
+                csCAMprev = csCAMtime;
+
+            /* GPS records */
+            } else if ( ( csRec[3] & lp_Byte_s( 0x0F ) ) == LP_DEVICE_EYESIS4PI_GPSEVT ) {
+
+                /* Extract current timestamp */
+                csGPStime = lp_timestamp( ( lp_Void_t * ) csRec );
+
+                /* Initial timestamp check */
+                if ( csGPSinit == lp_Time_s( 0 ) ) {
+
+                    /* Memorize initial timestamp */
+                    csGPSinit = csGPStime;
+
+                } else {
+
+                    /* Compute step value */
+                    csDEVstep = lp_timestamp_diff( csGPSprev, csGPStime );
+
+                    /* Memorize step extremums */
+                    if ( lp_timestamp_ge( csDEVstep, csGPSstpm ) == LP_TRUE ) csGPSstpm = csDEVstep;
+                    if ( lp_timestamp_ge( csGPSstpi, csDEVstep ) == LP_TRUE ) csGPSstpi = csDEVstep;
+
+                }
+
+                /* Memorize current timestamp */
+                csGPSprev = csGPStime;
+
             }
 
-            /* Delete file handle */
-            fclose( csHandle );
-
-            /* Display message */
-            fprintf( CS_OUT, "Auditing : %s\n", strrchr( csFile, '/' ) + 1 ); 
-
-            /* Display message */
-            fprintf( CS_OUT, "\tLength      : +%li Bytes (%f Mo)\n", csSize, ( double ) csSize / 1048576.0 );
-            fprintf( CS_OUT, "\t64-CGC      : +%li (%s)\n", csSize % 64, ( csSize % 64 ) == 0 ? "Valid" : "Broken" );
-            fprintf( CS_OUT, "\tRecords     : +%li\n", csSize >> 6 );
-
-            /* Display message */
-            fprintf( CS_OUT, "\tRange (CAM) : " ); CS_TIMESTAMP( csCAMinit ); CS_SPACE; CS_TIMESTAMP( csCAMtime ); CS_ENDL;
-            fprintf( CS_OUT, "\tSpan  (CAM) : " ); CS_TIMESTAMP( lp_timestamp_diff( csCAMinit, csCAMtime ) ); CS_ENDL;
-            fprintf( CS_OUT, "\tSteps (CAM) : " ); CS_TIMESTAMP( csCAMstpi ); CS_SPACE; CS_TIMESTAMP( csCAMstpm ); CS_ENDL;
-            fprintf( CS_OUT, "\tSynch (CAM) : " ); CS_TIMESTAMP( csCAMinit ); CS_SPACE; CS_TIMESTAMP( csCAMmain ); CS_SPACE; CS_TIMESTAMP( csCAMdiff ); CS_ENDL;
-            fprintf( CS_OUT, "\tRange (IMU) : " ); CS_TIMESTAMP( csIMUinit ); CS_SPACE; CS_TIMESTAMP( csIMUtime ); CS_ENDL;
-            fprintf( CS_OUT, "\tSpan  (IMU) : " ); CS_TIMESTAMP( lp_timestamp_diff( csIMUinit, csIMUtime ) ); CS_ENDL;
-            fprintf( CS_OUT, "\tSteps (IMU) : " ); CS_TIMESTAMP( csIMUstpi ); CS_SPACE; CS_TIMESTAMP( csIMUstpm ); CS_ENDL;
-            fprintf( CS_OUT, "\tRange (GPS) : " ); CS_TIMESTAMP( csGPSinit ); CS_SPACE; CS_TIMESTAMP( csGPStime ); CS_ENDL;
-            fprintf( CS_OUT, "\tSpan  (GPS) : " ); CS_TIMESTAMP( lp_timestamp_diff( csCAMinit, csCAMtime ) ); CS_ENDL;
-            fprintf( CS_OUT, "\tSteps (GPS) : " ); CS_TIMESTAMP( csGPSstpi ); CS_SPACE; CS_TIMESTAMP( csGPSstpm ); CS_ENDL;
-
-        } else { 
-
-            /* Display message */
-            fprintf( CS_OUT, "Auditing : %s\n    Unable access file\n", csFile ); 
-
         }
+
+        /* Delete file handle */
+        fclose( csHandle );
+
+        /* Display message */
+        fprintf( CS_OUT, "Auditing : %s\n", strrchr( csFile, '/' ) + 1 ); 
+
+        /* Display message */
+        fprintf( CS_OUT, "  Length      : +%li Bytes (%f Mo)\n", csSize, ( double ) csSize / 1048576.0 );
+        fprintf( CS_OUT, "  64-CGC      : +%li (%s)\n", csSize % 64, ( csSize % 64 ) == 0 ? "Valid" : "Broken" );
+        fprintf( CS_OUT, "  Records     : +%li\n", csSize >> 6 );
+
+        /* Display message */
+        fprintf( CS_OUT, "  Range (CAM) : " ); CS_TIMESTAMP( csCAMinit ); CS_SPACE; CS_TIMESTAMP( csCAMtime ); CS_ENDL;
+        fprintf( CS_OUT, "  Span  (CAM) : " ); CS_TIMESTAMP( lp_timestamp_diff( csCAMinit, csCAMtime ) ); CS_ENDL;
+        fprintf( CS_OUT, "  Steps (CAM) : " ); CS_TIMESTAMP( csCAMstpi ); CS_SPACE; CS_TIMESTAMP( csCAMstpm ); CS_ENDL;
+        fprintf( CS_OUT, "  Synch (CAM) : " ); CS_TIMESTAMP( csCAMinit ); CS_SPACE; CS_TIMESTAMP( csCAMmain ); CS_ENDL;
+        fprintf( CS_OUT, "  Synch (SYN) : " ); CS_TIMESTAMP( csCAMdiff ); CS_ENDL;
+        fprintf( CS_OUT, "  Range (IMU) : " ); CS_TIMESTAMP( csIMUinit ); CS_SPACE; CS_TIMESTAMP( csIMUtime ); CS_ENDL;
+        fprintf( CS_OUT, "  Span  (IMU) : " ); CS_TIMESTAMP( lp_timestamp_diff( csIMUinit, csIMUtime ) ); CS_ENDL;
+        fprintf( CS_OUT, "  Steps (IMU) : " ); CS_TIMESTAMP( csIMUstpi ); CS_SPACE; CS_TIMESTAMP( csIMUstpm ); CS_ENDL;
+        fprintf( CS_OUT, "  Range (GPS) : " ); CS_TIMESTAMP( csGPSinit ); CS_SPACE; CS_TIMESTAMP( csGPStime ); CS_ENDL;
+        fprintf( CS_OUT, "  Span  (GPS) : " ); CS_TIMESTAMP( lp_timestamp_diff( csCAMinit, csCAMtime ) ); CS_ENDL;
+        fprintf( CS_OUT, "  Steps (GPS) : " ); CS_TIMESTAMP( csGPSstpi ); CS_SPACE; CS_TIMESTAMP( csGPSstpm ); CS_ENDL;
 
     }
 
 /*
-    Source - File length extractor
+    Source - File size extractor
  */
 
-    long cs_audit_filesize( char const * const csFile ) {
+    size_t cs_audit_filesize( char const * const csFile ) {
 
         /* Returned variables */
-        long csSize = 0L;
+        size_t csSize = 0L;
 
         /* Ask pointed file handle */
         FILE * csHandle = fopen( csFile, "rb" );
@@ -323,8 +291,8 @@
             /* Create directory handle */
             csDirect = opendir( csDirectory );
 
-            /* Return negative enumeration */
-            return( CS_FALSE );
+            /* Recusive initialization */
+            return( cs_audit_enum( csDirectory, csName ) );
 
         } else {
 
@@ -345,13 +313,70 @@
 
             } else {
 
-                /* Copy entity name */
-                strcpy( csName, csEntity->d_name );
+                /* Compose directory and entity path */
+                sprintf( csName, "%s/%s", csDirectory, csEntity->d_name );
 
                 /* Return positive enumeration */
                 return( CS_TRUE );
 
             }
+
+        }
+
+    }
+
+/*
+    Source - Directory entity type detection
+*/
+
+    int cs_audit_detect( char const * const csEntity, int const csType ) {
+
+        /* Check type of entity to verify */
+        if ( csType == CS_FILE ) {
+
+            /* File openning verification */
+            FILE * csCheck = fopen( csEntity, "r" );
+
+            /* Check verification stream */
+            if ( csCheck != NULL ) {
+
+                /* Close stream */
+                fclose( csCheck );
+
+                /* Return positive answer */
+                return( CS_TRUE );
+
+            } else {
+
+                /* Return negative answer */
+                return( CS_FALSE );
+
+            }
+
+        } else if ( csType == CS_DIRECTORY ) {
+
+            /* Directory handle verification */
+            DIR * csCheck = opendir( csEntity );
+
+            /* Check verification handle */
+            if ( csCheck != NULL ) {
+
+                /* Delete handle */
+                closedir( csCheck );
+
+                /* Return positive answer */
+                return( CS_TRUE );
+
+            } else {
+
+                /* Return negative answer */
+                return( CS_FALSE );
+            }
+
+        } else {
+
+            /* Return negative answer */
+            return( CS_FALSE );
 
         }
 
