@@ -165,9 +165,6 @@
                         /* Open output stream */
                         csOStream = fopen( csPart, "wb" );
 
-                        /* Reset parsing flag */
-                        csFlag = CS_FALSE;
-
                         /* Display decomposition information */
                         fprintf( CS_OUT, " %s (%s:%010" lp_Time_p ".%06" lp_Time_p "/%010" lp_Time_p ".%06" lp_Time_p ")", 
 
