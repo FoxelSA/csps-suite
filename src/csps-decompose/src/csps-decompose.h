@@ -108,6 +108,7 @@
     "Short arguments and parameters summary :\n"                        \
     "  -r Directory path containing the logs-files to decompose\n"      \
     "  -d Directory path in which decomposed logs-files are exported\n" \
+    "  -g Maximum time gap, in seconds, that induce decomposition\n"    \
     "csps-append - csps-suite\n"                                        \
     "Copyright (c) 2013-2014 FOXEL SA\n"
 
@@ -140,6 +141,14 @@
 
     /* Define directory structure */
     # define CS_PATH_PATTERN    ".log-"
+
+    /* Define record length */
+    # define CS_RECLEN          LP_DEVICE_EYESIS4PI_RECLEN
+
+    /* Define events type */
+    # define CS_IMU             LP_DEVICE_EYESIS4PI_IMUEVT
+    # define CS_MAS             LP_DEVICE_EYESIS4PI_MASEVT
+    # define CS_GPS             LP_DEVICE_EYESIS4PI_GPSEVT
 
 /* 
     Header - Preprocessor macros
@@ -181,11 +190,12 @@
      *  \param  csLog       Input logs file path
      *  \param  csDirectory Output directory
      *  \param  csIndex     Current index of the decomposition
+     *  \param  csGap       Maximum admited time gap between IMU events
      *
      *  \return Returns the corrected decomposition index
      */
 
-    int cs_decompose_split ( char const * const csLog, char const * const csDirectory, int csIndex );
+    int cs_decompose_split ( char const * const csLog, char const * const csDirectory, int csIndex, double csGap );
 
     /*! \brief Directory entity enumeration
      *  

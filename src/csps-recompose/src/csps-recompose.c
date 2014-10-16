@@ -49,17 +49,19 @@
 
     int main ( int argc, char ** argv ) {
 
-        /* Descriptors table variables */
-        cs_Descriptor_t csDescriptor[CS_STACK_SIZE];
+        /* Composition gap variables */
+        double csGap = 1.0;
 
-        /* Structure path variables */
-        char csPath[256] = { 0 };
-
-        /* Date and time variables */
-        time_t csTime;
+        /* Software path variables */
+        char csDeco[256] = { 0 };
+        char csReco[256] = { 0 };
+        char csFile[256] = { 0 };
+        char csExpo[256] = { 0 };
 
         /* Search in parameters */
-        stdp( stda( argc, argv,  "--path", "-p" ), argv, csPath , CS_STRING );
+        stdp( stda( argc, argv,  "--decomposed", "-d" ), argv,   csDeco, CS_STRING );
+        stdp( stda( argc, argv,  "--recomposed", "-r" ), argv,   csReco, CS_STRING );
+        stdp( stda( argc, argv,  "--gap"       , "-g" ), argv, & csGap , CS_DOUBLE );
 
         /* Execution switch */
         if ( stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
@@ -69,17 +71,147 @@
 
         } else {
 
-            /* Retrieve time */
-            time( & csTime );
+            /* Logs-files stack variables */
+            cs_Descriptor_t csStack[CS_SIZE];
 
-            /* Display message */
-            fprintf( CS_OUT, "Append performed using csps-append on %sCourse : %s\n", ctime( & csTime ), strrchr( csPath, '/' ) + 1 );
+            /* Stack size variables */
+            unsigned int csIndex  = 0;
 
-            /* Appending procedure */
-            cs_recompose_append( csPath, csDescriptor, cs_recompose_create( csPath, csDescriptor ) );
+            /* Stack decimation variables */
+            signed   int csDecim  = 0;
 
-            /* Display message */
-            fprintf( CS_OUT, "Done!\n" );
+            /* Stack parsing variables */
+            unsigned int csParse  = 0;
+
+            /* Stack memory variables */
+            unsigned int csSelect = 0;
+
+            unsigned int csIncrem = 0;
+
+            /* Decimation reference timestamp */
+            lp_Time_t    csEpoch  = lp_Time_s( 0xFFFFFFFFFFFFFFFF );
+
+            /* Directory entity enumeration */
+            while ( cs_recompose_enum( csDeco, csFile ) != CS_FALSE ) {
+
+                /* Consider only file entity */
+                if ( cs_recompose_detect( csFile, CS_FILE ) == CS_TRUE ) {
+
+                    /* Check log-file tag */
+                    if ( strstr( csFile, CS_PATH_PATTERN ) != 0 ) {
+
+                        /* Assign logs-file path */
+                        strcpy( csStack[csIndex].dsName, csFile );
+
+                        /* Initialize appending flag */
+                        csStack[csIndex].dsFlag = CS_FALSE;
+
+                        /* Extract logs-file timestamp extremums */
+                        cs_recompose_extremum( csFile, & ( csStack[csIndex].dsFirst ), & ( csStack[csIndex].dsLast ) );
+
+                        /* Display information */
+                        fprintf( CS_OUT, "Stacking from %s\n  %010" lp_Time_p ".%06" lp_Time_p "\n  %010" lp_Time_p ".%06" lp_Time_p "\n", 
+
+                            /* Logs-file name */
+                            strrchr( csFile, '/' ) + 1,
+
+                            /* Timestamps */
+                            lp_timestamp_sec ( csStack[csIndex].dsFirst ),
+                            lp_timestamp_usec( csStack[csIndex].dsFirst ),
+                            lp_timestamp_sec ( csStack[csIndex].dsLast  ),
+                            lp_timestamp_usec( csStack[csIndex].dsLast  )
+
+                        );
+
+                        /* Update stack size */
+                        csDecim = ( ++ csIndex ); 
+
+                    }
+
+                }
+
+            }
+
+            /* Stack decimation */
+            while ( csDecim > 0 ) {
+
+                /* Reset memory index */
+                csSelect = csIndex;
+
+                /* Check appending mode */
+                if ( csEpoch == lp_Time_s( 0xFFFFFFFFFFFFFFFF ) ) {
+
+                    /* Parse stack for oldest timestamp */
+                    for ( csParse = 0; csParse < csIndex; csParse ++ ) {
+
+                        /* Search for oldest timestamp */
+                        if ( ( csStack[csParse].dsFlag == CS_FALSE ) && ( lp_timestamp_ge( csEpoch, csStack[csParse].dsLast ) ) ) {
+
+                            /* Memorize stack reference */
+                            csSelect = csParse;
+
+                            /* Memorize reference timestamp */
+                            csEpoch = csStack[csSelect].dsLast;
+
+                        }
+
+                    }
+
+                    /* Compose exportation file path */
+                    sprintf( csExpo, "%s/log-recomposition.log-%05u", csReco, ++ csIncrem );
+
+                    /* Display initial segment occurence */
+                    fprintf( CS_OUT, "Appending in %s\n", strrchr( csExpo, '/' ) + 1 );
+
+                } else {
+
+                    /* Reset parsing variable */
+                    csParse = 0;
+
+                    /* Parse stack for next segment */
+                    while ( ( csSelect == csIndex ) && ( csParse < csIndex ) ) {
+
+                        /* Compute last-first timestamp distance */
+                        if ( ( csStack[csParse].dsFlag == CS_FALSE ) && ( lp_timestamp_float( lp_timestamp_diff( csEpoch, csStack[csParse].dsFirst ) ) < csGap ) ) {
+
+                            /* Memorize stack reference */
+                            csSelect = csParse;
+
+                            /* Memorize reference timestamp */
+                            csEpoch = csStack[csSelect].dsLast;
+
+                        }
+
+                        /* Update parser */
+                        csParse ++;
+
+                    }
+
+                }
+
+                /* Check appending possibility */
+                if ( csSelect < csIndex ) {
+
+                    /* Update stack decimation */
+                    csDecim --;
+
+                    /* Reset append flag */
+                    csStack[csSelect].dsFlag = CS_TRUE;
+
+                    /* Display appending information */
+                    fprintf( CS_OUT, "  %s\n", strrchr( csStack[csSelect].dsName, '/' ) + 1 );
+
+                    /* Append logs-file content */
+                    cs_recompose_append( csStack[csSelect].dsName, csExpo );
+
+                } else {
+
+                    /* Reset epoch value */
+                    csEpoch = lp_Time_s( 0xFFFFFFFFFFFFFFFF );
+
+                }
+                
+            }
 
         }
 
@@ -89,265 +221,173 @@
     }
 
 /*
-    Source - Raw logs analysis
+    Source - File content appender
 */
 
-    int cs_recompose_create( char const * const csPath, cs_Descriptor_t * const csDescriptors ) {
+    void cs_recompose_append( char const * const csSource, char const * const csDestination ) {
 
-        /* Records buffer variables */
-        unsigned char csRec[LP_DEVICE_EYESIS4PI_RECLEN] = { 0 };
+        /* Appending buffer variables */
+        char csBuffer[1024] = { 0 };
 
-        /* Records reading variables */
-        int csRead = 0;
+        /* Appending length variables */
+        size_t csRead = 0;
 
-        /* Stack index variables */
-        int csStack = 0;
+        /* Create input stream */
+        FILE * csIStream = fopen( csSource, "rb" );
 
-        /* Paths variables */
-        char csPathDir[256] = { 0 };
+        /* Create output stream */
+        FILE * csOStream = fopen( csDestination, "ab" );
 
-        /* Enumeration variables */
-        DIR    * csDirect = NULL;
-        DIRENT * csEntity = NULL;
+        while ( ( csRead = fread( csBuffer, 1, 1024, csIStream ) ) > 0 ) fwrite( csBuffer, 1, csRead, csOStream );
 
-        /* Handle variables */
-        FILE * csHandle = NULL;
-
-        /* Create specific path */
-        sprintf( csPathDir, "%s" CS_PATH_RAW, csPath );
-
-        /* Create directory handle */
-        if ( ( csDirect = opendir( csPathDir ) ) != NULL ) {
-
-            /* Display message */
-            fprintf( CS_OUT, "Master directory analysis :\n" );
-
-            /* Enumerates directory entities */
-            while ( ( ( csEntity = readdir( csDirect ) ) != NULL ) && ( csStack < CS_STACK_SIZE ) ) {
-
-                /* Device file detection */
-                if ( ( csEntity->d_type == DT_REG ) && ( strstr( csEntity->d_name, CS_PATH_PATTERN ) != NULL ) ) {
-
-                    /* Create file path */
-                    sprintf( csDescriptors[csStack].dsName, "%s/%s", csPathDir, csEntity->d_name );
-
-                    /* Open detected file */
-                    if ( ( csHandle = fopen( csDescriptors[csStack].dsName, "rb" ) ) != NULL ) {
-
-                        /* Reset descriptor data */
-                        csDescriptors[csStack].dsFlag  = CS_FALSE;
-                        csDescriptors[csStack].dsFirst = 0;
-                        csDescriptors[csStack].dsLast  = 0;
-
-                        /* Search file initial and final IMU timestamp */
-                        while ( ( csRead = fread( csRec, 1, LP_DEVICE_EYESIS4PI_RECLEN, csHandle ) ) == LP_DEVICE_EYESIS4PI_RECLEN ) {
-
-                            /* Record filter */
-                            if ( ( csRec[3] & lp_Byte_s( 0x0F ) ) == LP_DEVICE_EYESIS4PI_IMUEVT ) {
-
-                                /* Assign last timestamp */
-                                csDescriptors[csStack].dsLast = lp_timestamp( ( lp_Void_t * ) csRec );
-
-                                /* Assign first timestamp */
-                                if ( csDescriptors[csStack].dsFirst == 0 ) csDescriptors[csStack].dsFirst = csDescriptors[csStack].dsLast;
-
-                            }
-
-                        }
-
-                        /* Broken file check */
-                        fprintf( CS_OUT, "\t%s : %s\n", csRead == 0 ? "Stacking " : "Borken   ", strrchr( csDescriptors[csStack].dsName, '/' ) + 1 );
-
-                        /* Update stack size */
-                        csStack ++;
-
-                    }
-
-                }
-
-            }
-
-            /* Delete directory handle */
-            closedir( csDirect );
-
-        /* Display message */
-        } else { fprintf( CS_OUT, "Error : Unable access master directory %s.\n", csPath ); }
-
-        /* Return descriptor count */
-        return( csStack );
+        /* Delete streams */
+        fclose( csIStream );
+        fclose( csOStream );
 
     }
 
 /*
-    Source - Contigous logs appending
-*/
+    Source - Timestamp extremums extractors
+ */
 
-    void cs_recompose_append( char const * const csPath, cs_Descriptor_t * const csDescriptors, int const csStack ) {
+    void cs_recompose_extremum( char const * const csFile, lp_Time_t * const csFirst, lp_Time_t * const csLast ) {
 
-        /* Remaining segment variables */
-        int csRemains = csStack;
+        /* Records buffer variables */
+        unsigned char csRec[CS_RECLEN] = { 0 };
 
-        /* Paths variables */
-        char csPathCSPS[256];
-        char csPathCSEG[256];
-        char csPathSTRU[256];
+        /* Create input stream */
+        FILE * csStream = fopen( csFile, "rb" );
 
-        /* Parsing variables */
-        int csParse = 0;
-        int csSegIx = 0;
+        /* Clear timestamps */
+        * csFirst = 0;
+        * csLast  = 0;
 
-        /* Searching variables */
-        int csCurrent = 0;
+        /* Parse stream */
+        while ( fread( csRec, 1, CS_RECLEN, csStream ) == CS_RECLEN ) {
+        
+            /* Event type detection - IMU */
+            if ( ( csRec[3] & lp_Byte_s( 0x0F ) ) == CS_IMU ) {
 
-        /* Appending flag variables */
-        int csAppended = 0;
+                /* Last timestamp extraction */
+                * csLast = lp_timestamp( ( lp_Void_t * ) csRec );
 
-        /* Handle variables */
-        FILE * csHandle = NULL;
-
-        /* Timestamp variables */
-        lp_Time_t csInfemum = 0;
-        lp_Time_t csLast = 0;
-
-        /* Display message */
-        fprintf( CS_OUT, "Master directory processing :\n" );
-
-        /* Create master structure csps-sub-directory */
-        sprintf( csPathCSPS, "%s/csps", csPath ); mkdir( csPathCSPS, 0700 );
-
-        /* Appending procedure */
-        while ( csRemains > 0 ) {
-
-            /* Reset searching variables */
-            csCurrent = csStack;
-
-            /* Reset infemum buffer */
-            csInfemum = lp_Time_s( 0xFFFFFFFFFFFFFFFF );
-
-            /* Search oldest unappended file */
-            for ( csParse = 0; csParse < csStack; csParse ++ ) {
-
-                /* Check unappended flag */
-                if ( csDescriptors[csParse].dsFlag == CS_FALSE ) {
-
-                    /* Check chronology */
-                    if ( lp_timestamp_ge( csInfemum, csDescriptors[csParse].dsLast ) == LP_TRUE ) {
-
-                        /* Update infemum buffer */
-                        csInfemum = csDescriptors[csParse].dsLast;
-
-                        /* Stores corresponding index */
-                        csCurrent = csParse;
-
-                    }
-
-                }
+                /* First timestamp extraction */
+                if ( * csFirst == 0 ) * csFirst = * csLast;
+                
 
             }
 
-            /* Create current segment directory */
-            sprintf( csPathCSEG, "%s/" CS_PATH_SEGMENT "-%02i", csPathCSPS, ++ csSegIx ); mkdir( csPathCSEG, 0700 );
+        }
 
-            /* Create sub-structure directories */
-            sprintf( csPathSTRU, "%s/" CS_PATH_STREAMS, csPathCSEG ); mkdir( csPathSTRU, 0700 );
-            sprintf( csPathSTRU, "%s/" CS_PATH_DEVICES, csPathCSEG ); mkdir( csPathSTRU, 0700 );
-            sprintf( csPathSTRU, "%s/" CS_PATH_EYESIS4, csPathSTRU ); mkdir( csPathSTRU, 0700 );
+        /* Close input stream */
+        fclose( csStream );
 
-            /* Create sub-structure devices concatenated file  */
-            sprintf( csPathSTRU, "%s/" CS_PATH_LOGFILE, csPathSTRU );
+    }
 
-            /* Open concatenated file */
-            if ( ( csHandle = fopen( csPathSTRU, "wb" ) ) != NULL ) {
+/*
+    Source - Directory entity enumeration
+ */
 
-                /* Display message */
-                fprintf( CS_OUT, "\tAppending : %s ", strrchr( csDescriptors[csCurrent].dsName, '/' ) + 1 );
+    int cs_recompose_enum( char const * const csDirectory, char * const csName ) {
 
-                /* Append initial descriptor */
-                csLast = cs_recompose_push( csDescriptors + csCurrent, csHandle );
+        /* Directory variables */
+        static DIR    * csDirect = NULL;
+        static DIRENT * csEntity = NULL;
 
-                /* Update remaining counter */
-                csRemains --;
+        /* Verify enumeration mode */
+        if ( csDirect == NULL ) {
 
-                /* Search contigous descriptors */
-                do {
+            /* Create directory handle */
+            csDirect = opendir( csDirectory );
 
-                    /* Reset search variable */
-                    csParse = 0;
+            /* Recusive initialization */
+            return( cs_recompose_enum( csDirectory, csName ) );
 
-                    /* Reset appended flag */
-                    csAppended = CS_FALSE;
+        } else {
 
-                    /* Search for contigous descriptor */
-                    while ( ( csParse < csStack ) && ( csAppended == CS_FALSE ) ) {
+            /* Read directory entity */
+            csEntity = readdir( csDirect );
 
-                        /* Check unappended flag */
-                        if ( csDescriptors[csParse].dsFlag == CS_FALSE ) {
+            /* Check enumeration end */
+            if ( csEntity == NULL ) {
 
-                            /* Compute timestamp distance */
-                            if ( lp_timestamp_float( lp_timestamp_diff( csLast, csDescriptors[csParse].dsFirst ) ) < 1.0 ) {
+                /* Delete directory handle */
+                closedir( csDirect );
 
-                                /* Display message */
-                                fprintf( CS_OUT, "%s ", strrchr( csDescriptors[csParse].dsName, '/' ) + 1 );
+                /* Reset directory pointer */
+                csDirect = NULL;
 
-                                /* Append current descriptor */
-                                csLast = cs_recompose_push( csDescriptors + csParse, csHandle );
+                /* Return negative enumeration */
+                return( CS_FALSE );
 
-                                /* Update appended flag */
-                                csAppended = CS_TRUE;
+            } else {
 
-                                /* Update remaining counter */
-                                csRemains --;
+                /* Compose directory and entity path */
+                sprintf( csName, "%s/%s", csDirectory, csEntity->d_name );
 
-                            }
+                /* Return positive enumeration */
+                return( CS_TRUE );
 
-                        }
-
-                        /* Update search index */
-                        csParse ++;
-
-                    }
-
-                } while ( csAppended > 0 );
-
-                /* Display message */
-                fprintf( CS_OUT, "\n" );
-
-                /* Close appended file */
-                fclose( csHandle );
-
-            /* Display message */
-            } else { fprintf( CS_OUT, "Error : Unable to create concatenated file %s.\n", csPathSTRU ); }
+            }
 
         }
 
     }
 
 /*
-    Source - Appending coprocess
+    Source - Directory entity type detection
 */
 
-    lp_Time_t cs_recompose_push( cs_Descriptor_t * const csDescriptor, FILE * const csHandle ) {
+    int cs_recompose_detect( char const * const csEntity, int const csType ) {
 
-        /* Buffer variables */
-        unsigned char csBuffer[CS_BUFFER_SIZE] = { 0 };
+        /* Check type of entity to verify */
+        if ( csType == CS_FILE ) {
 
-        /* Transfert variables */
-        int csRead = 0;
+            /* File openning verification */
+            FILE * csCheck = fopen( csEntity, "r" );
 
-        /* Open input file */
-        FILE * csInput = fopen( csDescriptor->dsName, "rb" );
+            /* Check verification stream */
+            if ( csCheck != NULL ) {
 
-        /* Update descriptor flag */
-        csDescriptor->dsFlag = CS_TRUE;
+                /* Close stream */
+                fclose( csCheck );
 
-        /* Transfert content */
-        while ( ( csRead = fread( csBuffer, 1, CS_BUFFER_SIZE, csInput ) ) > 0 ) fwrite( csBuffer, 1, csRead, csHandle );
+                /* Return positive answer */
+                return( CS_TRUE );
 
-        /* Close input file */
-        fclose( csInput );
+            } else {
 
-        /* Return input file last timestamp */
-        return( csDescriptor->dsLast );
+                /* Return negative answer */
+                return( CS_FALSE );
+
+            }
+
+        } else if ( csType == CS_DIRECTORY ) {
+
+            /* Directory handle verification */
+            DIR * csCheck = opendir( csEntity );
+
+            /* Check verification handle */
+            if ( csCheck != NULL ) {
+
+                /* Delete handle */
+                closedir( csCheck );
+
+                /* Return positive answer */
+                return( CS_TRUE );
+
+            } else {
+
+                /* Return negative answer */
+                return( CS_FALSE );
+            }
+
+        } else {
+
+            /* Return negative answer */
+            return( CS_FALSE );
+
+        }
 
     }
 

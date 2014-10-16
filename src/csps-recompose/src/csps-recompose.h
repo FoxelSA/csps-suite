@@ -36,7 +36,7 @@
  *      Attribution" section of <http://foxel.ch/license>.
  */
 
-    /*! \file   csps-append.h
+    /*! \file   csps-recompose.h
      *  \author Nils Hamel <n.hamel@foxel.ch>
      *   
      *  Software main header
@@ -103,11 +103,13 @@
  */
 
     /* Standard help */
-    # define CS_HELP "Usage summary :\n"              \
-    "  csps-recompose [Arguments] [Parameters] ...\n" \
-    "Short arguments and parameters summary :\n"      \
-    "  -p Course master directory\n"                  \
-    "csps-recompose - csps-suite\n"                   \
+    # define CS_HELP "Usage summary :\n"                    \
+    "  csps-recompose [Arguments] [Parameters] ...\n"       \
+    "Short arguments and parameters summary :\n"            \
+    "  -d Directory containing the segment to append\n"     \
+    "  -r Directory that recieve appended segments\n"       \
+    "  -g Maximal gap, in seconds, that induce an append\n" \
+    "csps-recompose - csps-suite\n"                         \
     "Copyright (c) 2013-2014 FOXEL SA\n"
 
     /* Define standard types */
@@ -133,20 +135,23 @@
     # define CS_FALSE           0
     # define CS_TRUE            1
 
-    /* Define directory structure */
-    # define CS_PATH_PATTERN    ".log-"
-    # define CS_PATH_RAW        "/mov/1"
-    # define CS_PATH_SEGMENT    "segment"
-    # define CS_PATH_STREAMS    "streams"
-    # define CS_PATH_DEVICES    "devices"
-    # define CS_PATH_EYESIS4    "eyesis4pi"
-    # define CS_PATH_LOGFILE    "fpga-log.bin"
+    /* Define directory entity type */
+    # define CS_FILE            0
+    # define CS_DIRECTORY       1
 
     /* Define descriptors stack size */
-    # define CS_STACK_SIZE      1024
+    # define CS_SIZE            1024
 
-    /* Define transfer buffer size */
-    # define CS_BUFFER_SIZE     8192
+    /* Define directory structure */
+    # define CS_PATH_PATTERN    ".log-"
+
+    /* Define record length */
+    # define CS_RECLEN          LP_DEVICE_EYESIS4PI_RECLEN
+
+    /* Define events type */
+    # define CS_IMU             LP_DEVICE_EYESIS4PI_IMUEVT
+    # define CS_MAS             LP_DEVICE_EYESIS4PI_MASEVT
+    # define CS_GPS             LP_DEVICE_EYESIS4PI_GPSEVT
 
 /* 
     Header - Preprocessor macros
@@ -155,6 +160,9 @@
 /* 
     Header - Typedefs
  */
+
+    /* I know ! Screw you ! */
+    typedef struct dirent DIRENT;
 
 /* 
     Header - Structures
@@ -178,20 +186,17 @@
 
     typedef struct cs_Descriptor_struct {
 
-        /* File name */
-        char dsName[256];
+        /* Logs-file name */
+        char      dsName[256];
 
-        /* Descriptor flag */
-        int dsFlag;
+        /* Appending flag */
+        int       dsFlag;
 
-        /* Timestamp boundaries */
+        /* Temporal boundaries */
         lp_Time_t dsFirst;
         lp_Time_t dsLast;
 
     } cs_Descriptor_t;
-
-    /* I know ! Screw you ! */
-    typedef struct dirent DIRENT;
 
 /* 
     Header - Function prototypes
@@ -208,47 +213,38 @@
 
     int main ( int argc, char ** argv );
 
-    /*! \brief Raw logs analysis
+    void cs_recompose_append ( char const * const csSource, char const * const csDestination );
+
+    void cs_recompose_extremum ( char const * const csFile, lp_Time_t * const csFirst, lp_Time_t * const csLast );
+
+    /*! \brief Directory entity enumeration
      *  
-     *  This function performs an analysis on raw log file available in the
-     *  master directory. It creates the the descriptors stack that stores 
-     *  information on raw logs in order to perform appending of contigous logs.
+     *  Enumerates entity contained in the pointed directory. The function
+     *  detects automatically if an enumeration is under way and returns, one
+     *  by one, the name of the found entity. When enumeration is terminated,
+     *  the function close itself the directory handle.
      *
-     *  The descriptor stack size is limited according to
-     *  CS_STACK_SIZE constant.
-     *  
-     *  \param  csPath          Master directory
-     *  \param  csDescriptor    Descriptors stack to fill up
+     *  \param  csDirectory Directory to enumerates
+     *  \param  csName      String that recieve the entity name, appended with
+     *                      directory path
      *
-     *  \return Returns created stack size
+     *  \return Returns code indicating enumeration status
      */
 
-    int cs_recompose_create( char const * const csPath, cs_Descriptor_t * const csDescriptors );
+    int cs_recompose_enum ( char const * const csDirectory, char * const csName );
 
-    /*! \brief Contigous logs appending
-     *  
-     *  This function performs the appending of contigous raw log files that are
-     *  provided by the descriptor stack.
-     *  
-     *  \param csPath           Master directory
-     *  \param csDescriptors    Filled descriptors stack
-     *  \param csStack          Size of the filled descriptors stack
+    /*! \brief Directory entity type detection
+     *
+     *  This function, according to the desired type (file or directory), checks
+     *  if entity type is correct.
+     *
+     *  \param  csEntity    Path to the entity
+     *  \param  csType      Type of the entity to verify
+     *
+     *  \return Returns CS_TRUE if verification passed, CS_FALSE otherwise
      */
 
-    void cs_recompose_append( char const * const csPath, cs_Descriptor_t * const csDescriptors, int const csStack );
-
-    /*! \brief Appending coprocess
-     *  
-     *  This function append the content of the file described by the descriptor
-     *  into the csHandle stream. The output stream has to be already open.
-     *  
-     *  \param  csDescriptor    Descriptor of raw log to append
-     *  \param  csHandle        Stream in which appending is performed
-     *
-     *  \return Returns the last IMU timestamp stored by the provided descriptor
-     */     
-
-    lp_Time_t cs_recompose_push( cs_Descriptor_t * const csDescriptor, FILE * const csHandle );
+    int cs_recompose_detect ( char const * const csEntity, int const csType );
 
     /*! \brief Arguments common handler
      *  

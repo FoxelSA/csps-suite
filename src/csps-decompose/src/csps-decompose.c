@@ -54,12 +54,16 @@
         char csDec[256] = { 0 };
         char csEnt[256] = { 0 };
 
+        /* Decompostion condition variables */
+        double csGap = 1.0;
+
         /* Decomposition index variables */
         int csIndex = 1;
 
         /* Search in parameters */
-        stdp( stda( argc, argv,  "--raw"       , "-r" ), argv, csRaw , CS_STRING );
-        stdp( stda( argc, argv,  "--decomposed", "-d" ), argv, csDec , CS_STRING );
+        stdp( stda( argc, argv,  "--raw"       , "-r" ), argv,   csRaw, CS_STRING );
+        stdp( stda( argc, argv,  "--decomposed", "-d" ), argv,   csDec, CS_STRING );
+        stdp( stda( argc, argv,  "--gap"       , "-g" ), argv, & csGap, CS_DOUBLE );
 
         /* Execution switch */
         if ( stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
@@ -79,7 +83,7 @@
                     if ( strstr( csEnt, CS_PATH_PATTERN ) != 0 ) {
 
                         /* Decomposition process */
-                        csIndex = cs_decompose_split( csEnt, csDec, csIndex );
+                        csIndex = cs_decompose_split( csEnt, csDec, csIndex, csGap );
 
                     }
 
@@ -98,24 +102,27 @@
     Source - FPGA-log decomposer
 */
 
-    int cs_decompose_split( char const * const csLog, char const * const csDirectory, int csIndex ) {
+    int cs_decompose_split( char const * const csLog, char const * const csDirectory, int csIndex, double csGap ) {
 
         /* Records buffer variables */
-        unsigned char csRec[LP_DEVICE_EYESIS4PI_RECLEN] = { 0 };
+        unsigned char csRec[CS_RECLEN] = { 0 };
 
         /* Decomposition segment path variables */
         char csPart[256] = { 0 };
 
-        /* Stream handle variables */
-        FILE * csIStream = NULL;
-        FILE * csOStream = NULL;
-
         /* Parsing flag variables */
         int csFlag = CS_FALSE;
+
+        /* Pure split variables */
+        int csPure = CS_TRUE;
 
         /* Timestamp variables */
         lp_Time_t csPTime = 0;
         lp_Time_t csCTime = 0;
+
+        /* Stream handle variables */
+        FILE * csIStream = NULL;
+        FILE * csOStream = NULL;
 
         /* Compose initial decomposition segment path */
         sprintf( csPart, "%s/log-decomposition.log-%05i", csDirectory, csIndex ++ );
@@ -130,46 +137,73 @@
         csOStream = fopen( csPart, "wb" );
 
         /* Parsing input stream */
-        while ( fread( csRec, 1, LP_DEVICE_EYESIS4PI_RECLEN, csIStream ) == LP_DEVICE_EYESIS4PI_RECLEN ) {
+        while ( fread( csRec, 1, CS_RECLEN, csIStream ) == CS_RECLEN ) {
 
-            /* Read record timestamp */
-            csCTime = lp_timestamp( ( lp_Void_t * ) csRec );
+            /* Detect IMU events */
+            if ( ( csRec[3] & lp_Byte_s( 0x0F ) ) == CS_IMU ) {
 
-            /* Check parsing flag */
-            if ( csFlag == CS_FALSE ) {
+                /* Read record timestamp */
+                csCTime = lp_timestamp( ( lp_Void_t * ) csRec );
 
-                /* Update parsing flag */
-                csFlag = CS_TRUE;
+                /* Check parsing flag */
+                if ( csFlag == CS_FALSE ) {
+
+                    /* Update parsing flag */
+                    csFlag = CS_TRUE;
+
+                } else {
+
+                    /* Check splitting condition */
+                    if ( lp_timestamp_float( lp_timestamp_diff( csCTime, csPTime ) ) > csGap ) {
+
+                        /* Update decomposition segment path */
+                        sprintf( csPart, "%s/log-decomposition.log-%05i", csDirectory, csIndex ++ );
+
+                        /* Close output stream */
+                        fclose( csOStream );
+
+                        /* Open output stream */
+                        csOStream = fopen( csPart, "wb" );
+
+                        /* Reset parsing flag */
+                        csFlag = CS_FALSE;
+
+                        /* Display decomposition information */
+                        fprintf( CS_OUT, " %s (%s:%010" lp_Time_p ".%06" lp_Time_p "/%010" lp_Time_p ".%06" lp_Time_p ")", 
+
+                            /* Extract file name */
+                            strrchr( csPart, '/' ) + 1,
+
+                            /* Splitting purity */
+                            csPure == CS_TRUE ? "Pure" : "Impure",
+
+                            /* Splitting timestamps */
+                            lp_timestamp_sec ( csPTime ),
+                            lp_timestamp_usec( csPTime ),
+                            lp_timestamp_sec ( csCTime ),
+                            lp_timestamp_usec( csCTime )
+
+                        );
+
+                    }
+
+                }
+
+                /* Memorize previous timestamp */
+                csPTime = csCTime;
+
+                /* Update split purity */
+                csPure = CS_TRUE;
 
             } else {
 
-                /* Check splitting condition */
-                if ( lp_timestamp_float( lp_timestamp_diff( csCTime, csPTime ) ) > 10.0 ) {
-
-                    /* Close output stream */
-                    fclose( csOStream );
-
-                    /* Update decomposition segment path */
-                    sprintf( csPart, "%s/log-decomposition.log-%05i", csDirectory, csIndex ++ );
-
-                    /* Display decomposition information */
-                    fprintf( CS_OUT, " %s", strrchr( csPart, '/' ) + 1 );
-
-                    /* Open output stream */
-                    csOStream = fopen( csPart, "wb" );
-
-                    /* Reset parsing flag */
-                    csFlag = CS_FALSE;
-
-                }
+                /* Update split purity */
+                csPure = CS_FALSE;
 
             }
 
             /* Write recored in output stream */
-            fwrite( csRec, 1, LP_DEVICE_EYESIS4PI_RECLEN, csOStream );
-
-            /* Memorize previous timestamp */
-            csPTime = csCTime;
+            fwrite( csRec, 1, CS_RECLEN, csOStream );
 
         }
 
