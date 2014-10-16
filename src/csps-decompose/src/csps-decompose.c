@@ -78,6 +78,7 @@
                     /* Check log-file tag */
                     if ( strstr( csEnt, CS_PATH_PATTERN ) != 0 ) {
 
+                        /* Decomposition process */
                         csIndex = cs_decompose_split( csEnt, csDec, csIndex );
 
                     }
@@ -134,40 +135,38 @@
             /* Read record timestamp */
             csCTime = lp_timestamp( ( lp_Void_t * ) csRec );
 
-            fprintf( CS_OUT, "%012" lp_Time_p ".%06" lp_Time_p "\n", lp_timestamp_sec( csCTime ), lp_timestamp_usec( csCTime ) );
-
             /* Check parsing flag */
-            //if ( csFlag == CS_FALSE ) {
+            if ( csFlag == CS_FALSE ) {
 
                 /* Update parsing flag */
-                //csFlag = CS_TRUE;
+                csFlag = CS_TRUE;
 
-            //} else {
+            } else {
 
                 /* Check splitting condition */
-                //if ( lp_timestamp_float( lp_timestamp_diff( csCTime, csPTime ) ) > 10.0 ) {
+                if ( lp_timestamp_float( lp_timestamp_diff( csCTime, csPTime ) ) > 10.0 ) {
 
                     /* Close output stream */
-                    //fclose( csOStream );
+                    fclose( csOStream );
 
                     /* Update decomposition segment path */
-                    //sprintf( csPart, "%s/log-decomposition.log-%05i", csDirectory, csIndex ++ );
+                    sprintf( csPart, "%s/log-decomposition.log-%05i", csDirectory, csIndex ++ );
 
                     /* Display decomposition information */
-                    //fprintf( CS_OUT, " %s", strrchr( csPart, '/' ) + 1 );
+                    fprintf( CS_OUT, " %s", strrchr( csPart, '/' ) + 1 );
 
                     /* Open output stream */
-                    //csOStream = fopen( csPart, "wb" );
+                    csOStream = fopen( csPart, "wb" );
 
                     /* Reset parsing flag */
-                    //csFlag = CS_FALSE;
+                    csFlag = CS_FALSE;
 
-                //}
+                }
 
-            //}
+            }
 
             /* Write recored in output stream */
-            //fwrite( csRec, 1, LP_DEVICE_EYESIS4PI_RECLEN, csOStream );
+            fwrite( csRec, 1, LP_DEVICE_EYESIS4PI_RECLEN, csOStream );
 
             /* Memorize previous timestamp */
             csPTime = csCTime;

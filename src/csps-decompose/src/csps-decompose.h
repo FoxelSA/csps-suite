@@ -106,8 +106,8 @@
     # define CS_HELP "Usage summary :\n"                                \
     "  csps-decompose [Arguments] [Parameters] ...\n"                   \
     "Short arguments and parameters summary :\n"                        \
-    "  -r Directory path containing the logs file to decompose\n"       \
-    "  -d Directory path in which decomposed logs files are exported\n" \
+    "  -r Directory path containing the logs-files to decompose\n"      \
+    "  -d Directory path in which decomposed logs-files are exported\n" \
     "csps-append - csps-suite\n"                                        \
     "Copyright (c) 2013-2014 FOXEL SA\n"
 
