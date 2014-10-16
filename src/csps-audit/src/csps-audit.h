@@ -102,11 +102,11 @@
  */
 
     /* Standard help */
-    # define CS_HELP "Usage summary :\n"          \
-    "  csps-audit [Arguments] [Parameters] ...\n" \
-    "Short arguments and parameters summary :\n"  \
-    "  -p Course master directory\n"              \
-    "csps-audit - csps-suite\n"                   \
+    # define CS_HELP "Usage summary :\n"                \
+    "  csps-audit [Arguments] [Parameters] ...\n"       \
+    "Short arguments and parameters summary :\n"        \
+    "  -p Directory that contains lgos-file to audit\n" \
+    "csps-audit - csps-suite\n"                         \
     "Copyright (c) 2013-2014 FOXEL SA\n"
 
     /* Define standard types */
