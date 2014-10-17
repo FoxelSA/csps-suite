@@ -115,7 +115,7 @@
     }
 
 /*
-    Source - Validation process
+    Source - Logs-files validation process
 */
 
     void cs_elphel_validate( char const * const csIFile, char const * const csOFile, double csInterval ) {
@@ -134,45 +134,51 @@
         FILE * csIStream = fopen( csIFile, "rb" );
         FILE * csOStream = fopen( csOFile, "wb" );
 
-        /* Parsing input stream */
-        while ( fread( csRec, 1, CS_RECLEN, csIStream ) == CS_RECLEN ) {
+        /* Check stream creation */
+        if ( ( csIStream != NULL ) && ( csOStream != NULL ) ) {
 
-            /* Reset exportation flag */
-            csFlag = CS_TRUE;
+            /* Parsing input stream */
+            while ( fread( csRec, 1, CS_RECLEN, csIStream ) == CS_RECLEN ) {
 
-            /* Events type selector */
-            if ( ( csRec[3] & lp_Byte_s( 0x0F ) ) == CS_IMU ) {
+                /* Reset exportation flag */
+                csFlag = CS_TRUE;
 
-                /* Extract imu-event timestamp */
-                csIMUTime = lp_timestamp( ( lp_Void_t * ) csRec );
+                /* Events type selector */
+                if ( ( csRec[3] & lp_Byte_s( 0x0F ) ) == CS_IMU ) {
 
-            } else if ( ( csRec[3] & lp_Byte_s( 0x0F ) ) == CS_GPS ) {
+                    /* Extract imu-event timestamp */
+                    csIMUTime = lp_timestamp( ( lp_Void_t * ) csRec );
 
-                /* Extract gps-event timestamp */
-                csGPSTime = lp_timestamp( ( lp_Void_t * ) csRec );
+                } else if ( ( csRec[3] & lp_Byte_s( 0x0F ) ) == CS_GPS ) {
 
-                /* Verify gps-event decimation condition */
-                if ( ( csIMUTime == 0 ) || ( lp_timestamp_float( lp_timestamp_diff( csGPSTime, csIMUTime ) ) > csInterval ) ) {
+                    /* Extract gps-event timestamp */
+                    csGPSTime = lp_timestamp( ( lp_Void_t * ) csRec );
 
-                    /* Display information */
-                    fprintf( CS_OUT, "  Removing GPS/NMEA sentence at %010" lp_Time_p ".%06" lp_Time_p "\n",
+                    /* Verify gps-event decimation condition */
+                    if ( ( csIMUTime == 0 ) || ( lp_timestamp_float( lp_timestamp_diff( csGPSTime, csIMUTime ) ) > csInterval ) ) {
 
-                        lp_timestamp_sec ( csGPSTime ),
-                        lp_timestamp_usec( csGPSTime )
+                        /* Display information */
+                        fprintf( CS_OUT, "  Removing GPS/NMEA sentence at %010" lp_Time_p ".%06" lp_Time_p "\n",
 
-                    );
+                            lp_timestamp_sec ( csGPSTime ),
+                            lp_timestamp_usec( csGPSTime )
 
-                    /* Cancel record exportation */
-                    csFlag = CS_FALSE;
+                        );
+
+                        /* Cancel record exportation */
+                        csFlag = CS_FALSE;
+
+                    }
 
                 }
 
+                /* Write recored in output stream */
+                if ( csFlag == CS_TRUE ) fwrite( csRec, 1, CS_RECLEN, csOStream );
+
             }
 
-            /* Write recored in output stream */
-            if ( csFlag == CS_TRUE ) fwrite( csRec, 1, CS_RECLEN, csOStream );
-
-        }
+        /* Display message */
+        } else { fprintf( CS_OUT, "Error : Failed to access %s or/and %s\n", strrchr( csIFile, '/' ) + 1, strrchr( csOFile, '/' ) + 1 ); }
 
         /* Close streams */
         fclose( csIStream );
@@ -187,8 +193,8 @@
     int cs_elphel_validate_enum( char const * const csDirectory, char * const csName ) {
 
         /* Directory variables */
-        static DIR    * csDirect = NULL;
-        static DIRENT * csEntity = NULL;
+        static DIR           * csDirect = NULL;
+        static struct dirent * csEntity = NULL;
 
         /* Verify enumeration mode */
         if ( csDirect == NULL ) {

@@ -92,7 +92,6 @@
 
     # include <stdio.h>
     # include <stdlib.h>
-    # include <time.h>
     # include <string.h>
     # include <dirent.h>
     # include <sys/stat.h>
@@ -103,10 +102,14 @@
  */
 
     /* Standard help */
-    # define CS_HELP "Usage summary :\n"                                \
-    "  csps-elphel-validate [Arguments] [Parameters] ...\n"            \
-    "Short arguments and parameters summary :\n"                        \
-    "csps-elphel-validate - csps-suite\n"                                        \
+    # define CS_HELP "Usage summary :\n"                           \
+    "  csps-elphel-validate [Arguments] [Parameters] ...\n"        \
+    "Short arguments and parameters summary :\n"                   \
+    "  -r Directory containing recomposed logs-files\n"            \
+    "  -v Directory where validated logs-files are exported\n"     \
+    "  -m Minimum size, in bytes, for logs-file validation\n"      \
+    "  -i Interval, in seconds, for maximum IMU/GPS-event delay\n" \
+    "csps-elphel-validate - csps-suite\n"                          \
     "Copyright (c) 2013-2014 FOXEL SA\n"
 
     /* Define standard types */
@@ -155,9 +158,6 @@
     Header - Typedefs
  */
 
-    /* I know ! Screw you ! */
-    typedef struct dirent DIRENT;
-
 /* 
     Header - Structures
  */
@@ -168,14 +168,28 @@
 
     /*! \brief Software main function
      *  
-     *  The main function calls the analysis and appending procedure in order to
-     *  perform contigous log detection and appending.
+     *  The main function considers recomposed logs-files and proceed to a
+     *  validation of the recomposition based on the file size. It also remove
+     *  GPS-events that are too far away from nearest IMU-event.
      *  
      *  \param argc Standard main parameter
      *  \param argv Standard main parameter
      */
 
     int main ( int argc, char ** argv );
+
+    /*! \brief Logs-files validation process
+     *
+     *  This function, as soon as the logs-file passed the validation check,
+     *  parse the IMU/GPS-events in order to remove GPS-events that are logged
+     *  with a timestamp too fat away from nearest IMU-events timestamp.
+     *
+     *  \param csIFile      Input logs-file to process
+     *  \param csOFile      Output logs-file for exportation
+     *  \param csInterval   Maximum interval between IMU/GPS-events timestamp
+     */
+
+    void cs_elphel_validate ( char const * const csIFile, char const * const csOFile, double csInterval );
 
     /*! \brief Directory entity enumeration
      *  
@@ -185,23 +199,21 @@
      *  the function close itself the directory handle.
      *
      *  \param  csDirectory Directory to enumerates
-     *  \param  csName      String that recieve the entity name, appended with
+     *  \param  csName      String that recieve the entity name, appended to the
      *                      directory path
      *
      *  \return Returns code indicating enumeration status
      */
 
-    void cs_elphel_validate ( char const * const csIFile, char const * const csOFile, double csInterval );
-
     int cs_elphel_validate_enum ( char const * const csDirectory, char * const csName );
 
     /*! \brief Directory entity type detection
      *
-     *  This function, according to the desired type (file or directory), checks
-     *  if entity type is correct.
+     *  This function checks if directory entity if of the type file or
+     *  directory according to the parameter.
      *
      *  \param  csEntity    Path to the entity
-     *  \param  csType      Type of the entity to verify
+     *  \param  csType      Type of the entity to check
      *
      *  \return Returns CS_TRUE if verification passed, CS_FALSE otherwise
      */
@@ -210,7 +222,8 @@
 
     /*! \brief File size extractor
      *
-     *  Extract and return size of file.
+     *  Compute and returns the length, in bytes, of the file provided as
+     *  parameter.
      *
      *  \param  csFile Path to file
      *
