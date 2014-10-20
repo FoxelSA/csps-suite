@@ -63,6 +63,37 @@
             /* Display help summary */
             printf( CS_HELP );
 
+        } else 
+        if ( stda( argc, argv, "--marker", "-m" ) ) {
+
+            /* Records buffer variables */
+            lp_Byte_t csRec[CS_RECLEN] = { 0 };
+
+            /* Timestamp variables */
+            lp_Time_t csTime = 0;
+
+            /* Create input stream */
+            FILE * csStream = fopen( csFile, "rb" );
+
+            /* Parse stream */
+            while ( ( fread( csRec, 1, CS_RECLEN, csStream ) == CS_RECLEN ) && ( csTime == 0 ) ) {            
+
+                /* Event type detection - IMU */
+                if ( ( csRec[3] & lp_Byte_s( 0x0F ) ) == CS_MAS ) {
+
+                    /* Retrieve record timestamp */
+                    csTime = lp_timestamp( ( lp_Void_t * ) csRec );                    
+
+                }
+
+            }
+
+            /* Close stream */
+            fclose( csStream );
+
+            /* Display timestamp */
+            fprintf( CS_OUT, "%" lp_Time_p "\n", lp_timestamp_sec( csTime ) );
+
         } else { 
 
             /* Records buffer variables */

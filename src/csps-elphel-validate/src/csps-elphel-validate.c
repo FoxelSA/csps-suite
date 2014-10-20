@@ -94,7 +94,7 @@
                             sprintf( csExp, "%s/log-validated.log-%05li", csVal, csIndex ++ );
 
                             /* Display information */
-                            fprintf( CS_OUT, "Validation   : %s\n  Exportation    : %s\n", strrchr( csEnt, '/' ) + 1, strrchr( csExp, '/' ) + 1 );
+                            fprintf( CS_OUT, "Validating   : %s\n  Exportation    : %s\n", strrchr( csEnt, '/' ) + 1, strrchr( csExp, '/' ) + 1 );
 
                             /* Validation process */
                             cs_elphel_validate( csEnt, csExp, csInterval );

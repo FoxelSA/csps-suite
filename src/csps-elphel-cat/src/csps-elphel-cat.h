@@ -105,6 +105,7 @@
     "Short arguments and parameters summary :\n"              \
     "  -l Path to logs-file to display\n"                     \
     "  -f Display flag [i|m|g] for [IMU|master|GPS] events\n" \
+    "  -m Display first master timestamp only\n"              \
     "csps-elphel-cat - csps-suite\n"                          \
     "Copyright (c) 2013-2014 FOXEL SA\n"
 
