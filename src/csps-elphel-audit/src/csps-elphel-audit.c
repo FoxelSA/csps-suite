@@ -250,7 +250,7 @@
             fprintf( CS_OUT, "  Steps (GPS) : " CS_MD " - " CS_MD "\n", CS_TS( csGPSstpi ), CS_TS( csGPSstpm ) );
 
         /* Display message */
-        } else { fprintf( CS_OUT, "Error : Failed to open %s\n", strrchr( csFile, '/' ) + 1 ); }
+        } else { fprintf( CS_OUT, "Error : unable to access %s\n", strrchr( csFile, '/' ) + 1 ); }
 
     }
 

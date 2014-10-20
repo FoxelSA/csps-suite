@@ -172,10 +172,10 @@
                     } else { fprintf( CS_OUT, "Error : CSPS query by timestamp failed\n" ); }
 
                 /* Display message */
-                } else { fprintf( CS_OUT, "Error : Device sensor index out of calibration range\n" ); }
+                } else { fprintf( CS_OUT, "Error : device sensor index out of calibration range\n" ); }
 
             /* Display message */
-            } else { fprintf( CS_OUT, "Error : Unknown camera device\n" ); }
+            } else { fprintf( CS_OUT, "Error : unknown camera device\n" ); }
 
         }
 

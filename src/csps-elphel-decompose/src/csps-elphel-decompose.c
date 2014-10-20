@@ -130,69 +130,75 @@
         /* Display decomposition information */
         fprintf( CS_OUT, "Decomposing : %s\n  %s\n", strrchr( csLog, '/' ) + 1, strrchr( csPart, '/' ) + 1 );
 
-        /* Open input stream */
+        /* Create input stream */
         csIStream = fopen( csLog, "rb" );
 
-        /* Open output stream */
+        /* Create output stream */
         csOStream = fopen( csPart, "wb" );
 
-        /* Parsing input stream */
-        while ( fread( csRec, 1, CS_RECLEN, csIStream ) == CS_RECLEN ) {
+        /* Check stream creation */
+        if ( ( csIStream != NULL ) && ( csOStream != NULL ) ) { 
 
-            /* Detect IMU events */
-            if ( ( csRec[3] & lp_Byte_s( 0x0F ) ) == CS_IMU ) {
+            /* Parsing input stream */
+            while ( fread( csRec, 1, CS_RECLEN, csIStream ) == CS_RECLEN ) {
 
-                /* Read record timestamp */
-                csCTime = lp_timestamp( ( lp_Void_t * ) csRec );
+                /* Detect IMU events */
+                if ( ( csRec[3] & lp_Byte_s( 0x0F ) ) == CS_IMU ) {
 
-                /* Check parsing flag */
-                if ( csFlag == CS_FALSE ) {
+                    /* Read record timestamp */
+                    csCTime = lp_timestamp( ( lp_Void_t * ) csRec );
 
-                    /* Update parsing flag */
-                    csFlag = CS_TRUE;
+                    /* Check parsing flag */
+                    if ( csFlag == CS_FALSE ) {
 
-                } else {
+                        /* Update parsing flag */
+                        csFlag = CS_TRUE;
 
-                    /* Check splitting condition */
-                    if ( lp_timestamp_float( lp_timestamp_diff( csCTime, csPTime ) ) > csInterval ) {
+                    } else {
 
-                        /* Update decomposition segment path */
-                        sprintf( csPart, "%s/log-decomposition.log-%05i", csDirectory, csIndex ++ );
+                        /* Check splitting condition */
+                        if ( lp_timestamp_float( lp_timestamp_diff( csCTime, csPTime ) ) > csInterval ) {
 
-                        /* Close output stream */
-                        fclose( csOStream );
+                            /* Update decomposition segment path */
+                            sprintf( csPart, "%s/log-decomposition.log-%05i", csDirectory, csIndex ++ );
 
-                        /* Open output stream */
-                        csOStream = fopen( csPart, "wb" );
+                            /* Close output stream */
+                            fclose( csOStream );
 
-                        /* Display decomposition information */
-                        fprintf( CS_OUT, "  %s (%s)\n", strrchr( csPart, '/' ) + 1, csPure == CS_TRUE ? "Pure  " : "Impure" );
+                            /* Open output stream */
+                            csOStream = fopen( csPart, "wb" );
+
+                            /* Display decomposition information */
+                            fprintf( CS_OUT, "  %s (%s)\n", strrchr( csPart, '/' ) + 1, csPure == CS_TRUE ? "Pure  " : "Impure" );
+
+                        }
 
                     }
 
+                    /* Memorize previous timestamp */
+                    csPTime = csCTime;
+
+                    /* Update split purity */
+                    csPure = CS_TRUE;
+
+                } else {
+
+                    /* Update split purity */
+                    csPure = CS_FALSE;
+
                 }
 
-                /* Memorize previous timestamp */
-                csPTime = csCTime;
-
-                /* Update split purity */
-                csPure = CS_TRUE;
-
-            } else {
-
-                /* Update split purity */
-                csPure = CS_FALSE;
+                /* Write recored in output stream */
+                fwrite( csRec, 1, CS_RECLEN, csOStream );
 
             }
 
-            /* Write recored in output stream */
-            fwrite( csRec, 1, CS_RECLEN, csOStream );
+            /* Close streams */
+            fclose( csOStream );
+            fclose( csIStream );
 
-        }
-
-        /* Close streams */
-        fclose( csOStream );
-        fclose( csIStream );
+        /* Display message */
+        } else { fprintf( CS_OUT, "Error : unable to access %s or/and %s\n", strrchr( csLog, '/' ) + 1, strrchr( csPart, '/' ) + 1 ); }
 
         /* Return decomposition index */
         return( csIndex );

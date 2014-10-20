@@ -75,21 +75,26 @@
             /* Create input stream */
             FILE * csStream = fopen( csFile, "rb" );
 
-            /* Parse stream */
-            while ( ( fread( csRec, 1, CS_RECLEN, csStream ) == CS_RECLEN ) && ( csTime == 0 ) ) {            
+            /* Check stream creation */
+            if ( csStream != NULL ) {
 
-                /* Event type detection - IMU */
-                if ( ( csRec[3] & lp_Byte_s( 0x0F ) ) == CS_MAS ) {
+                /* Parse stream */
+                while ( ( fread( csRec, 1, CS_RECLEN, csStream ) == CS_RECLEN ) && ( csTime == 0 ) ) {            
 
-                    /* Retrieve record timestamp */
-                    csTime = lp_timestamp( ( lp_Void_t * ) csRec );                    
+                    /* Event type detection - IMU */
+                    if ( ( csRec[3] & lp_Byte_s( 0x0F ) ) == CS_MAS ) {
+
+                        /* Retrieve record timestamp */
+                        csTime = lp_timestamp( ( lp_Void_t * ) csRec );                    
+
+                    }
 
                 }
 
-            }
+                /* Close stream */
+                fclose( csStream );
 
-            /* Close stream */
-            fclose( csStream );
+            }
 
             /* Display timestamp */
             fprintf( CS_OUT, "%" lp_Time_p "\n", lp_timestamp_sec( csTime ) );
@@ -185,7 +190,7 @@
                 }
 
             /* Display message */
-            } else { fprintf( CS_OUT, "Error : Unable to open file %s\n", strrchr( csFile, '/' ) + 1 ); }
+            } else { fprintf( CS_OUT, "Error : unable to access %s\n", strrchr( csFile, '/' ) + 1 ); }
 
         }
 

@@ -227,11 +227,17 @@
         /* Create output stream */
         FILE * csOStream = fopen( csDestination, "ab" );
 
-        while ( ( csRead = fread( csBuffer, 1, 1024, csIStream ) ) > 0 ) fwrite( csBuffer, 1, csRead, csOStream );
+        /* Check stream creation */
+        if ( ( csIStream != NULL ) && ( csOStream != NULL ) ) {
 
-        /* Delete streams */
-        fclose( csIStream );
-        fclose( csOStream );
+            while ( ( csRead = fread( csBuffer, 1, 1024, csIStream ) ) > 0 ) fwrite( csBuffer, 1, csRead, csOStream );
+
+            /* Delete streams */
+            fclose( csIStream );
+            fclose( csOStream );
+
+        /* Display message */
+        } else { fprintf( CS_OUT, "Error : unable to access %s or/and %s\n", strrchr( csSource, '/' ) + 1, strrchr( csDestination, '/' ) + 1 ); }
 
     }
 
@@ -251,25 +257,31 @@
         * csFirst = 0;
         * csLast  = 0;
 
-        /* Parse stream */
-        while ( fread( csRec, 1, CS_RECLEN, csStream ) == CS_RECLEN ) {
-        
-            /* Event type detection - IMU */
-            if ( ( csRec[3] & lp_Byte_s( 0x0F ) ) == CS_IMU ) {
+        /* Check stream creation */
+        if ( csStream != NULL ) {
 
-                /* Last timestamp extraction */
-                * csLast = lp_timestamp( ( lp_Void_t * ) csRec );
+            /* Parse stream */
+            while ( fread( csRec, 1, CS_RECLEN, csStream ) == CS_RECLEN ) {
+            
+                /* Event type detection - IMU */
+                if ( ( csRec[3] & lp_Byte_s( 0x0F ) ) == CS_IMU ) {
 
-                /* First timestamp extraction */
-                if ( * csFirst == 0 ) * csFirst = * csLast;
-                
+                    /* Last timestamp extraction */
+                    * csLast = lp_timestamp( ( lp_Void_t * ) csRec );
+
+                    /* First timestamp extraction */
+                    if ( * csFirst == 0 ) * csFirst = * csLast;
+                    
+
+                }
 
             }
 
-        }
+            /* Close input stream */
+            fclose( csStream );
 
-        /* Close input stream */
-        fclose( csStream );
+        /* Display message */
+        } else { fprintf( CS_OUT, "Error : unable to access %s\n", strrchr( csFile, '/' ) + 1 ); }
 
     }
 

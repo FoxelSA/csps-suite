@@ -184,7 +184,7 @@
             fprintf( CS_OUT, "  GPS decimation : %u\n", csCount );
 
         /* Display message */
-        } else { fprintf( CS_OUT, "Error : Failed to access %s or/and %s\n", strrchr( csIFile, '/' ) + 1, strrchr( csOFile, '/' ) + 1 ); }
+        } else { fprintf( CS_OUT, "Error : unable to access %s or/and %s\n", strrchr( csIFile, '/' ) + 1, strrchr( csOFile, '/' ) + 1 ); }
 
         /* Close streams */
         fclose( csIStream );

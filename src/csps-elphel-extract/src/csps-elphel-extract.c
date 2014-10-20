@@ -41,7 +41,7 @@
     Source - Includes
  */
 
-    # include "csps-process.h"
+    # include "csps-elphel-extract.h"
 
 /*
     Source - Software main function
@@ -49,13 +49,23 @@
 
     int main ( int argc, char ** argv ) {
 
-        /* Structure path variables */
-        char csPath[256] = { 0 };
-        char csTopo[256] = { 0 };
+        /* Paths variables */
+        char csFile[256] = { 0 };
+        char csExtr[256] = { 0 };
+
+        /* Timestamp variables */
+        unsigned long csLsec  = 0;
+        unsigned long csLusec = 0;
+        unsigned long csHsec  = 0;
+        unsigned long csHusec = 0;
 
         /* Search in parameters */
-        stdp( stda( argc, argv, "--path"    , "-p" ), argv, csPath , CS_STRING );
-        stdp( stda( argc, argv, "--topology", "-t" ), argv, csTopo , CS_STRING );
+        stdp( stda( argc, argv,  "--logs"       , "-l" ), argv,   csFile , CS_STRING );
+        stdp( stda( argc, argv,  "--extraction" , "-e" ), argv,   csExtr , CS_STRING );
+        stdp( stda( argc, argv,  "--second-low" , "-a" ), argv, & csLsec , CS_ULONG  );
+        stdp( stda( argc, argv,  "--micro-low"  , "-u" ), argv, & csLusec, CS_ULONG  );
+        stdp( stda( argc, argv,  "--second-high", "-b" ), argv, & csHsec , CS_ULONG  );
+        stdp( stda( argc, argv,  "--micro-high" , "-v" ), argv, & csHusec, CS_ULONG  );
 
         /* Execution switch */
         if ( stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
@@ -65,88 +75,68 @@
 
         } else {
 
-            /* Check processing directory */
-            if ( cs_process_detect( csPath, CS_DIRECTORY ) == CS_TRUE ) {
+            /* Record counter variables */
+            unsigned long csCount = 0;
 
-                /* Check processing topology file */
-                if ( cs_process_detect( csTopo, CS_FILE ) == CS_TRUE ) {
+            /* Records buffer variables */
+            lp_Byte_t csRec[CS_RECLEN] = { 0 };
 
-                    /* Display message */
-                    fprintf( CS_OUT, "Processing : %s using %s topology ...", strrchr( csPath, '/' ) + 1, strrchr( csTopo, '/' ) + 1 );
+            /* Timestamp variables */
+            lp_Time_t csCTime = 0;
+            lp_Time_t csLTime = lp_timestamp_compose( csLsec, csLusec );
+            lp_Time_t csHTime = lp_timestamp_compose( csHsec, csHusec );
 
-                    /* CSPS processing */
-                    lp_system( csPath, csTopo );
+            /* Create streams */
+            FILE * csIStream = fopen( csFile, "rb" );
+            FILE * csOStream = fopen( csExtr, "wb" );
 
-                    /* Display message */
-                    fprintf( CS_OUT, "Done\n" );
+            /* Check stream creation */
+            if ( ( csIStream != NULL ) && ( csOStream != NULL ) ) {
 
                 /* Display message */
-                } else { fprintf( CS_OUT, "Error : unable to access %s file\n", csTopo ); }
+                fprintf( CS_OUT, "Extracting from %s in %s\n", strrchr( csFile, '/' ) + 1, strrchr( csExtr, '/' ) + 1 );
+
+                /* Display message */
+                fprintf( CS_OUT, "  From    : %010lu.%06lu\n  To      : %010lu.%06lu\n", csLsec, csLusec, csHsec, csHusec );
+
+                /* Parse stream */
+                while ( fread( csRec, 1, CS_RECLEN, csIStream ) == CS_RECLEN ) {
+
+                    /* Retrieve current timestamp */
+                    csCTime = lp_timestamp( ( lp_Void_t * ) csRec );
+
+                    /* Exportation condition verification */
+                    if (
+
+                        ( lp_timestamp_ge( csCTime, csLTime ) == CS_TRUE ) &&
+                        ( lp_timestamp_ge( csHTime, csCTime ) == CS_TRUE )
+
+                    ) {
+
+                        /* Write record in extraction file */
+                        fwrite( csRec, 1, CS_RECLEN, csOStream );
+
+                        /* Update record counter */
+                        csCount ++; 
+
+                    }
+
+                }
+
+                /* Display information */
+                fprintf( CS_OUT, "  Records : %lu\n", csCount );
+
+                /* Close streams */
+                fclose( csIStream );
+                fclose( csOStream );
 
             /* Display message */
-            } else { fprintf( CS_OUT, "Error : unable to access %s directory\n", csPath ); }
+            } else { fprintf( CS_OUT, "Error : unable to access %s or/and %s\n", strrchr( csFile, '/' ) + 1, strrchr( csExtr, '/' ) + 1 ); }
 
         }
 
         /* Return to system */
         return( EXIT_SUCCESS );
-
-    }
-
-/*
-    Source - Directory entity type detection
-*/
-
-    int cs_process_detect( char const * const csEntity, int const csType ) {
-
-        /* Check type of entity to verify */
-        if ( csType == CS_FILE ) {
-
-            /* File openning verification */
-            FILE * csCheck = fopen( csEntity, "r" );
-
-            /* Check verification stream */
-            if ( csCheck != NULL ) {
-
-                /* Close stream */
-                fclose( csCheck );
-
-                /* Return positive answer */
-                return( CS_TRUE );
-
-            } else {
-
-                /* Return negative answer */
-                return( CS_FALSE );
-
-            }
-
-        } else if ( csType == CS_DIRECTORY ) {
-
-            /* Directory handle verification */
-            DIR * csCheck = opendir( csEntity );
-
-            /* Check verification handle */
-            if ( csCheck != NULL ) {
-
-                /* Delete handle */
-                closedir( csCheck );
-
-                /* Return positive answer */
-                return( CS_TRUE );
-
-            } else {
-
-                /* Return negative answer */
-                return( CS_FALSE );
-            }
-
-        } else {
-
-            /* Return negative answer */
-            return( CS_FALSE );
-
-        }
 
     }
 
