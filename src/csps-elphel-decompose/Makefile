@@ -3,7 +3,7 @@
 #   make - Configuration - Bases
 #
 
-    MAKE_NAME:=csps-decompose
+    MAKE_NAME:=csps-elphel-decompose
     MAKE_CODE:=c
     MAKE_TYPE:=suite
 

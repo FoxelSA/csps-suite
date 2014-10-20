@@ -3,7 +3,7 @@
 #   make - Configuration - Bases
 #
 
-    MAKE_NAME:=csps-cat
+    MAKE_NAME:=csps-elphel-cat
     MAKE_CODE:=c
     MAKE_TYPE:=suite
 

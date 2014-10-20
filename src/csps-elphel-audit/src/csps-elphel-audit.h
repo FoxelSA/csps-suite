@@ -75,8 +75,8 @@
     Header - Include guard
  */
 
-    # ifndef __CS_AUDIT__
-    # define __CS_AUDIT__
+    # ifndef __CS_ELPHEL_AUDIT__
+    # define __CS_ELPHEL_AUDIT__
 
 /* 
     Header - C/C++ compatibility
@@ -94,6 +94,7 @@
     # include <stdlib.h>
     # include <string.h>
     # include <dirent.h>
+    # include <time.h>
     # include <csps-all.h>
 
 /* 
@@ -201,6 +202,8 @@
      *
      *  \return Returns code indicating enumeration status
      */
+
+    char * cs_elphel_audit_utcstring ( lp_Time_t csTimestamp );
 
     int cs_elphel_audit_enum ( char const * const csDirectory, char * const csName );
 

@@ -36,13 +36,13 @@
  *      Attribution" section of <http://foxel.ch/license>.
  */
 
-    /*! \file   csps-recompose.h
+    /*! \file   csps-elphel-decompose.h
      *  \author Nils Hamel <n.hamel@foxel.ch>
      *   
      *  Software main header
      */
 
-    /*! \mainpage csps-append
+    /*! \mainpage csps-elphel-decompose
      *
      *  \section csps-suite
      *  \section _ CSPS library front-end suite
@@ -75,8 +75,8 @@
     Header - Include guard
  */
 
-    # ifndef __CS_RECOMPOSE__
-    # define __CS_RECOMPOSE__
+    # ifndef __CS_ELPHEL_DECOMPOSE__
+    # define __CS_ELPHEL_DECOMPOSE__
 
 /* 
     Header - C/C++ compatibility
@@ -103,13 +103,13 @@
  */
 
     /* Standard help */
-    # define CS_HELP "Usage summary :\n"                    \
-    "  csps-recompose [Arguments] [Parameters] ...\n"       \
-    "Short arguments and parameters summary :\n"            \
-    "  -d Directory containing the segment to append\n"     \
-    "  -r Directory that recieve appended segments\n"       \
-    "  -g Maximal gap, in seconds, that induce an append\n" \
-    "csps-recompose - csps-suite\n"                         \
+    # define CS_HELP "Usage summary :\n"                                  \
+    "  csps-elphel-decompose [Arguments] [Parameters] ...\n"              \
+    "Short arguments and parameters summary :\n"                          \
+    "  -r Directory path containing the logs-files to decompose\n"        \
+    "  -d Directory path where decomposed logs-files are exported\n"      \
+    "  -i Maximum time interval, in seconds, that induce decomposition\n" \
+    "csps-elphel-decompose - csps-suite\n"                                \
     "Copyright (c) 2013-2014 FOXEL SA\n"
 
     /* Define standard types */
@@ -139,9 +139,6 @@
     # define CS_FILE            0
     # define CS_DIRECTORY       1
 
-    /* Define descriptors stack size */
-    # define CS_SIZE            1024
-
     /* Define directory structure */
     # define CS_PATH_PATTERN    ".log-"
 
@@ -168,36 +165,6 @@
     Header - Structures
  */
 
-    /*! \struct cs_Descriptor_struct
-     *  \brief Raw log file descriptor
-     *
-     *  This structure stores the necessary information to perform contigous
-     *  file detection and appending.
-     *
-     *  \var cs_Descriptor_struct::dsName
-     *  Stores raw log file path
-     *  \var cs_Descriptor_struct::dsFlag
-     *  Appended flag - True if file already appended
-     *  \var cs_Descriptor_struct::dsFirst
-     *  Raw log file first IMU timestamp
-     *  \var cs_Descriptor_struct::dsLast
-     *  Raw log file last IMU timestamp
-     */ 
-
-    typedef struct cs_Descriptor_struct {
-
-        /* Logs-file name */
-        char      dsName[256];
-
-        /* Appending flag */
-        int       dsFlag;
-
-        /* Temporal boundaries */
-        lp_Time_t dsFirst;
-        lp_Time_t dsLast;
-
-    } cs_Descriptor_t;
-
 /* 
     Header - Function prototypes
  */
@@ -213,9 +180,22 @@
 
     int main ( int argc, char ** argv );
 
-    void cs_recompose_append ( char const * const csSource, char const * const csDestination );
+    /*! \brief Log-file decomposer
+     * 
+     *  This function opens the input logs file and test if 10 or more seconds
+     *  gap appears on the successive timestamp. It transfers the content of
+     *  the input logs file in separated output file with separation determined
+     *  by the detected gaps.
+     *
+     *  \param  csLog       Input logs file path
+     *  \param  csDirectory Output directory
+     *  \param  csIndex     Current index of the decomposition
+     *  \param  csInterval  Maximum admited time gap between IMU events
+     *
+     *  \return Returns the corrected decomposition index
+     */
 
-    void cs_recompose_extremum ( char const * const csFile, lp_Time_t * const csFirst, lp_Time_t * const csLast );
+    int cs_elphel_decompose_split ( char const * const csLog, char const * const csDirectory, int csIndex, double csInterval );
 
     /*! \brief Directory entity enumeration
      *  
@@ -225,26 +205,26 @@
      *  the function close itself the directory handle.
      *
      *  \param  csDirectory Directory to enumerates
-     *  \param  csName      String that recieve the entity name, appended with
+     *  \param  csName      String that recieve the entity name, appended to the
      *                      directory path
      *
      *  \return Returns code indicating enumeration status
      */
 
-    int cs_recompose_enum ( char const * const csDirectory, char * const csName );
+    int cs_elphel_decompose_enum ( char const * const csDirectory, char * const csName );
 
     /*! \brief Directory entity type detection
      *
-     *  This function, according to the desired type (file or directory), checks
-     *  if entity type is correct.
+     *  This function checks if directory entity if of the type file or
+     *  directory according to the parameter.
      *
      *  \param  csEntity    Path to the entity
-     *  \param  csType      Type of the entity to verify
+     *  \param  csType      Type of the entity to check
      *
      *  \return Returns CS_TRUE if verification passed, CS_FALSE otherwise
      */
 
-    int cs_recompose_detect ( char const * const csEntity, int const csType );
+    int cs_elphel_decompose_detect ( char const * const csEntity, int const csType );
 
     /*! \brief Arguments common handler
      *  

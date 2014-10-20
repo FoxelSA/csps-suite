@@ -41,7 +41,7 @@
     Source - Includes
  */
 
-    # include "csps-recompose.h"
+    # include "csps-elphel-recompose.h"
 
 /*
     Source - Software main function
@@ -49,19 +49,19 @@
 
     int main ( int argc, char ** argv ) {
 
-        /* Composition gap variables */
-        double csGap = 1.0;
-
         /* Software path variables */
         char csDeco[256] = { 0 };
         char csReco[256] = { 0 };
         char csFile[256] = { 0 };
         char csExpo[256] = { 0 };
 
+        /* Composition gap variables */
+        double csInterval = 1.0;
+
         /* Search in parameters */
         stdp( stda( argc, argv,  "--decomposed", "-d" ), argv,   csDeco, CS_STRING );
         stdp( stda( argc, argv,  "--recomposed", "-r" ), argv,   csReco, CS_STRING );
-        stdp( stda( argc, argv,  "--gap"       , "-g" ), argv, & csGap , CS_DOUBLE );
+        stdp( stda( argc, argv,  "--interval"  , "-g" ), argv, & csInterval , CS_DOUBLE );
 
         /* Execution switch */
         if ( stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
@@ -92,10 +92,10 @@
             lp_Time_t    csEpoch  = lp_Time_s( 0xFFFFFFFFFFFFFFFF );
 
             /* Directory entity enumeration */
-            while ( cs_recompose_enum( csDeco, csFile ) != CS_FALSE ) {
+            while ( cs_elphel_recompose_enum( csDeco, csFile ) != CS_FALSE ) {
 
                 /* Consider only file entity */
-                if ( cs_recompose_detect( csFile, CS_FILE ) == CS_TRUE ) {
+                if ( cs_elphel_recompose_detect( csFile, CS_FILE ) == CS_TRUE ) {
 
                     /* Check log-file tag */
                     if ( strstr( csFile, CS_PATH_PATTERN ) != 0 ) {
@@ -107,21 +107,10 @@
                         csStack[csIndex].dsFlag = CS_FALSE;
 
                         /* Extract logs-file timestamp extremums */
-                        cs_recompose_extremum( csFile, & ( csStack[csIndex].dsFirst ), & ( csStack[csIndex].dsLast ) );
+                        cs_elphel_recompose_extremum( csFile, & ( csStack[csIndex].dsFirst ), & ( csStack[csIndex].dsLast ) );
 
                         /* Display information */
-                        fprintf( CS_OUT, "Stacking from %s\n  %010" lp_Time_p ".%06" lp_Time_p "\n  %010" lp_Time_p ".%06" lp_Time_p "\n", 
-
-                            /* Logs-file name */
-                            strrchr( csFile, '/' ) + 1,
-
-                            /* Timestamps */
-                            lp_timestamp_sec ( csStack[csIndex].dsFirst ),
-                            lp_timestamp_usec( csStack[csIndex].dsFirst ),
-                            lp_timestamp_sec ( csStack[csIndex].dsLast  ),
-                            lp_timestamp_usec( csStack[csIndex].dsLast  )
-
-                        );
+                        fprintf( CS_OUT, "Stacking : %s\n", strrchr( csFile, '/' ) + 1 );
 
                         /* Update stack size */
                         csDecim = ( ++ csIndex ); 
@@ -161,7 +150,7 @@
                     sprintf( csExpo, "%s/log-recomposition.log-%05u", csReco, ++ csIncrem );
 
                     /* Display initial segment occurence */
-                    fprintf( CS_OUT, "Appending in %s\n", strrchr( csExpo, '/' ) + 1 );
+                    fprintf( CS_OUT, "Recomposing %s\n", strrchr( csExpo, '/' ) + 1 );
 
                 } else {
 
@@ -172,7 +161,7 @@
                     while ( ( csSelect == csIndex ) && ( csParse < csIndex ) ) {
 
                         /* Compute last-first timestamp distance */
-                        if ( ( csStack[csParse].dsFlag == CS_FALSE ) && ( lp_timestamp_float( lp_timestamp_diff( csEpoch, csStack[csParse].dsFirst ) ) < csGap ) ) {
+                        if ( ( csStack[csParse].dsFlag == CS_FALSE ) && ( lp_timestamp_float( lp_timestamp_diff( csEpoch, csStack[csParse].dsFirst ) ) < csInterval ) ) {
 
                             /* Memorize stack reference */
                             csSelect = csParse;
@@ -202,7 +191,7 @@
                     fprintf( CS_OUT, "  %s\n", strrchr( csStack[csSelect].dsName, '/' ) + 1 );
 
                     /* Append logs-file content */
-                    cs_recompose_append( csStack[csSelect].dsName, csExpo );
+                    cs_elphel_recompose_append( csStack[csSelect].dsName, csExpo );
 
                 } else {
 
@@ -224,7 +213,7 @@
     Source - File content appender
 */
 
-    void cs_recompose_append( char const * const csSource, char const * const csDestination ) {
+    void cs_elphel_recompose_append( char const * const csSource, char const * const csDestination ) {
 
         /* Appending buffer variables */
         char csBuffer[1024] = { 0 };
@@ -250,7 +239,7 @@
     Source - Timestamp extremums extractors
  */
 
-    void cs_recompose_extremum( char const * const csFile, lp_Time_t * const csFirst, lp_Time_t * const csLast ) {
+    void cs_elphel_recompose_extremum( char const * const csFile, lp_Time_t * const csFirst, lp_Time_t * const csLast ) {
 
         /* Records buffer variables */
         unsigned char csRec[CS_RECLEN] = { 0 };
@@ -288,11 +277,11 @@
     Source - Directory entity enumeration
  */
 
-    int cs_recompose_enum( char const * const csDirectory, char * const csName ) {
+    int cs_elphel_recompose_enum( char const * const csDirectory, char * const csName ) {
 
         /* Directory variables */
-        static DIR    * csDirect = NULL;
-        static DIRENT * csEntity = NULL;
+        static DIR           * csDirect = NULL;
+        static struct dirent * csEntity = NULL;
 
         /* Verify enumeration mode */
         if ( csDirect == NULL ) {
@@ -301,7 +290,7 @@
             csDirect = opendir( csDirectory );
 
             /* Recusive initialization */
-            return( cs_recompose_enum( csDirectory, csName ) );
+            return( cs_elphel_recompose_enum( csDirectory, csName ) );
 
         } else {
 
@@ -338,7 +327,7 @@
     Source - Directory entity type detection
 */
 
-    int cs_recompose_detect( char const * const csEntity, int const csType ) {
+    int cs_elphel_recompose_detect( char const * const csEntity, int const csType ) {
 
         /* Check type of entity to verify */
         if ( csType == CS_FILE ) {

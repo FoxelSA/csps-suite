@@ -36,13 +36,13 @@
  *      Attribution" section of <http://foxel.ch/license>.
  */
 
-    /*! \file   csps-cat.h
+    /*! \file   csps-elphel-recompose.h
      *  \author Nils Hamel <n.hamel@foxel.ch>
      *   
      *  Software main header
      */
 
-    /*! \mainpage csps-cat
+    /*! \mainpage csps-elphel-recompose
      *
      *  \section csps-suite
      *  \section _ CSPS library front-end suite
@@ -75,8 +75,8 @@
     Header - Include guard
  */
 
-    # ifndef __CS_CAT__
-    # define __CS_CAT__
+    # ifndef __CS_ELPHEL_RECOMPOSE__
+    # define __CS_ELPHEL_RECOMPOSE__
 
 /* 
     Header - C/C++ compatibility
@@ -92,7 +92,10 @@
 
     # include <stdio.h>
     # include <stdlib.h>
+    # include <time.h>
     # include <string.h>
+    # include <dirent.h>
+    # include <sys/stat.h>
     # include <csps-all.h>
 
 /* 
@@ -100,12 +103,13 @@
  */
 
     /* Standard help */
-    # define CS_HELP "Usage summary :\n"         \
-    "  csps-cat [Arguments] [Parameters] ...\n"  \
-    "Short arguments and parameters summary :\n" \
-    "  -l Path to logs-file\n"                   \
-    "  -f Display flag [i|m|g]\n"                \
-    "csps-cat - csps-suite\n"                    \
+    # define CS_HELP "Usage summary :\n"                                \
+    "  csps-elphel-recompose [Arguments] [Parameters] ...\n"            \
+    "Short arguments and parameters summary :\n"                        \
+    "  -d Directory containing the segments to recompose\n"             \
+    "  -r Directory that recieve recomposed segments\n"                 \
+    "  -g Maximum interval, in seconds, that induce a recomposition\n"  \
+    "csps-elphel-recompose - csps-suite\n"                              \
     "Copyright (c) 2013-2014 FOXEL SA\n"
 
     /* Define standard types */
@@ -127,6 +131,20 @@
     /* Define standard output */
     # define CS_OUT             stdout
 
+    /* Define boolean variables */
+    # define CS_FALSE           0
+    # define CS_TRUE            1
+
+    /* Define directory entity type */
+    # define CS_FILE            0
+    # define CS_DIRECTORY       1
+
+    /* Define descriptors stack size */
+    # define CS_SIZE            1024
+
+    /* Define directory structure */
+    # define CS_PATH_PATTERN    ".log-"
+
     /* Define record length */
     # define CS_RECLEN          LP_DEVICE_EYESIS4PI_RECLEN
 
@@ -147,20 +165,83 @@
     Header - Structures
  */
 
+    /*! \struct cs_Descriptor_struct
+     *  \brief Raw log file descriptor
+     *
+     *  This structure stores the necessary information to perform contigous
+     *  file detection and appending.
+     *
+     *  \var cs_Descriptor_struct::dsName
+     *  Stores raw log file path
+     *  \var cs_Descriptor_struct::dsFlag
+     *  Appended flag - True if file already appended
+     *  \var cs_Descriptor_struct::dsFirst
+     *  Raw log file first IMU timestamp
+     *  \var cs_Descriptor_struct::dsLast
+     *  Raw log file last IMU timestamp
+     */ 
+
+    typedef struct cs_Descriptor_struct {
+
+        /* Logs-file name */
+        char      dsName[256];
+
+        /* Appending flag */
+        int       dsFlag;
+
+        /* Temporal boundaries */
+        lp_Time_t dsFirst;
+        lp_Time_t dsLast;
+
+    } cs_Descriptor_t;
+
 /* 
     Header - Function prototypes
  */
 
     /*! \brief Software main function
      *  
-     *  The main function parse provided logs-file and dumps its content 
-     *  according to software parameters.
+     *  The main function calls the analysis and appending procedure in order to
+     *  perform contigous log detection and appending.
      *  
      *  \param argc Standard main parameter
      *  \param argv Standard main parameter
      */
 
     int main ( int argc, char ** argv );
+
+    void cs_elphel_recompose_append ( char const * const csSource, char const * const csDestination );
+
+    void cs_elphel_recompose_extremum ( char const * const csFile, lp_Time_t * const csFirst, lp_Time_t * const csLast );
+
+    /*! \brief Directory entity enumeration
+     *  
+     *  Enumerates entity contained in the pointed directory. The function
+     *  detects automatically if an enumeration is under way and returns, one
+     *  by one, the name of the found entity. When enumeration is terminated,
+     *  the function close itself the directory handle.
+     *
+     *  \param  csDirectory Directory to enumerates
+     *  \param  csName      String that recieve the entity name, appended to the
+     *                      directory path
+     *
+     *  \return Returns code indicating enumeration status
+     */
+
+    int cs_elphel_recompose_enum ( char const * const csDirectory, char * const csName );
+
+    /*! \brief Directory entity type detection
+     *
+     *  This function checks if directory entity if of the type file or
+     *  directory according to the parameter.
+     *
+     *  \param  csEntity    Path to the entity
+     *  \param  csType      Type of the entity to check
+     *
+     *  \return Returns CS_TRUE if verification passed, CS_FALSE otherwise
+     */
+
+    int cs_elphel_recompose_detect ( char const * const csEntity, int const csType );
 
     /*! \brief Arguments common handler
      *  

@@ -53,7 +53,7 @@
         char csRec[256] = { 0 };
         char csVal[256] = { 0 };
         char csEnt[256] = { 0 };
-        char csLog[256] = { 0 };
+        char csExp[256] = { 0 };
 
         /* Maximum interval variables */
         double csInterval = 5.0;
@@ -90,14 +90,19 @@
                         /* Check file length */
                         if ( cs_elphel_validate_filesize( csEnt ) > csMinimum ) {
 
-                            /* Build validated logs-file path */
-                            sprintf( csLog, "%s/log-validated.log-%05li", csVal, csIndex ++ );
+                            /* Build validated temporary logs-file path */
+                            sprintf( csExp, "%s/log-validated.log-%05li", csVal, csIndex ++ );
 
                             /* Display information */
-                            fprintf( CS_OUT, "Considering file : %s\n", strrchr( csEnt, '/' ) + 1 );
+                            fprintf( CS_OUT, "Validation   : %s\n  Exportation    : %s\n", strrchr( csEnt, '/' ) + 1, strrchr( csExp, '/' ) + 1 );
 
                             /* Validation process */
-                            cs_elphel_validate( csEnt, csLog, csInterval );
+                            cs_elphel_validate( csEnt, csExp, csInterval );
+
+                        } else {
+
+                            /* Display information */
+                            fprintf( CS_OUT, "Invalidating : %s\n  Exportation    : Not exported\n", strrchr( csEnt, '/' ) + 1 );
 
                         }
 
@@ -125,6 +130,9 @@
 
         /* Exportation flag variables */
         unsigned int csFlag = 0;
+
+        /* Decimation counter variables */
+        unsigned int csCount = 0;
 
         /* Timestamp variables */
         lp_Time_t csIMUTime = 0;
@@ -157,13 +165,8 @@
                     /* Verify gps-event decimation condition */
                     if ( ( csIMUTime == 0 ) || ( lp_timestamp_float( lp_timestamp_diff( csGPSTime, csIMUTime ) ) > csInterval ) ) {
 
-                        /* Display information */
-                        fprintf( CS_OUT, "  Removing GPS/NMEA sentence at %010" lp_Time_p ".%06" lp_Time_p "\n",
-
-                            lp_timestamp_sec ( csGPSTime ),
-                            lp_timestamp_usec( csGPSTime )
-
-                        );
+                        /* Update counter */
+                        csCount ++; 
 
                         /* Cancel record exportation */
                         csFlag = CS_FALSE;
@@ -176,6 +179,9 @@
                 if ( csFlag == CS_TRUE ) fwrite( csRec, 1, CS_RECLEN, csOStream );
 
             }
+
+            /* Display information */
+            fprintf( CS_OUT, "  GPS decimation : %u\n", csCount );
 
         /* Display message */
         } else { fprintf( CS_OUT, "Error : Failed to access %s or/and %s\n", strrchr( csIFile, '/' ) + 1, strrchr( csOFile, '/' ) + 1 ); }

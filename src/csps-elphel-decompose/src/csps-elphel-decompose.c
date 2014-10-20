@@ -41,7 +41,7 @@
     Source - Includes
  */
 
-    # include "csps-decompose.h"
+    # include "csps-elphel-decompose.h"
 
 /*
     Source - Software main function
@@ -55,15 +55,12 @@
         char csEnt[256] = { 0 };
 
         /* Decompostion condition variables */
-        double csGap = 1.0;
-
-        /* Decomposition index variables */
-        int csIndex = 1;
+        double csInterval = 1.0;
 
         /* Search in parameters */
         stdp( stda( argc, argv,  "--raw"       , "-r" ), argv,   csRaw, CS_STRING );
         stdp( stda( argc, argv,  "--decomposed", "-d" ), argv,   csDec, CS_STRING );
-        stdp( stda( argc, argv,  "--gap"       , "-g" ), argv, & csGap, CS_DOUBLE );
+        stdp( stda( argc, argv,  "--interval"  , "-i" ), argv, & csInterval, CS_DOUBLE );
 
         /* Execution switch */
         if ( stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
@@ -73,17 +70,20 @@
 
         } else {
 
+            /* Decomposition index variables */
+            int csIndex = 1;
+
             /* Directory entity enumeration */
-            while ( cs_decompose_enum( csRaw, csEnt ) != CS_FALSE ) {
+            while ( cs_elphel_decompose_enum( csRaw, csEnt ) != CS_FALSE ) {
 
                 /* Consider only file entity */
-                if ( cs_decompose_detect( csEnt, CS_FILE ) == CS_TRUE ) {
+                if ( cs_elphel_decompose_detect( csEnt, CS_FILE ) == CS_TRUE ) {
 
                     /* Check log-file tag */
                     if ( strstr( csEnt, CS_PATH_PATTERN ) != 0 ) {
 
                         /* Decomposition process */
-                        csIndex = cs_decompose_split( csEnt, csDec, csIndex, csGap );
+                        csIndex = cs_elphel_decompose_split( csEnt, csDec, csIndex, csInterval );
 
                     }
 
@@ -102,7 +102,7 @@
     Source - FPGA-log decomposer
 */
 
-    int cs_decompose_split( char const * const csLog, char const * const csDirectory, int csIndex, double csGap ) {
+    int cs_elphel_decompose_split( char const * const csLog, char const * const csDirectory, int csIndex, double csInterval ) {
 
         /* Records buffer variables */
         unsigned char csRec[CS_RECLEN] = { 0 };
@@ -128,7 +128,7 @@
         sprintf( csPart, "%s/log-decomposition.log-%05i", csDirectory, csIndex ++ );
 
         /* Display decomposition information */
-        fprintf( CS_OUT, "%s %s", strrchr( csLog, '/' ) + 1, strrchr( csPart, '/' ) + 1 );
+        fprintf( CS_OUT, "Decomposing : %s\n  %s\n", strrchr( csLog, '/' ) + 1, strrchr( csPart, '/' ) + 1 );
 
         /* Open input stream */
         csIStream = fopen( csLog, "rb" );
@@ -154,7 +154,7 @@
                 } else {
 
                     /* Check splitting condition */
-                    if ( lp_timestamp_float( lp_timestamp_diff( csCTime, csPTime ) ) > csGap ) {
+                    if ( lp_timestamp_float( lp_timestamp_diff( csCTime, csPTime ) ) > csInterval ) {
 
                         /* Update decomposition segment path */
                         sprintf( csPart, "%s/log-decomposition.log-%05i", csDirectory, csIndex ++ );
@@ -166,21 +166,7 @@
                         csOStream = fopen( csPart, "wb" );
 
                         /* Display decomposition information */
-                        fprintf( CS_OUT, " %s (%s:%010" lp_Time_p ".%06" lp_Time_p "/%010" lp_Time_p ".%06" lp_Time_p ")", 
-
-                            /* Extract file name */
-                            strrchr( csPart, '/' ) + 1,
-
-                            /* Splitting purity */
-                            csPure == CS_TRUE ? "Pure" : "Impure",
-
-                            /* Splitting timestamps */
-                            lp_timestamp_sec ( csPTime ),
-                            lp_timestamp_usec( csPTime ),
-                            lp_timestamp_sec ( csCTime ),
-                            lp_timestamp_usec( csCTime )
-
-                        );
+                        fprintf( CS_OUT, "  %s (%s)\n", strrchr( csPart, '/' ) + 1, csPure == CS_TRUE ? "Pure  " : "Impure" );
 
                     }
 
@@ -204,9 +190,6 @@
 
         }
 
-        /* Output information closure */
-        fprintf( CS_OUT, "\n" );
-
         /* Close streams */
         fclose( csOStream );
         fclose( csIStream );
@@ -220,7 +203,7 @@
     Source - Directory entity enumeration
  */
 
-    int cs_decompose_enum( char const * const csDirectory, char * const csName ) {
+    int cs_elphel_decompose_enum( char const * const csDirectory, char * const csName ) {
 
         /* Directory variables */
         static DIR    * csDirect = NULL;
@@ -233,7 +216,7 @@
             csDirect = opendir( csDirectory );
 
             /* Recusive initialization */
-            return( cs_decompose_enum( csDirectory, csName ) );
+            return( cs_elphel_decompose_enum( csDirectory, csName ) );
 
         } else {
 
@@ -270,7 +253,7 @@
     Source - Directory entity type detection
 */
 
-    int cs_decompose_detect( char const * const csEntity, int const csType ) {
+    int cs_elphel_decompose_detect( char const * const csEntity, int const csType ) {
 
         /* Check type of entity to verify */
         if ( csType == CS_FILE ) {

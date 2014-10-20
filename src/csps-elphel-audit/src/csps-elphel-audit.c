@@ -221,7 +221,11 @@
             fclose( csIStream );
 
             /* Display information */
-            fprintf( CS_OUT, "Considering for audit : %s\n", strrchr( csFile, '/' ) + 1 );
+            fprintf( CS_OUT, "Auditing : %s\n", strrchr( csFile, '/' ) + 1 );
+
+            /* Display information - Master for human */
+            fprintf( CS_OUT, "  Start       : %s\n", cs_elphel_audit_utcstring( lp_timestamp_sec( csCAMinit ) ) );
+            fprintf( CS_OUT, "  Stop        : %s\n", cs_elphel_audit_utcstring( lp_timestamp_sec( csCAMtime ) ) );
 
             /* Display information - Length */
             fprintf( CS_OUT, "  Bytes       : %li\n", csSize      );
@@ -247,6 +251,32 @@
 
         /* Display message */
         } else { fprintf( CS_OUT, "Error : Failed to open %s\n", strrchr( csFile, '/' ) + 1 ); }
+
+    }
+
+/*
+    Source - Human readable timestamp converter
+ */
+
+    char * cs_elphel_audit_utcstring( lp_Time_t csTimestamp ) {
+
+        /* Static string variables */
+        static char csHuman[256] = { 0 };
+
+        /* Timestamp variables */
+        time_t csUnixTime = csTimestamp;
+
+        /* Decomposed time variables */
+        struct tm * csTime;
+
+        /* Create decomposed time structure */
+        csTime = gmtime( & csUnixTime );
+
+        /* Create human readable string */
+        strftime ( csHuman, 256, "%Y-%m-%dT%H:%M:%S+00:00", csTime );
+
+        /* Returns pointer to string */
+        return( csHuman );
 
     }
 

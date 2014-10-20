@@ -184,9 +184,9 @@
      *  parse the IMU/GPS-events in order to remove GPS-events that are logged
      *  with a timestamp too fat away from nearest IMU-events timestamp.
      *
-     *  \param csIFile      Input logs-file to process
-     *  \param csOFile      Output logs-file for exportation
-     *  \param csInterval   Maximum interval between IMU/GPS-events timestamp
+     *  \param  csIFile     Input logs-file to process
+     *  \param  csOFile     Output logs-file for exportation
+     *  \param  csInterval  Maximum interval between IMU/GPS-events timestamp
      */
 
     void cs_elphel_validate ( char const * const csIFile, char const * const csOFile, double csInterval );

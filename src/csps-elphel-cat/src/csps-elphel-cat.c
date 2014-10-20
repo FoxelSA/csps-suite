@@ -41,7 +41,7 @@
     Source - Includes
  */
 
-    # include "csps-cat.h"
+    # include "csps-elphel-cat.h"
 
 /*
     Source - Software main function
@@ -154,7 +154,7 @@
                 }
 
             /* Display message */
-            } else { fprintf( CS_OUT, "Error : Unable to open file\n" ); }
+            } else { fprintf( CS_OUT, "Error : Unable to open file %s\n", strrchr( csFile, '/' ) + 1 ); }
 
         }
 
