@@ -172,13 +172,13 @@
      *  file detection and appending.
      *
      *  \var cs_Descriptor_struct::dsName
-     *  Stores raw log file path
+     *  Stores raw logs-file path
      *  \var cs_Descriptor_struct::dsFlag
      *  Appended flag - True if file already appended
      *  \var cs_Descriptor_struct::dsFirst
-     *  Raw log file first IMU timestamp
+     *  Raw logs-file first IMU timestamp
      *  \var cs_Descriptor_struct::dsLast
-     *  Raw log file last IMU timestamp
+     *  Raw logs-file last IMU timestamp
      */ 
 
     typedef struct cs_Descriptor_struct {
@@ -201,8 +201,8 @@
 
     /*! \brief Software main function
      *  
-     *  The main function calls the analysis and appending procedure in order to
-     *  perform contigous log detection and appending.
+     *  The main function proceed to the analysis and appending procedure in
+     *  order to perform contigous logs-files detection and appending.
      *  
      *  \param argc Standard main parameter
      *  \param argv Standard main parameter
@@ -210,7 +210,26 @@
 
     int main ( int argc, char ** argv );
 
+    /*! \brief File content appender
+     *
+     *  This function opens the destination file and appends, in binary mode,
+     *  the content of the source file.
+     *
+     *  \param csSource         Source file path
+     *  \param csDestination    Destination file path
+     */
+
     void cs_elphel_recompose_append ( char const * const csSource, char const * const csDestination );
+
+    /*! \brief Timestamp extremums extractors
+     *
+     *  This function parses the provided logs-file and extract, for IMU events
+     *  only, the lowest and highest timestamp found in the file.
+     *
+     *  \param csFile   File on which extremum analysis is performed
+     *  \param csFirst  Variable reference used to return first timestamp
+     *  \param csLast   Variable reference used to return last timestamp
+     */
 
     void cs_elphel_recompose_extremum ( char const * const csFile, lp_Time_t * const csFirst, lp_Time_t * const csLast );
 

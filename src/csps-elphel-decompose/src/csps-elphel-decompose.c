@@ -206,8 +206,8 @@
     int cs_elphel_decompose_enum( char const * const csDirectory, char * const csName ) {
 
         /* Directory variables */
-        static DIR    * csDirect = NULL;
-        static DIRENT * csEntity = NULL;
+        static DIR           * csDirect = NULL;
+        static struct dirent * csEntity = NULL;
 
         /* Verify enumeration mode */
         if ( csDirect == NULL ) {

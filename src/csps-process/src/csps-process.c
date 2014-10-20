@@ -51,20 +51,11 @@
 
         /* Structure path variables */
         char csPath[256] = { 0 };
-        char csSegs[256] = { 0 };
-        char csSegm[256] = { 0 };
         char csTopo[256] = { 0 };
 
-        /* Enumeration variables */
-        DIR    * csDirect = NULL;
-        DIR    * csSegDir = NULL;
-        DIRENT * csEntity = NULL;
-
-        /* Date and time variables */
-        time_t csTime;
-
         /* Search in parameters */
-        stdp( stda( argc, argv,  "--path", "-p" ), argv, csPath , CS_STRING );
+        stdp( stda( argc, argv,  "--path"    , "-p" ), argv, csPath , CS_STRING );
+        stdp( stda( argc, argv,  "--topology", "-t" ), argv, csTopo , CS_STRING );
 
         /* Execution switch */
         if ( stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
@@ -74,74 +65,88 @@
 
         } else {
 
-            /* Retrieve time */
-            time( & csTime );
+            /* Check processing directory */
+            if ( cs_process_detect( csPath, CS_DIRECTORY ) == CS_TRUE ) {
 
-            /* Display message */
-            fprintf( CS_OUT, "Process performed using csps-process on %sCourse : %s\n", ctime( & csTime ), strrchr( csPath, '/' ) + 1 );
+                /* Check processing topology file */
+                if ( cs_process_detect( csTopo, CS_FILE ) == CS_TRUE ) {
 
-            /* Create segments path */
-            sprintf( csSegs, "%s/" CS_PATH_CSPS, csPath );
+                    /* Display message */
+                    fprintf( CS_OUT, "Processing : %s using %s topology ...\n", strrchr( csPath, '/' ) + 1, strrchr( csTopo, '/' ) + 1 );
 
-            /* Create directory handle */
-            if ( ( csDirect = opendir( csSegs ) ) != NULL ) {
+                    /* CSPS processing */
+                    lp_system( csPath, csTopo );
 
-                /* Entities enumeration loop */
-                while ( ( csEntity = readdir( csDirect ) ) != NULL ) {
-
-                    /* Create segment path */
-                    sprintf( csSegm, "%s/%s", csSegs, csEntity->d_name );
-
-                    /* Check entity for directory */
-                    if ( ( csSegDir = opendir( csSegs ) ) != NULL ) {
-
-                        /* Close handle */
-                        closedir( csSegDir );
-
-                        /* Avoid redirection directory */
-                        if ( ( strcmp( csEntity->d_name, "." ) != 0 ) && ( strcmp( csEntity->d_name, ".." ) != 0 ) ) {
-
-                            /* Create standard topology path */
-                            sprintf( csTopo, "%s/" CS_PATH_TOPO, csSegm );
-
-                            /* Display message */
-                            fprintf( CS_OUT, "Processing\n" );
-
-                            /* Display message */
-                            fprintf( CS_OUT, "\tSegment  : %s\n", strrchr( csSegm, '/' ) + 1 );
-                            fprintf( CS_OUT, "\tTopology : %s\n", strrchr( csTopo, '/' ) + 1 );
-                            fprintf( CS_OUT, "\tSegment  : %s\n", csSegm );
-                            fprintf( CS_OUT, "\tTopology : %s\n", csTopo );
-
-                            /* Display message */
-                            fprintf( CS_OUT, "\tCSPS processing ... " );
-
-                            /* CSPS processing */
-                            lp_system( csSegm, csTopo );
-
-                            /* Display message */
-                            fprintf( CS_OUT, "Done\n" );
-                            
-
-                        }
-
-                    }
-
-                }
-
-                /* Close directory handle */
-                closedir( csDirect );
+                    /* Display message */
+                    fprintf( CS_OUT, "Done\n" );
 
                 /* Display message */
-                fprintf( CS_OUT, "Done!\n" );
+                } else { fprintf( CS_OUT, "Error : Unable to access %s file\n", csTopo ); }
 
             /* Display message */
-            } else { fprintf( CS_OUT, "Error : Unable access master directory %s.\n", csPath ); }
+            } else { fprintf( CS_OUT, "Error : Unable to access %s directory\n", csPath ); }
 
         }
 
         /* Return to system */
         return( EXIT_SUCCESS );
+
+    }
+
+/*
+    Source - Directory entity type detection
+*/
+
+    int cs_process_detect( char const * const csEntity, int const csType ) {
+
+        /* Check type of entity to verify */
+        if ( csType == CS_FILE ) {
+
+            /* File openning verification */
+            FILE * csCheck = fopen( csEntity, "r" );
+
+            /* Check verification stream */
+            if ( csCheck != NULL ) {
+
+                /* Close stream */
+                fclose( csCheck );
+
+                /* Return positive answer */
+                return( CS_TRUE );
+
+            } else {
+
+                /* Return negative answer */
+                return( CS_FALSE );
+
+            }
+
+        } else if ( csType == CS_DIRECTORY ) {
+
+            /* Directory handle verification */
+            DIR * csCheck = opendir( csEntity );
+
+            /* Check verification handle */
+            if ( csCheck != NULL ) {
+
+                /* Delete handle */
+                closedir( csCheck );
+
+                /* Return positive answer */
+                return( CS_TRUE );
+
+            } else {
+
+                /* Return negative answer */
+                return( CS_FALSE );
+            }
+
+        } else {
+
+            /* Return negative answer */
+            return( CS_FALSE );
+
+        }
 
     }
 

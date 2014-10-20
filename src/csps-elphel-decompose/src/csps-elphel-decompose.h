@@ -158,9 +158,6 @@
     Header - Typedefs
  */
 
-    /* I know ! Screw you ! */
-    typedef struct dirent DIRENT;
-
 /* 
     Header - Structures
  */

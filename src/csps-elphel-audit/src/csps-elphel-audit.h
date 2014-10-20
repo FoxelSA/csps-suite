@@ -102,11 +102,11 @@
  */
 
     /* Standard help */
-    # define CS_HELP "Usage summary :\n"                 \
-    "  csps-elphel-audit [Arguments] [Parameters] ...\n" \
-    "Short arguments and parameters summary :\n"         \
-    "  -p Directory containing the logs-file to audit\n" \
-    "csps-elphel-audit - csps-suite\n"                   \
+    # define CS_HELP "Usage summary :\n"                  \
+    "  csps-elphel-audit [Arguments] [Parameters] ...\n"  \
+    "Short arguments and parameters summary :\n"          \
+    "  -p Directory containing the logs-files to audit\n" \
+    "csps-elphel-audit - csps-suite\n"                    \
     "Copyright (c) 2013-2014 FOXEL SA\n"
 
     /* Define standard types */
@@ -189,6 +189,17 @@
 
     void cs_elphel_audit ( char const * const csFile, size_t const csSize );
 
+    /*! \brief Unix timestamp to human date converter
+     *
+     *  Convert unix timestamp in human readable format
+     *
+     *  \param  csTimestamp Unix timestamp
+     *
+     *  \return Returns pointer to string that contain conversion
+     */
+
+    char * cs_elphel_audit_utcstring ( lp_Time_t csTimestamp );
+
     /*! \brief Directory entity enumeration
      *  
      *  Enumerates entity contained in the pointed directory. The function
@@ -202,8 +213,6 @@
      *
      *  \return Returns code indicating enumeration status
      */
-
-    char * cs_elphel_audit_utcstring ( lp_Time_t csTimestamp );
 
     int cs_elphel_audit_enum ( char const * const csDirectory, char * const csName );
 

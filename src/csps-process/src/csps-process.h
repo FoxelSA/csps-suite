@@ -106,7 +106,8 @@
     # define CS_HELP "Usage summary :\n"            \
     "  csps-process [Arguments] [Parameters] ...\n" \
     "Short arguments and parameters summary :\n"    \
-    "  -p Course master directory\n"                \
+    "  -p CSPS directory structure path\n"          \
+    "  -t CSPS topology file path\n"                \
     "csps-process - csps-suite\n"                   \
     "Copyright (c) 2013-2014 FOXEL SA\n"
 
@@ -129,9 +130,13 @@
     /* Define standard output */
     # define CS_OUT             stdout
 
-    /* Define directory structure */
-    # define CS_PATH_CSPS       "csps"
-    # define CS_PATH_TOPO       "csps-topology"
+    /* Define boolean variables */
+    # define CS_FALSE           0
+    # define CS_TRUE            1
+
+    /* Define directory entity type */
+    # define CS_FILE            0
+    # define CS_DIRECTORY       1
 
 /* 
     Header - Preprocessor macros
@@ -144,9 +149,6 @@
 /* 
     Header - Structures
  */
-
-    /* I know ! Screw you ! */
-    typedef struct dirent DIRENT;
 
 /* 
     Header - Function prototypes
@@ -163,6 +165,19 @@
      */
 
     int main ( int argc, char ** argv );
+
+    /*! \brief Directory entity type detection
+     *
+     *  This function checks if directory entity if of the type file or
+     *  directory according to the parameter.
+     *
+     *  \param  csEntity    Path to the entity
+     *  \param  csType      Type of the entity to check
+     *
+     *  \return Returns CS_TRUE if verification passed, CS_FALSE otherwise
+     */
+
+    int cs_process_detect ( char const * const csEntity, int const csType );
 
     /*! \brief Arguments common handler
      *  
