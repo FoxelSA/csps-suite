@@ -190,7 +190,7 @@
                 }
 
             /* Display message */
-            } else { fprintf( CS_OUT, "Error : unable to access %s\n", strrchr( csFile, '/' ) + 1 ); }
+            } else { fprintf( CS_OUT, "Error : unable to access %s\n", basename( csFile ) ); }
 
         }
 
