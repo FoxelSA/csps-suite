@@ -157,7 +157,7 @@
 
     /*! \brief Software main function
      *  
-     *  The main function is dedicated to json file generation that stores
+     *  The main function is dedicated to JSON file generation that stores
      *  basic informations, such as camera record timestamps and position, that
      *  are used in interfaces used for data representation.
      *  

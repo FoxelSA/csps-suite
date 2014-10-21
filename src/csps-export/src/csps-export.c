@@ -112,7 +112,7 @@
             if ( ( csStream = fopen( csFile, "w" ) ) != NULL ) {
 
                 /* Display message */
-                fprintf( CS_OUT, "Generating %s ...\n", basename( csFile ) );
+                fprintf( CS_OUT, "Creating %s JSON file ...\n", basename( csFile ) );
 
                 /* Ask stream size */
                 csSize = lp_stream_size( csPath, LP_DEVICE_TYPE_CAM, csCAMd, csCAMm );
@@ -153,7 +153,7 @@
 
                 }
 
-                /* Initialize json */
+                /* Initialize JSON */
                 fprintf( csStream, "{\n \"gps\":%s,\n \"pose\":[\n", ( csParse < csSize ) ? "true" : "false" );
                 
                 /* Exportation loop */
@@ -193,27 +193,27 @@
 
                     }
 
-                    /* Export json - format */
+                    /* Export JSON - format */
                     fprintf( csStream, "  {\n" );
 
-                    /* Export json - positions */
+                    /* Export JSON - positions */
                     fprintf( csStream, "   \"guess\":%s,\n", ( csFlag == 0 ) ? "true" : "false" );
 
-                    /* Export json - positions */
+                    /* Export JSON - positions */
                     fprintf( csStream, "   \"lng\":%.8f,\n", csGPSlon );
                     fprintf( csStream, "   \"lat\":%.8f,\n", csGPSlat );
                     fprintf( csStream, "   \"alt\":%.8f,\n", csGPSalt );
 
-                    /* Export json - timestamps */
+                    /* Export JSON - timestamps */
                     fprintf( csStream, "   \"sec\":%" lp_Time_p ",\n", lp_timestamp_sec ( csCAMtag[csParse] ) );
                     fprintf( csStream, "   \"usc\":%" lp_Time_p " \n", lp_timestamp_usec( csCAMtag[csParse] ) );
 
-                    /* Export json - format */
+                    /* Export JSON - format */
                     fprintf( csStream, "  }%s\n", ( csParse < ( csSize - 1 ) ) ? "," : "" );
 
                 }
 
-                /* Terminate json */
+                /* Terminate JSON */
                 fprintf( csStream, " ]\n}\n" );
 
                 /* Unallocate stream memory */

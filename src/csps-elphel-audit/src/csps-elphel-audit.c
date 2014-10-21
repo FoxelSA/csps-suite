@@ -221,7 +221,7 @@
             fclose( csIStream );
 
             /* Display information */
-            fprintf( CS_OUT, "Auditing : %s\n", strrchr( csFile, '/' ) + 1 );
+            fprintf( CS_OUT, "Auditing : %s\n", basename( ( char * ) csFile ) );
 
             /* Display information - Master for human */
             fprintf( CS_OUT, "  Start       : %s\n", cs_elphel_audit_utcstring( lp_timestamp_sec( csCAMinit ) ) );
@@ -250,7 +250,7 @@
             fprintf( CS_OUT, "  Steps (GPS) : " CS_MD " - " CS_MD "\n", CS_TS( csGPSstpi ), CS_TS( csGPSstpm ) );
 
         /* Display message */
-        } else { fprintf( CS_OUT, "Error : unable to access %s\n", strrchr( csFile, '/' ) + 1 ); }
+        } else { fprintf( CS_OUT, "Error : unable to access %s\n", basename( ( char * ) csFile ) ); }
 
     }
 
