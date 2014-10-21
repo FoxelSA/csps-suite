@@ -84,8 +84,8 @@
                     /* Event type detection - IMU */
                     if ( ( csRec[3] & lp_Byte_s( 0x0F ) ) == CS_MAS ) {
 
-                        /* Retrieve record timestamp */
-                        csTime = lp_timestamp( ( lp_Void_t * ) csRec );                    
+                        /* Retrieve record master timestamp */
+                        csTime = lp_timestamp( ( lp_Void_t * ) ( csRec + 8 ) );
 
                     }
 
