@@ -47,11 +47,17 @@
      *  \section csps-suite
      *  \section _ CSPS library front-end suite
      *
-     *  Not documented yet.
+     *  The csps-suite is dedicated to CSPS processing using libcsps. It provides
+     *  a serie of softwares used for camera logs-files preparation and 
+     *  validation according to manufacturers standards. It comes with a main 
+     *  software that is responsible of CSPS processing, using libcsps, of the
+     *  camera logs-files and also offers software for CSPS processing results
+     *  visualization.
      *
      *  \section Documentation
      *
-     *  Not documented yet.
+     *  A detailed documentation can be generated through doxygen. A more general
+     *  documentation can be consulted at https://github.com/niam-foxel/csps-suite/wiki.
      *
      *  \section Copyright
      * 
@@ -75,8 +81,8 @@
     Header - Include guard
  */
 
-    # ifndef __CS_ELPHEL_VALIDATE__
-    # define __CS_ELPHEL_VALIDATE__
+    # ifndef __CS_EXPORT__
+    # define __CS_EXPORT__
 
 /* 
     Header - C/C++ compatibility
@@ -105,14 +111,14 @@
     "  csps-export [Arguments] [Parameters] ...\n" \
     "Short arguments and parameters summary :\n"   \
     "  -p CSPS-processed structure path\n"         \
-    "  -e Exportation file path\n"                 \
+    "  -e JSON exportation file path\n"            \
     "  -c Camera CSPS-tag\n"                       \
     "  -m Camera CSPS-module switch\n"             \
     "  -g GPS CSPS-tag\n"                          \
     "  -n GPS CSPS-module switch\n"                \
-    "  -l Manual position longitude\n"             \
-    "  -t Manual position latitude\n"              \
-    "  -a Manual position altitude\n"              \
+    "  -l Manual specifier for longitude\n"        \
+    "  -t Manual specifier for latitude\n"         \
+    "  -a Manual specifier for altitude\n"         \
     "csps-export - csps-suite\n"                   \
     "Copyright (c) 2013-2014 FOXEL SA\n"
 
@@ -158,8 +164,9 @@
     /*! \brief Software main function
      *  
      *  The main function is dedicated to JSON file generation that stores
-     *  basic informations, such as camera record timestamps and position, that
-     *  are used in interfaces used for data representation.
+     *  basic informations, such as camera record timestamps and geopositions,
+     *  that are used in interfaces for data representation. Positioning data
+     *  are obtained through CSPS queries.
      *  
      *  \param argc Standard main parameter
      *  \param argv Standard main parameter
