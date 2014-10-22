@@ -1,12 +1,12 @@
 
-## csps-suite<br />CSPS library front-end suite
+## csps-suite<br />CSPS library front-end suite (alpha)
 
-This suite is dedicated to becomes a front-end to CSPS library (libcsps - see [Foxel SA repository](https://github.com/FoxelSA/libcsps))
+The csps-suite is dedicated to CSPS processing using libcsps. It provides a serie of softwares used for camera logs-files preparation and validation according to manufacturers standards. It comes with a main software that is responsible of CSPS processing of the camera logs-files and also offers software for CSPS processing results visualization.
 
 
 ### Documentation
 
-Documentation is not available for alpha 0.1 (Try the [wiki](https://github.com/niam-foxel/csps-suite/wiki) in case of emergency).
+A detailed documentation can be generated through doxygen. A more general documentation can be consulted on the [wiki](https://github.com/niam-foxel/csps-suite/wiki)).
 
 
 ### Copyright
