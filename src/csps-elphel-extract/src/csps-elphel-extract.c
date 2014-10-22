@@ -64,7 +64,7 @@
 
         /* Search in parameters */
         stdp( stda( argc, argv,  "--logs"       , "-l" ), argv,   csFile , CS_STRING );
-        stdp( stda( argc, argv,  "--extraction" , "-e" ), argv,   csExtr , CS_STRING );
+        stdp( stda( argc, argv,  "--extracted"  , "-e" ), argv,   csExtr , CS_STRING );
         stdp( stda( argc, argv,  "--second-low" , "-a" ), argv, & csLsec , CS_ULONG  );
         stdp( stda( argc, argv,  "--micro-low"  , "-u" ), argv, & csLusec, CS_ULONG  );
         stdp( stda( argc, argv,  "--second-high", "-b" ), argv, & csHsec , CS_ULONG  );

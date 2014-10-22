@@ -63,13 +63,13 @@
         int csWindow = 0;
 
         /* Search in parameters */
-        stdp( stda( argc, argv, "--path"      , "-p" ), argv, csPath.ptRoot, CS_STRING );
-        stdp( stda( argc, argv, "--cam-stream", "-c" ), argv, csPath.ptCAMm, CS_STRING );
-        stdp( stda( argc, argv, "--gps-stream", "-g" ), argv, csPath.ptGPSm, CS_STRING );
-        stdp( stda( argc, argv, "--imu-stream", "-i" ), argv, csPath.ptIMUm, CS_STRING );
-        stdp( stda( argc, argv, "--cam-tag"   , "-a" ), argv, csPath.ptCAMd, CS_STRING );
-        stdp( stda( argc, argv, "--gps-tag"   , "-s" ), argv, csPath.ptGPSd, CS_STRING );
-        stdp( stda( argc, argv, "--imu-tag"   , "-m" ), argv, csPath.ptIMUd, CS_STRING );
+        stdp( stda( argc, argv, "--path"   , "-p" ), argv, csPath.ptRoot, CS_STRING );
+        stdp( stda( argc, argv, "--cam-mod", "-c" ), argv, csPath.ptCAMm, CS_STRING );
+        stdp( stda( argc, argv, "--gps-mod", "-g" ), argv, csPath.ptGPSm, CS_STRING );
+        stdp( stda( argc, argv, "--imu-mod", "-i" ), argv, csPath.ptIMUm, CS_STRING );
+        stdp( stda( argc, argv, "--cam-tag", "-a" ), argv, csPath.ptCAMd, CS_STRING );
+        stdp( stda( argc, argv, "--gps-tag", "-s" ), argv, csPath.ptGPSd, CS_STRING );
+        stdp( stda( argc, argv, "--imu-tag", "-m" ), argv, csPath.ptIMUd, CS_STRING );
 
         /* Execution switch */
         if ( stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
