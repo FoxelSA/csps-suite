@@ -47,11 +47,17 @@
      *  \section csps-suite
      *  \section _ CSPS library front-end suite
      *
-     *  Not documented yet.
+     *  The csps-suite is dedicated to CSPS processing using libcsps. It provides
+     *  a serie of softwares used for camera logs-files preparation and 
+     *  validation according to manufacturers standards. It comes with a main 
+     *  software that is responsible of CSPS processing, using libcsps, of the
+     *  camera logs-files and also offers software for CSPS processing results
+     *  visualization.
      *
      *  \section Documentation
      *
-     *  Not documented yet.
+     *  A detailed documentation can be generated through doxygen. A more general
+     *  documentation can be consulted at https://github.com/niam-foxel/csps-suite/wiki.
      *
      *  \section Copyright
      * 
@@ -94,8 +100,8 @@
     # include <stdlib.h>
     # include <string.h>
     # include <libgen.h>
-    # include <dirent.h>
     # include <time.h>
+    # include <dirent.h>
     # include <csps-all.h>
 
 /* 
@@ -130,8 +136,8 @@
     # define CS_OUT             stdout
 
     /* Define boolean constants */
-    # define CS_FALSE           0
-    # define CS_TRUE            1
+    # define CS_FALSE           LP_FALSE
+    # define CS_TRUE            LP_TRUE
 
     /* Define directory entity type */
     # define CS_FILE            0
@@ -171,7 +177,8 @@
     /*! \brief Software main function
      *  
      *  The main function enumerates all elphel camera event logger output
-     *  files. The audit process is then called for each enumerated file.
+     *  logs-files contained in the provided directory. The audit process is
+     *  then called for each enumerated logs-file.
      *  
      *  \param argc Standard main parameter
      *  \param argv Standard main parameter
@@ -181,22 +188,22 @@
 
     /*! \brief Audit procedure
      *
-     *  This function performs an advanced audit of the considered file, parsing
-     *  its content and displaying extracted informations.
+     *  This function performs an advanced audit of the considered logs-file,
+     *  parsing its content and displaying extracted informations.
      * 
-     *  \param csFile Considered file path
+     *  \param csFile Considered logs-file path
      *  \param csSize Size, in bytes, of file
      */
 
     void cs_elphel_audit ( char const * const csFile, size_t const csSize );
 
-    /*! \brief Unix timestamp to human date converter
+    /*! \brief Human readable timestamp converter
      *
-     *  Convert unix timestamp in human readable format
+     *  Convert unix timestamp in human readable format through string.
      *
      *  \param  csTimestamp Unix timestamp
      *
-     *  \return Returns pointer to string that contain conversion
+     *  \return Returns pointer to string that contains conversion
      */
 
     char * cs_elphel_audit_utcstring ( lp_Time_t csTimestamp );
@@ -205,8 +212,8 @@
      *  
      *  Enumerates entity contained in the pointed directory. The function
      *  detects automatically if an enumeration is under way and returns, one
-     *  by one, the name of the found entity. When enumeration is terminated,
-     *  the function close itself the directory handle.
+     *  by one, the name of the found entities. When enumeration is terminated,
+     *  the function closes itself the directory handle.
      *
      *  \param  csDirectory Directory to enumerates
      *  \param  csName      String that recieve the entity name, appended to the
