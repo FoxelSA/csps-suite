@@ -94,7 +94,7 @@
             if ( ( csIStream != NULL ) && ( csOStream != NULL ) ) {
 
                 /* Display message */
-                fprintf( CS_OUT, "Extracting from %s in %s\n", strrchr( csFile, '/' ) + 1, strrchr( csExtr, '/' ) + 1 );
+                fprintf( CS_OUT, "Extracting from %s in %s\n", basename( csFile ), basename( csExtr ) );
 
                 /* Display message */
                 fprintf( CS_OUT, "  From    : %010lu.%06lu\n  To      : %010lu.%06lu\n", csLsec, csLusec, csHsec, csHusec );
@@ -131,7 +131,7 @@
                 fclose( csOStream );
 
             /* Display message */
-            } else { fprintf( CS_OUT, "Error : unable to access %s or/and %s\n", strrchr( csFile, '/' ) + 1, strrchr( csExtr, '/' ) + 1 ); }
+            } else { fprintf( CS_OUT, "Error : unable to access %s or/and %s\n", basename( csFile ) + 1, basename( csExtr ) ); }
 
         }
 
