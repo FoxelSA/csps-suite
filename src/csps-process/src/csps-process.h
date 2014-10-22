@@ -47,11 +47,17 @@
      *  \section csps-suite
      *  \section _ CSPS library front-end suite
      *
-     *  Not documented yet.
+     *  The csps-suite is dedicated to CSPS processing using libcsps. It provides
+     *  a serie of softwares used for camera logs-files preparation and 
+     *  validation according to manufacturers standards. It comes with a main 
+     *  software that is responsible of CSPS processing, using libcsps, of the
+     *  camera logs-files and also offers software for CSPS processing results
+     *  visualization.
      *
      *  \section Documentation
      *
-     *  Not documented yet.
+     *  A detailed documentation can be generated through doxygen. A more general
+     *  documentation can be consulted at https://github.com/niam-foxel/csps-suite/wiki.
      *
      *  \section Copyright
      * 
@@ -95,7 +101,6 @@
     # include <string.h>
     # include <libgen.h>
     # include <dirent.h>
-    # include <sys/stat.h>
     # include <csps-all.h>
 
 /* 
@@ -131,8 +136,8 @@
     # define CS_OUT             stdout
 
     /* Define boolean variables */
-    # define CS_FALSE           0
-    # define CS_TRUE            1
+    # define CS_FALSE           LP_FALSE
+    # define CS_TRUE            LP_TRUE
 
     /* Define directory entity type */
     # define CS_FILE            0
@@ -156,9 +161,8 @@
 
     /*! \brief Software main function
      *  
-     *  The main function enumerates standard directories, usually created using
-     *  csps-append software, and calls the libcsps topology interpreter for
-     *  each segment stored in the found directories.
+     *  The main function, after provided path verification, calls the CSPS
+     *  process on the desired structure.
      *  
      *  \param argc Standard main parameter
      *  \param argv Standard main parameter
