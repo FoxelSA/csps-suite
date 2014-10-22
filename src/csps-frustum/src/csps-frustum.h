@@ -47,11 +47,17 @@
      *  \section csps-suite
      *  \section _ CSPS library front-end suite
      *
-     *  Not documented yet.
+     *  The csps-suite is dedicated to CSPS processing using libcsps. It provides
+     *  a serie of softwares used for camera logs-files preparation and 
+     *  validation according to manufacturers standards. It comes with a main 
+     *  software that is responsible of CSPS processing, using libcsps, of the
+     *  camera logs-files and also offers software for CSPS processing results
+     *  visualization.
      *
      *  \section Documentation
      *
-     *  Not documented yet.
+     *  A detailed documentation can be generated through doxygen. A more general
+     *  documentation can be consulted at https://github.com/niam-foxel/csps-suite/wiki.
      *
      *  \section Copyright
      * 
@@ -105,8 +111,21 @@
     # define CS_HELP "Usage summary :\n"            \
     "  csps-frustum [Arguments] [Parameters] ...\n" \
     "Short arguments and parameters summary :\n"    \
-    "  -Not aviable for alpha 0.1\n"                \
-    "csps-cones - csps-suite\n"                     \
+    "  -p CSPS-processed structure path\n"          \
+    "  -c Camera MAC address\n"                     \
+    "  -g GPS CSPS-tag\n"                           \
+    "  -m GPS CSPS-module\n"                        \
+    "  -i IMU CSPS-tag\n"                           \
+    "  -k IMU CSPS-module\n"                        \
+    "  -r Channel A sensor index\n"                 \
+    "  -s Channel B sensor index\n"                 \
+    "  -n Frustum near plane\n"                     \
+    "  -f Frustum far plane\n"                      \
+    "  -a Unix timestamp A\n"                       \
+    "  -u Timestamp microseconds A\n"               \
+    "  -b Unix timestamp B\n"                       \
+    "  -v Timestamp microseconds B\n"               \
+    "csps-frustum - csps-suite\n"                   \
     "Copyright (c) 2013-2014 FOXEL SA\n"
 
     /* Define standard types */
@@ -129,8 +148,8 @@
     # define CS_OUT             stdout
 
     /* Define detection results */
-    # define CS_FALSE           0
-    # define CS_TRUE            1
+    # define CS_FALSE           LP_FALSE
+    # define CS_TRUE            LP_TRUE
 
 /* 
     Header - Preprocessor macros
@@ -147,7 +166,7 @@
     /*! \struct cs_Frustum_struct
      *  \brief Frustum definition
      *
-     *  The structure stores the geometrical definition of a frustum.
+     *  This structure stores the geometrical definition of a frustum.
      *
      *  \var cs_Frustum_struct::fsNad
      *  Nadir vector (principal direction)
@@ -210,9 +229,9 @@
 
     /*! \brief Software main function
      *  
-     *  The main function is responsible for verifying if two camera sensors
+     *  The main function is responsible of verifying if two camera sensors
      *  frustum have a common volume. It asks the frustum definition of the two
-     *  sensor and call the detection algorithm.
+     *  sensors and calls the detection algorithm.
      *  
      *  When an intersection is detected, the software output TRUE string in 
      *  standard output and FALSE otherwise.
@@ -225,12 +244,12 @@
 
     /*! \brief Eyesis4Pi frustum composer
      *
-     *  This function create the frustum definition of a given sensor of an 
+     *  This function creates the frustum definition of a given sensor of an 
      *  eyesis4pi device. It takes calibration data into account to precisely 
      *  place the frustum according to the camera.
      *
      *  Moreover, the function takes a rotation matrix and a position vector in
-     *  order to compute the frustum in earth or other frame.
+     *  order to compute the frustum in earth frame.
      *  
      *  \param csCamera     Camera MAC address
      *  \param csChannel    Camera sensor index
@@ -275,7 +294,7 @@
 
     /*! \brief Frustum intersection detection
      * 
-     *  This function takes to frustum definitions and determine if an 
+     *  This function takes two frustum definitions and determines if an 
      *  polyhedral intersection appears.
      *  
      *  The intersection detection method is not an absolute method and 
