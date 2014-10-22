@@ -66,6 +66,7 @@
     # include <stdlib.h>
     # include <string.h>
     # include <unistd.h>
+    # include <libgen.h>
     # include <math.h>
 
     /* OpenGL includes */
@@ -79,6 +80,9 @@
 /* 
     Header - Preprocessor definitions
  */
+
+    /* Define standard output */
+    # define CS_OUT         stdout
 
     /* Define execution flag */
     # define CS_FLAG_CREATE 0
