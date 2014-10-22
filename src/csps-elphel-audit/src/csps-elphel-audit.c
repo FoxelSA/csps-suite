@@ -236,8 +236,7 @@
             fprintf( CS_OUT, "  Range (MAS) : " CS_MD " - " CS_MD "\n", CS_TS( csCAMinit ), CS_TS( csCAMtime ) );
             fprintf( CS_OUT, "  Span  (MAS) : " CS_MD "\n", CS_TS( lp_timestamp_diff( csCAMinit, csCAMtime ) ) );
             fprintf( CS_OUT, "  Steps (MAS) : " CS_MD " - " CS_MD "\n", CS_TS( csCAMstpi ), CS_TS( csCAMstpm ) );
-            fprintf( CS_OUT, "  Synch (MAS) : " CS_MD " - " CS_MD "\n", CS_TS( csCAMinit ), CS_TS( csCAMmain ) );
-            fprintf( CS_OUT, "  Synch (MAS) : " CS_MD "\n", CS_TS( csCAMdiff ) );
+            fprintf( CS_OUT, "  Synch (MAS) : " CS_MD " - " CS_MD "\n", CS_TS( csCAMmain ), CS_TS( csCAMdiff ) );
 
             /* Display information - IMU */
             fprintf( CS_OUT, "  Range (IMU) : " CS_MD " - " CS_MD "\n", CS_TS( csIMUinit ), CS_TS( csIMUtime ) );
