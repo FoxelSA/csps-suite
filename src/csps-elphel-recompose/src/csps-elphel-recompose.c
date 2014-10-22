@@ -110,7 +110,7 @@
                         cs_elphel_recompose_extremum( csFile, & ( csStack[csIndex].dsFirst ), & ( csStack[csIndex].dsLast ) );
 
                         /* Display information */
-                        fprintf( CS_OUT, "Stacking : %s\n", strrchr( csFile, '/' ) + 1 );
+                        fprintf( CS_OUT, "Stacking : %s\n", basename( csFile ) );
 
                         /* Update stack size */
                         csDecim = ( ++ csIndex ); 
@@ -150,7 +150,7 @@
                     sprintf( csExpo, "%s/log-recomposition.log-%05u", csReco, ++ csIncrem );
 
                     /* Display initial segment occurence */
-                    fprintf( CS_OUT, "Recomposing %s\n", strrchr( csExpo, '/' ) + 1 );
+                    fprintf( CS_OUT, "Recomposing %s\n", basename( csExpo ) );
 
                 } else {
 
@@ -237,7 +237,7 @@
             fclose( csOStream );
 
         /* Display message */
-        } else { fprintf( CS_OUT, "Error : unable to access %s or/and %s\n", strrchr( csSource, '/' ) + 1, strrchr( csDestination, '/' ) + 1 ); }
+        } else { fprintf( CS_OUT, "Error : unable to access %s or/and %s\n", basename( ( char * ) csSource ), basename( ( char * ) csDestination ) ); }
 
     }
 
@@ -281,7 +281,7 @@
             fclose( csStream );
 
         /* Display message */
-        } else { fprintf( CS_OUT, "Error : unable to access %s\n", strrchr( csFile, '/' ) + 1 ); }
+        } else { fprintf( CS_OUT, "Error : unable to access %s\n", basename( ( char * ) csFile ) ); }
 
     }
 
