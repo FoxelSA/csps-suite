@@ -127,9 +127,6 @@
         /* Compose initial decomposition segment path */
         sprintf( csPart, "%s/log-decomposition.log-%05i", csDirectory, csIndex ++ );
 
-        /* Display decomposition information */
-        fprintf( CS_OUT, "Decomposing : %s\n  %s\n", strrchr( csLog, '/' ) + 1, strrchr( csPart, '/' ) + 1 );
-
         /* Create input stream */
         csIStream = fopen( csLog, "rb" );
 
@@ -138,6 +135,9 @@
 
         /* Check stream creation */
         if ( ( csIStream != NULL ) && ( csOStream != NULL ) ) { 
+
+            /* Display decomposition information */
+            fprintf( CS_OUT, "Decomposing : %s\n  %s\n", basename( ( char * ) csLog ), basename( csPart ) );
 
             /* Parsing input stream */
             while ( fread( csRec, 1, CS_RECLEN, csIStream ) == CS_RECLEN ) {
@@ -198,7 +198,7 @@
             fclose( csIStream );
 
         /* Display message */
-        } else { fprintf( CS_OUT, "Error : unable to access %s or/and %s\n", strrchr( csLog, '/' ) + 1, strrchr( csPart, '/' ) + 1 ); }
+        } else { fprintf( CS_OUT, "Error : unable to access %s or/and %s\n", basename( ( char * ) csLog ), basename( csPart ) ); }
 
         /* Return decomposition index */
         return( csIndex );
