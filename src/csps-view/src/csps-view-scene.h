@@ -107,8 +107,8 @@
 
     /*! \brief Scene creation/deletion function
      *  
-     *  This function create an OpenGL display lists at startup that contains
-     *  the parts of the entire scene rendered by the software.
+     *  This function create OpenGL display lists at startup that contains the 
+     *  parts of the entire scene rendered by the software.
      *
      *  If CS_FLAG_CREATE is provided as csFlag, the function create the display
      *  lists. Otherwise, the display lists are deleted.
@@ -120,10 +120,10 @@
 
     /*! \brief Specific scene compilation function
      *  
-     *  This function create a display list that contains positions and
+     *  This function creates a display list that contains positions and
      *  orientations of the camera and the flat earth model frame.
      *  
-     *  \param csTag OpenGL display list value
+     *  \param csTag OpenGL display list index
      */
 
     void cs_view_scene_track( GLuint const csTag );

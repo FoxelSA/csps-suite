@@ -101,7 +101,7 @@
 
     void cs_view_event_reshape ( int width, int height );
 
-    /*! \brief Keyboard callback functions
+    /*! \brief Keyboard callback function
      *
      *  This function is called as GLUT callback on keyboard  events.
      *
@@ -112,7 +112,7 @@
 
     void cs_view_event_keyboard ( unsigned char key, int x, int y );
 
-    /*! \brief Mouse button callback functions
+    /*! \brief Mouse button callback function
      *
      *  This function is called as GLUT callback on mouse button events.
      *
@@ -124,7 +124,7 @@
 
     void cs_view_event_mouse ( int button, int state, int x, int y );
 
-    /*! \brief Mouse motion callback functions
+    /*! \brief Mouse motion callback function
      *
      *  This function is called as GLUT callback on mouse motion events.
      *

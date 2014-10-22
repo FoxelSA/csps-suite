@@ -66,8 +66,8 @@
     # include <stdlib.h>
     # include <string.h>
     # include <unistd.h>
-    # include <libgen.h>
     # include <math.h>
+    # include <libgen.h>
 
     /* OpenGL includes */
     # include <GL/gl.h>

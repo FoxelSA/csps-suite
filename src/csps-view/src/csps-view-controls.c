@@ -54,7 +54,7 @@
     extern cs_View_Path_t     csPath;
 
 /*
-    Source - Initial position reset
+    Source - Camera position and orientation reset
  */
 
     void cs_view_controls_reset( int const csFlag, double const csMeanLon, double const csMeanLat, double const csMeanAlt ) {

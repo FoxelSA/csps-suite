@@ -54,7 +54,7 @@
     extern cs_View_Path_t     csPath;
 
 /*
-    Source - Scene main function
+    Source - Scene rendering function
  */
 
     void cs_view_scene( void ) {
@@ -95,7 +95,7 @@
     }
 
 /*
-    Source - Scene display lists
+    Source - Scene creation/deletion function
  */
 
     void cs_view_scene_compile( int const csFlag ) {
@@ -131,7 +131,7 @@
     }
 
 /*
-    Source - Camera track
+    Source - Specific scene compilation function
  */
 
     void cs_view_scene_track( GLuint const csTag ) {

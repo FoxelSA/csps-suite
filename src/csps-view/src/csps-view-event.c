@@ -74,7 +74,7 @@
     }
 
 /*
-    Source - Keyboard callback functions
+    Source - Keyboard callback function
  */
 
     void cs_view_event_keyboard( unsigned char key, int x, int y ) {
@@ -111,9 +111,8 @@
     }
 
 /*
-    Source - Mouse callback functions
+    Source - Mouse button callback function
 */
-
 
     void cs_view_event_mouse( int button, int state, int x, int y ) {
 
@@ -158,6 +157,10 @@
         }
 
     }
+
+/*
+    Source - Mouse motion callback function
+*/
 
     void cs_view_event_move( int x, int y ) {
 
