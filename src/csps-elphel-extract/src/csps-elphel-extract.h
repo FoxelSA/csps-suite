@@ -47,11 +47,17 @@
      *  \section csps-suite
      *  \section _ CSPS library front-end suite
      *
-     *  Not documented yet.
+     *  The csps-suite is dedicated to CSPS processing using libcsps. It provides
+     *  a serie of softwares used for camera logs-files preparation and 
+     *  validation according to manufacturers standards. It comes with a main 
+     *  software that is responsible of CSPS processing, using libcsps, of the
+     *  camera logs-files and also offers software for CSPS processing results
+     *  visualization.
      *
      *  \section Documentation
      *
-     *  Not documented yet.
+     *  A detailed documentation can be generated through doxygen. A more general
+     *  documentation can be consulted at https://github.com/niam-foxel/csps-suite/wiki.
      *
      *  \section Copyright
      * 
@@ -101,12 +107,16 @@
  */
 
     /* Standard help */
-    # define CS_HELP "Usage summary :\n"                   \
-    "  csps-elphel-extract [Arguments] [Parameters] ...\n" \
-    "Short arguments and parameters summary :\n"           \
-    "  -l Path to source logs-file\n"                      \
-    "  -e Path to extracted logs-file\n"                   \
-    "csps-elphel-extract - csps-suite\n"                   \
+    # define CS_HELP "Usage summary :\n"                     \
+    "  csps-elphel-extract [Arguments] [Parameters] ...\n"   \
+    "Short arguments and parameters summary :\n"             \
+    "  -l Path to source logs-file\n"                        \
+    "  -e Path to extracted logs-file\n"                     \
+    "  -a Unix timestamp of low-extraction limit\n"          \
+    "  -u Timestamp mircoseconds of low-extraction limit\n"  \
+    "  -b Unix timestamp of high-extraction limit\n"         \
+    "  -v Timestamp mircoseconds of high-extraction limit\n" \
+    "csps-elphel-extract - csps-suite\n"                     \
     "Copyright (c) 2013-2014 FOXEL SA\n"
 
     /* Define standard types */
@@ -129,8 +139,8 @@
     # define CS_OUT             stdout
 
     /* Define boolean variables */
-    # define CS_FALSE           0
-    # define CS_TRUE            1
+    # define CS_FALSE           LP_FALSE
+    # define CS_TRUE            LP_TRUE
 
     /* Define directory entity type */
     # define CS_FILE            0
@@ -165,6 +175,9 @@
 
     /*! \brief Software main function
      *  
+     *  The main function parses the provided logs-file and extract all the
+     *  events record contained in the range also provided as parameter. It
+     *  allows to create a logs-file smaller than the original.
      *  
      *  \param argc Standard main parameter
      *  \param argv Standard main parameter

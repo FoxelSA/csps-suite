@@ -59,6 +59,9 @@
         unsigned long csHsec  = 0;
         unsigned long csHusec = 0;
 
+        /* Record counter variables */
+        unsigned long csCount = 0;
+
         /* Search in parameters */
         stdp( stda( argc, argv,  "--logs"       , "-l" ), argv,   csFile , CS_STRING );
         stdp( stda( argc, argv,  "--extraction" , "-e" ), argv,   csExtr , CS_STRING );
@@ -74,9 +77,6 @@
             printf( CS_HELP );
 
         } else {
-
-            /* Record counter variables */
-            unsigned long csCount = 0;
 
             /* Records buffer variables */
             lp_Byte_t csRec[CS_RECLEN] = { 0 };
