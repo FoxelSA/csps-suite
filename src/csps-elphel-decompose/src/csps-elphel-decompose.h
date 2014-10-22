@@ -47,11 +47,17 @@
      *  \section csps-suite
      *  \section _ CSPS library front-end suite
      *
-     *  Not documented yet.
+     *  The csps-suite is dedicated to CSPS processing using libcsps. It provides
+     *  a serie of softwares used for camera logs-files preparation and 
+     *  validation according to manufacturers standards. It comes with a main 
+     *  software that is responsible of CSPS processing, using libcsps, of the
+     *  camera logs-files and also offers software for CSPS processing results
+     *  visualization.
      *
      *  \section Documentation
      *
-     *  Not documented yet.
+     *  A detailed documentation can be generated through doxygen. A more general
+     *  documentation can be consulted at https://github.com/niam-foxel/csps-suite/wiki.
      *
      *  \section Copyright
      * 
@@ -95,7 +101,6 @@
     # include <string.h>
     # include <libgen.h>
     # include <dirent.h>
-    # include <sys/stat.h>
     # include <csps-all.h>
 
 /* 
@@ -103,13 +108,13 @@
  */
 
     /* Standard help */
-    # define CS_HELP "Usage summary :\n"                                  \
-    "  csps-elphel-decompose [Arguments] [Parameters] ...\n"              \
-    "Short arguments and parameters summary :\n"                          \
-    "  -r Directory path containing the logs-files to decompose\n"        \
-    "  -d Directory path where decomposed logs-files are exported\n"      \
-    "  -i Maximum time interval, in seconds, that induce decomposition\n" \
-    "csps-elphel-decompose - csps-suite\n"                                \
+    # define CS_HELP "Usage summary :\n"                              \
+    "  csps-elphel-decompose [Arguments] [Parameters] ...\n"          \
+    "Short arguments and parameters summary :\n"                      \
+    "  -r Directory path containing the logs-files to decompose\n"    \
+    "  -d Directory path where decomposed logs-files are exported\n"  \
+    "  -i Maximum time interval, in seconds, that induce splitting\n" \
+    "csps-elphel-decompose - csps-suite\n"                            \
     "Copyright (c) 2013-2014 FOXEL SA\n"
 
     /* Define standard types */
@@ -132,8 +137,8 @@
     # define CS_OUT             stdout
 
     /* Define boolean variables */
-    # define CS_FALSE           0
-    # define CS_TRUE            1
+    # define CS_FALSE           LP_FALSE
+    # define CS_TRUE            LP_TRUE
 
     /* Define directory entity type */
     # define CS_FILE            0
@@ -168,8 +173,9 @@
 
     /*! \brief Software main function
      *  
-     *  The main function calls the analysis and appending procedure in order to
-     *  perform contigous log detection and appending.
+     *  The main function reads the logs-file contained in the provided
+     *  directory and split the logs-files that contain more than one record
+     *  part on the base of timestamp analysis.
      *  
      *  \param argc Standard main parameter
      *  \param argv Standard main parameter
@@ -177,12 +183,12 @@
 
     int main ( int argc, char ** argv );
 
-    /*! \brief Log-file decomposer
+    /*! \brief Logs-file decomposer
      * 
-     *  This function opens the input logs file and test if 10 or more seconds
-     *  gap appears on the successive timestamp. It transfers the content of
-     *  the input logs file in separated output file with separation determined
-     *  by the detected gaps.
+     *  This function opens the input logs-file and test if a too wide interval
+     *  appears between the successive timestamps. It transfers the content of
+     *  the input logs-file in separated output files with separation determined
+     *  by the detected intervals.
      *
      *  \param  csLog       Input logs file path
      *  \param  csDirectory Output directory
@@ -198,8 +204,8 @@
      *  
      *  Enumerates entity contained in the pointed directory. The function
      *  detects automatically if an enumeration is under way and returns, one
-     *  by one, the name of the found entity. When enumeration is terminated,
-     *  the function close itself the directory handle.
+     *  by one, the name of the found entities. When enumeration is terminated,
+     *  the function closes itself the directory handle.
      *
      *  \param  csDirectory Directory to enumerates
      *  \param  csName      String that recieve the entity name, appended to the
