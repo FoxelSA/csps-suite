@@ -96,8 +96,8 @@
                             /* Display information */
                             fprintf( CS_OUT, "Validating   : %s\n  Exportation    : %s\n", basename( csEnt ), basename( csExp ) );
 
-                            /* Validation process */
-                            cs_elphel_validate( csEnt, csExp, csInterval );
+                            /* GPS-event decimation process */
+                            fprintf( CS_OUT, "  GPS decimation : %u\n", cs_elphel_decimate( csEnt, csExp, csInterval ) );
 
                         } else {
 
@@ -120,10 +120,10 @@
     }
 
 /*
-    Source - Logs-files validation process
+    Source - Logs-files GPS-events decimation
 */
 
-    void cs_elphel_validate( char const * const csIFile, char const * const csOFile, double csInterval ) {
+    unsigned int cs_elphel_decimate( char const * const csIFile, char const * const csOFile, double csInterval ) {
 
         /* Records buffer variables */
         unsigned char csRec[CS_RECLEN] = { 0 };
@@ -180,15 +180,15 @@
 
             }
 
-            /* Display information */
-            fprintf( CS_OUT, "  GPS decimation : %u\n", csCount );
+            /* Close streams */
+            fclose( csIStream );
+            fclose( csOStream );
 
         /* Display message */
         } else { fprintf( CS_OUT, "Error : unable to access %s or/and %s\n", basename( ( char * ) csIFile ), basename( ( char * ) csOFile ) ); }
 
-        /* Close streams */
-        fclose( csIStream );
-        fclose( csOStream );
+        /* Returns decimation count */
+        return( csCount );
 
     }
 

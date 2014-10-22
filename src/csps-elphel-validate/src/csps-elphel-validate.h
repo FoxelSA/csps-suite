@@ -47,11 +47,17 @@
      *  \section csps-suite
      *  \section _ CSPS library front-end suite
      *
-     *  Not documented yet.
+     *  The csps-suite is dedicated to CSPS processing using libcsps. It provides
+     *  a serie of softwares used for camera logs-files preparation and 
+     *  validation according to manufacturers standards. It comes with a main 
+     *  software that is responsible of CSPS processing, using libcsps, of the
+     *  camera logs-files and also offers software for CSPS processing results
+     *  visualization.
      *
      *  \section Documentation
      *
-     *  Not documented yet.
+     *  A detailed documentation can be generated through doxygen. A more general
+     *  documentation can be consulted at https://github.com/niam-foxel/csps-suite/wiki.
      *
      *  \section Copyright
      * 
@@ -95,7 +101,6 @@
     # include <string.h>
     # include <libgen.h>
     # include <dirent.h>
-    # include <sys/stat.h>
     # include <csps-all.h>
 
 /* 
@@ -133,8 +138,8 @@
     # define CS_OUT             stdout
 
     /* Define boolean variables */
-    # define CS_FALSE           0
-    # define CS_TRUE            1
+    # define CS_FALSE           LP_FALSE
+    # define CS_TRUE            LP_TRUE
 
     /* Define directory entity type */
     # define CS_FILE            0
@@ -171,7 +176,7 @@
      *  
      *  The main function considers recomposed logs-files and proceed to a
      *  validation of the recomposition based on the file size. It also remove
-     *  GPS-events that are too far away from nearest IMU-event.
+     *  GPS-events that are too far away of their nearest IMU-event.
      *  
      *  \param argc Standard main parameter
      *  \param argv Standard main parameter
@@ -179,25 +184,27 @@
 
     int main ( int argc, char ** argv );
 
-    /*! \brief Logs-files validation process
+    /*! \brief Logs-files GPS-events decimation
      *
      *  This function, as soon as the logs-file passed the validation check,
      *  parse the IMU/GPS-events in order to remove GPS-events that are logged
-     *  with a timestamp too fat away from nearest IMU-events timestamp.
+     *  with a timestamp too fat away of their nearest IMU-event timestamps.
      *
      *  \param  csIFile     Input logs-file to process
-     *  \param  csOFile     Output logs-file for exportation
-     *  \param  csInterval  Maximum interval between IMU/GPS-events timestamp
+     *  \param  csOFile     Output processed logs-file
+     *  \param  csInterval  Maximum interval between IMU/GPS-event timestamps
+     *
+     *  \return Returns the GPS-events decimation count
      */
 
-    void cs_elphel_validate ( char const * const csIFile, char const * const csOFile, double csInterval );
+    unsigned int cs_elphel_decimate ( char const * const csIFile, char const * const csOFile, double csInterval );
 
     /*! \brief Directory entity enumeration
      *  
      *  Enumerates entity contained in the pointed directory. The function
      *  detects automatically if an enumeration is under way and returns, one
-     *  by one, the name of the found entity. When enumeration is terminated,
-     *  the function close itself the directory handle.
+     *  by one, the name of the found entities. When enumeration is terminated,
+     *  the function closes itself the directory handle.
      *
      *  \param  csDirectory Directory to enumerates
      *  \param  csName      String that recieve the entity name, appended to the
