@@ -47,11 +47,17 @@
      *  \section csps-suite
      *  \section _ CSPS library front-end suite
      *
-     *  Not documented yet.
+     *  The csps-suite is dedicated to CSPS processing using libcsps. It provides
+     *  a serie of softwares used for camera logs-files preparation and 
+     *  validation according to manufacturers standards. It comes with a main 
+     *  software that is responsible of CSPS processing, using libcsps, of the
+     *  camera logs-files and also offers software for CSPS processing results
+     *  visualization.
      *
      *  \section Documentation
      *
-     *  Not documented yet.
+     *  A detailed documentation can be generated through doxygen. A more general
+     *  documentation can be consulted at https://github.com/niam-foxel/csps-suite/wiki.
      *
      *  \section Copyright
      * 
@@ -155,7 +161,7 @@
 
     /*! \brief Software main function
      *  
-     *  The main function parse provided logs-file and dumps its content 
+     *  The main function parse the provided logs-file and dumps its content 
      *  according to software parameters.
      *  
      *  \param argc Standard main parameter
