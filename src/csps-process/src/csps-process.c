@@ -72,7 +72,7 @@
                 if ( cs_process_detect( csTopo, CS_FILE ) == CS_TRUE ) {
 
                     /* Display message */
-                    fprintf( CS_OUT, "Processing : %s using %s topology ...", strrchr( csPath, '/' ) + 1, strrchr( csTopo, '/' ) + 1 );
+                    fprintf( CS_OUT, "Processing : %s using %s topology ...", basename( csPath ), basename( csTopo ) );
 
                     /* CSPS processing */
                     lp_system( csPath, csTopo );
