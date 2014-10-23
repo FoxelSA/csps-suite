@@ -200,7 +200,7 @@
                     fprintf( csStream, "   \"guess\":%s,\n", ( csFlag == 0 ) ? "true" : "false" );
 
                     /* Export JSON - capture completion flag */
-                    fprintf( csStream, "   \"status\":unknown,\n" );
+                    fprintf( csStream, "   \"status\":\"unknown\",\n" );
 
                     /* Export JSON - positions */
                     fprintf( csStream, "   \"lng\":%.8f,\n", csGPSlon );
