@@ -1,6 +1,6 @@
 [submodule "lib/libcsps"]
 	path = lib/libcsps
-	url = git@github.com:FoxelSA/libcsps.git
+	url = https://github.com/FoxelSA/libcsps.git
 [submodule "lib/libfastcal"]
 	path = lib/libfastcal
-	url = git@github.com:niam-foxel/libfastcal.git
+    url = https://github.com/niam-foxel/libfastcal.git
