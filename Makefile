@@ -65,3 +65,13 @@
     clean:
 	rm $(MAKE_BINARY)/* -f
 
+#
+#   make - Management - Implementation
+#
+
+    install:
+	@$(foreach SOFT, $(MAKE_SOFTS), cp $(MAKE_BINARY)/$(SOFT) ~/bin/ && ) true
+
+    uninstall:
+	@$(foreach SOFT, $(MAKE_SOFTS), rm -f ~/bin/$(SOFT) && ) true
+
