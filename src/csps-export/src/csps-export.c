@@ -106,7 +106,7 @@
             FILE * csStream = NULL;
 
             /* Query variables */
-            lp_QueryPosition csPosition = { CS_FALSE, 0.0, 0.0, 0.0 };
+            lp_Query_Position_t csPosition = { CS_FALSE, 0.0, 0.0, 0.0 };
 
             /* Create stream */
             if ( ( csStream = fopen( csFile, "w" ) ) != NULL ) {

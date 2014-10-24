@@ -106,10 +106,10 @@
                 if ( ( csChannelA >= 0 ) && ( csChannelA < 26 ) && ( csChannelB >= 0 ) && ( csChannelB < 26 ) ) {
 
                     /* CSPS query structures */
-                    lp_QueryPosition    csQpositA;
-                    lp_QueryPosition    csQpositB;
-                    lp_QueryOrientation csQorienA;
-                    lp_QueryOrientation csQorienB;
+                    lp_Query_Position_t    csQpositA;
+                    lp_Query_Position_t    csQpositB;
+                    lp_Query_Orientation_t csQorienA;
+                    lp_Query_Orientation_t csQorienB;
 
                     /* CSPS timestamp variables */
                     lp_Time_t csTimeA = lp_timestamp_compose( csTSA, csTUA );

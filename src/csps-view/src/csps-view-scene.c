@@ -146,8 +146,8 @@
         lp_Time_t * csCAMsyn = NULL;
 
         /* Query interface structures variables */
-        lp_QueryPosition    csQPos;
-        lp_QueryOrientation csQOri;
+        lp_Query_Position_t    csQPos;
+        lp_Query_Orientation_t csQOri;
 
         /* Stream variables */
         FILE * csStream = NULL;
