@@ -70,8 +70,8 @@
 #
 
     install:
-	cp $(addprefix $(MAKE_BINARY)/,$(MAKE_SOFTS)) /bin 2>/dev/null || :
+	cp $(addprefix $(MAKE_BINARY)/,$(MAKE_SOFTS)) /usr/bin 2>/dev/null || :
 
     uninstall:
-	@$(foreach SOFT, $(MAKE_SOFTS), rm -f /bin/$(SOFT) && ) true
+	@$(foreach SOFT, $(MAKE_SOFTS), rm -f /usr/bin/$(SOFT) && ) true
 
