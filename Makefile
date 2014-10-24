@@ -70,14 +70,14 @@
 #
 
     install:
-ifeq ($(whoami),root)
+ifeq ($(shell whoami),root)
 	cp $(addprefix $(MAKE_BINARY)/,$(MAKE_SOFTS)) /bin 2>/dev/null || :
 else
 	$(error Install target need root privilege - see makefile content)
 endif
 
     uninstall:
-ifeq ($(whoami),root)
+ifeq ($(shell whoami),root)
 	@$(foreach SOFT, $(MAKE_SOFTS), rm -f /bin/$(SOFT) && ) true
 else
 	$(error Uninstall target need root privilege - see makefile content)
