@@ -132,9 +132,9 @@
                 fprintf( CS_OUT, "Orientation at %010" lp_Time_p ".%06" lp_Time_p " [s]\n", csSec, csUsec );
 
                 /* Display position */
-                fprintf( CS_OUT, "  Matix     : %10.6f %10.6f %10.6f\n", csOrientation.qrfxx, csOrientation.qrfyx, csOrientation.qrfzx );
-                fprintf( CS_OUT, "  Matix     : %10.6f %10.6f %10.6f\n", csOrientation.qrfxy, csOrientation.qrfyy, csOrientation.qrfzy );
-                fprintf( CS_OUT, "  Matix     : %10.6f %10.6f %10.6f\n", csOrientation.qrfxz, csOrientation.qrfyz, csOrientation.qrfzz );
+                fprintf( CS_OUT, "  Matrix    : %10.6f %10.6f %10.6f\n", csOrientation.qrfxx, csOrientation.qrfyx, csOrientation.qrfzx );
+                fprintf( CS_OUT, "  Matrix    : %10.6f %10.6f %10.6f\n", csOrientation.qrfxy, csOrientation.qrfyy, csOrientation.qrfzy );
+                fprintf( CS_OUT, "  Matrix    : %10.6f %10.6f %10.6f\n", csOrientation.qrfxz, csOrientation.qrfyz, csOrientation.qrfzz );
 
             } else { 
 
