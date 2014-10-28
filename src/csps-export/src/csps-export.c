@@ -196,11 +196,11 @@
                     /* Export JSON - format */
                     fprintf( csStream, "  {\n" );
 
-                    /* Export JSON - availability flag */
+                    /* Export JSON - capture flags */
                     fprintf( csStream, "   \"guess\":%s,\n", ( csFlag == 0 ) ? "true" : "false" );
-
-                    /* Export JSON - capture completion flag */
                     fprintf( csStream, "   \"status\":\"unknown\",\n" );
+                    fprintf( csStream, "   \"split\":\"false\",\n" );
+                    fprintf( csStream, "   \"preview\":\"false\",\n" );
 
                     /* Export JSON - positions */
                     fprintf( csStream, "   \"lng\":%.8f,\n", csGPSlon );
