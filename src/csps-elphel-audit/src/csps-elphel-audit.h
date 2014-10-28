@@ -134,6 +134,7 @@
 
     /* Define standard output */
     # define CS_OUT             stdout
+    # define CS_ERR             stderr
 
     /* Define boolean constants */
     # define CS_FALSE           LP_FALSE

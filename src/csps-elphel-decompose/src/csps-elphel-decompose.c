@@ -198,7 +198,7 @@
             fclose( csIStream );
 
         /* Display message */
-        } else { fprintf( CS_OUT, "Error : unable to access %s or/and %s\n", basename( ( char * ) csLog ), basename( csSpl ) ); }
+        } else { fprintf( CS_ERR, "Error : unable to access %s or/and %s\n", basename( ( char * ) csLog ), basename( csSpl ) ); }
 
         /* Return decomposition index */
         return( csIndex );

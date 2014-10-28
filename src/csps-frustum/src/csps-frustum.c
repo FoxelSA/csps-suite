@@ -169,13 +169,13 @@
                         if ( cs_frustum_intersection( & csFrus_A, & csFrus_B ) == CS_TRUE ) fprintf( CS_OUT, "TRUE" ); else fprintf( CS_OUT, "FALSE" );
                 
                     /* Display message */
-                    } else { fprintf( CS_OUT, "Error : CSPS query by timestamp failed\n" ); }
+                    } else { fprintf( CS_ERR, "Error : CSPS query by timestamp failed\n" ); }
 
                 /* Display message */
-                } else { fprintf( CS_OUT, "Error : device sensor index out of calibration range\n" ); }
+                } else { fprintf( CS_ERR, "Error : device sensor index out of calibration range\n" ); }
 
             /* Display message */
-            } else { fprintf( CS_OUT, "Error : unknown camera device\n" ); }
+            } else { fprintf( CS_ERR, "Error : unknown camera device\n" ); }
 
         }
 

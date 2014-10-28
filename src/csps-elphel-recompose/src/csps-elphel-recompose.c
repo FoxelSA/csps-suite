@@ -237,7 +237,7 @@
             fclose( csOStream );
 
         /* Display message */
-        } else { fprintf( CS_OUT, "Error : unable to access %s or/and %s\n", basename( ( char * ) csSource ), basename( ( char * ) csDestination ) ); }
+        } else { fprintf( CS_ERR, "Error : unable to access %s or/and %s\n", basename( ( char * ) csSource ), basename( ( char * ) csDestination ) ); }
 
     }
 
@@ -281,7 +281,7 @@
             fclose( csStream );
 
         /* Display message */
-        } else { fprintf( CS_OUT, "Error : unable to access %s\n", basename( ( char * ) csFile ) ); }
+        } else { fprintf( CS_ERR, "Error : unable to access %s\n", basename( ( char * ) csFile ) ); }
 
     }
 

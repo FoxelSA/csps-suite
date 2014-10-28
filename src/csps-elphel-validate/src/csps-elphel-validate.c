@@ -185,7 +185,7 @@
             fclose( csOStream );
 
         /* Display message */
-        } else { fprintf( CS_OUT, "Error : unable to access %s or/and %s\n", basename( ( char * ) csIFile ), basename( ( char * ) csOFile ) ); }
+        } else { fprintf( CS_ERR, "Error : unable to access %s or/and %s\n", basename( ( char * ) csIFile ), basename( ( char * ) csOFile ) ); }
 
         /* Returns decimation count */
         return( csCount );

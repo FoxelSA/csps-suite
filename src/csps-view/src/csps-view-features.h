@@ -83,6 +83,7 @@
 
     /* Define standard output */
     # define CS_OUT         stdout
+    # define CS_ERR         stderr
 
     /* Define execution flag */
     # define CS_FLAG_CREATE 0

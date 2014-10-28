@@ -249,7 +249,7 @@
             fprintf( CS_OUT, "  Steps (GPS) : " CS_MD " - " CS_MD "\n", CS_TS( csGPSstpi ), CS_TS( csGPSstpm ) );
 
         /* Display message */
-        } else { fprintf( CS_OUT, "Error : unable to access %s\n", basename( ( char * ) csFile ) ); }
+        } else { fprintf( CS_ERR, "Error : unable to access %s\n", basename( ( char * ) csFile ) ); }
 
     }
 

@@ -94,7 +94,7 @@
                 /* Close stream */
                 fclose( csStream );
 
-            }
+            } else { fprintf( CS_ERR, "Error : unable to access %s\n", basename( csFile ) ); }
 
             /* Display timestamp */
             fprintf( CS_OUT, "%" lp_Time_p "\n", lp_timestamp_sec( csTime ) );
@@ -190,7 +190,7 @@
                 }
 
             /* Display message */
-            } else { fprintf( CS_OUT, "Error : unable to access %s\n", basename( csFile ) ); }
+            } else { fprintf( CS_ERR, "Error : unable to access %s\n", basename( csFile ) ); }
 
         }
 

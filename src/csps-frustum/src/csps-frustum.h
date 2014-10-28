@@ -146,6 +146,7 @@
 
     /* Define standard output */
     # define CS_OUT             stdout
+    # define CS_ERR             stderr
 
     /* Define detection results */
     # define CS_FALSE           LP_FALSE

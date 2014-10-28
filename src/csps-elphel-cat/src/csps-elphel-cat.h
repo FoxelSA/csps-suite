@@ -134,6 +134,7 @@
 
     /* Define standard output */
     # define CS_OUT             stdout
+    # define CS_ERR             stderr
 
     /* Define record length */
     # define CS_RECLEN          LP_DEVICE_EYESIS4PI_RECLEN

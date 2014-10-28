@@ -224,7 +224,7 @@
                 csCAMsyn = lp_stream_delete( csCAMsyn );
 
             /* Display message */
-            } else { fprintf( CS_OUT, "Error : unable to access %s\n", basename( csFile ) ); }
+            } else { fprintf( CS_ERR, "Error : unable to access %s\n", basename( csFile ) ); return( EXIT_FAILURE ); }
 
         }
 

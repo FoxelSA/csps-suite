@@ -81,10 +81,10 @@
                     fprintf( CS_OUT, "Done\n" );
 
                 /* Display message */
-                } else { fprintf( CS_OUT, "Error : unable to access %s file\n", csTopo ); }
+                } else { fprintf( CS_ERR, "Error : unable to access %s file\n", csTopo ); }
 
             /* Display message */
-            } else { fprintf( CS_OUT, "Error : unable to access %s directory\n", csPath ); }
+            } else { fprintf( CS_ERR, "Error : unable to access %s directory\n", csPath ); }
 
         }
 
