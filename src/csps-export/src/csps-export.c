@@ -154,7 +154,7 @@
                 }
 
                 /* Initialize JSON */
-                fprintf( csStream, "{\n \"gps\":%s,\n \"pose\":[\n", ( csParse < csSize ) ? "true" : "false" );
+                fprintf( csStream, "{\n \"gps\":%s,\n \"split\":false,\n \"preview\":null, \"pose\":[\n", ( csParse < csSize ) ? "true" : "false" );
                 
                 /* Exportation loop */
                 for ( csParse = 0; csParse < csSize; csParse ++ ) {
@@ -199,8 +199,7 @@
                     /* Export JSON - capture flags */
                     fprintf( csStream, "   \"guess\":%s,\n", ( csFlag == 0 ) ? "true" : "false" );
                     fprintf( csStream, "   \"status\":\"unknown\",\n" );
-                    fprintf( csStream, "   \"split\":\"false\",\n" );
-                    fprintf( csStream, "   \"preview\":\"false\",\n" );
+                    fprintf( csStream, "   \"folder\":null,\n" );
 
                     /* Export JSON - positions */
                     fprintf( csStream, "   \"lng\":%.8f,\n", csGPSlon );
