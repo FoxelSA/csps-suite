@@ -154,7 +154,7 @@
                 }
 
                 /* Initialize JSON */
-                fprintf( csStream, "{\n \"gps\":%s,\n \"split\":false,\n \"preview\":null, \"pose\":[\n", ( csParse < csSize ) ? "true" : "false" );
+                fprintf( csStream, "{\n \"gps\":%s,\n \"split\":false,\n \"preview\":null,\n \"pose\":[\n", ( csParse < csSize ) ? "true" : "false" );
                 
                 /* Exportation loop */
                 for ( csParse = 0; csParse < csSize; csParse ++ ) {
