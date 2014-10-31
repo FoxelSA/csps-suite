@@ -154,7 +154,7 @@
                 }
 
                 /* Initialize JSON */
-                fprintf( csStream, "{\n \"gps\":%s,\n \"split\":false,\n \"preview\":null,\n \"pose\":[\n", ( csParse < csSize ) ? "true" : "false" );
+                fprintf( csStream, "{\n  \"gps\":%s,\n  \"split\":false,\n  \"preview\":null,\n  \"pose\":[\n", ( csParse < csSize ) ? "true" : "false" );
                 
                 /* Exportation loop */
                 for ( csParse = 0; csParse < csSize; csParse ++ ) {
@@ -197,18 +197,18 @@
                     fprintf( csStream, "  {\n" );
 
                     /* Export JSON - capture flags */
-                    fprintf( csStream, "   \"guess\":%s,\n", ( csFlag == 0 ) ? "true" : "false" );
-                    fprintf( csStream, "   \"status\":\"unknown\",\n" );
-                    fprintf( csStream, "   \"folder\":null,\n" );
+                    fprintf( csStream, "    \"guess\":%s,\n", ( csFlag == 0 ) ? "true" : "false" );
+                    fprintf( csStream, "    \"status\":\"unknown\",\n" );
+                    fprintf( csStream, "    \"folder\":null,\n" );
 
                     /* Export JSON - positions */
-                    fprintf( csStream, "   \"lng\":%.8f,\n", csGPSlon );
-                    fprintf( csStream, "   \"lat\":%.8f,\n", csGPSlat );
-                    fprintf( csStream, "   \"alt\":%.8f,\n", csGPSalt );
+                    fprintf( csStream, "    \"lng\":%.8f,\n", csGPSlon );
+                    fprintf( csStream, "    \"lat\":%.8f,\n", csGPSlat );
+                    fprintf( csStream, "    \"alt\":%.8f,\n", csGPSalt );
 
                     /* Export JSON - timestamps */
-                    fprintf( csStream, "   \"sec\":%" lp_Time_p ",\n", lp_timestamp_sec ( csCAMtag[csParse] ) );
-                    fprintf( csStream, "   \"usc\":%" lp_Time_p " \n", lp_timestamp_usec( csCAMtag[csParse] ) );
+                    fprintf( csStream, "    \"sec\":%" lp_Time_p ",\n", lp_timestamp_sec ( csCAMtag[csParse] ) );
+                    fprintf( csStream, "    \"usc\":%" lp_Time_p " \n", lp_timestamp_usec( csCAMtag[csParse] ) );
 
                     /* Export JSON - format */
                     fprintf( csStream, "  }%s\n", ( csParse < ( csSize - 1 ) ) ? "," : "" );
@@ -216,7 +216,7 @@
                 }
 
                 /* Terminate JSON */
-                fprintf( csStream, " ]\n}\n" );
+                fprintf( csStream, "  ]\n}\n" );
 
                 /* Unallocate stream memory */
                 csCAMtag = lp_stream_delete( csCAMtag );
