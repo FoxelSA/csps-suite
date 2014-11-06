@@ -1,5 +1,5 @@
 
-## csps-suite<br />CSPS library front-end suite (alpha)
+## csps-suite<br />CSPS library front-end suite (Beta 0.1)
 
 The csps-suite is dedicated to CSPS processing using libcsps. It provides a serie of softwares used for camera logs-files preparation and validation according to manufacturers standards. It comes with a main software that is responsible of CSPS processing, using libcsps, of the camera logs-files and also offers software for CSPS processing results visualization.
 
