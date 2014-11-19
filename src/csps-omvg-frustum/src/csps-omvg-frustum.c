@@ -210,12 +210,7 @@
     Source - OpenMVG list importation
 */
 
-    unsigned long cs_omvg_frusmtum_list(
-
-        char      const *  const csList,
-        cs_List_t       **       csStack
-
-    ) {
+    unsigned long cs_omvg_frusmtum_list ( char const * const csList, cs_List_t ** csStack ) {
 
         /* Reading buffer variables */
         char csBuffer[1024] = { 0 };

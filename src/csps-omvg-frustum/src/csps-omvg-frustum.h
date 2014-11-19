@@ -112,19 +112,15 @@
     "  csps-omvg-frustum [Arguments] [Parameters] ...\n" \
     "Short arguments and parameters summary :\n"         \
     "  -p CSPS-processed structure path\n"               \
+    "  -l OpenMVG input list file\n"                     \
+    "  -r OpenMVG output pairs file\n"                   \
     "  -c Camera MAC address\n"                          \
     "  -g GPS CSPS-tag\n"                                \
     "  -m GPS CSPS-module\n"                             \
     "  -i IMU CSPS-tag\n"                                \
     "  -k IMU CSPS-module\n"                             \
-    "  -r Channel A sensor index\n"                      \
-    "  -s Channel B sensor index\n"                      \
     "  -n Frustum near plane\n"                          \
     "  -f Frustum far plane\n"                           \
-    "  -a Unix timestamp A\n"                            \
-    "  -u Timestamp microseconds A\n"                    \
-    "  -b Unix timestamp B\n"                            \
-    "  -v Timestamp microseconds B\n"                    \
     "csps-omvg-frustum - csps-suite\n"                   \
     "Copyright (c) 2013-2014 FOXEL SA\n"
 
@@ -164,10 +160,19 @@
     Header - Structures
  */
 
-    typedef struct cs_List_struct {
+    /*! \struct cs_List_struct
+     *  \brief OpenMVG list file memory structure
+     *
+     *  This structure is designed to store the needed information coming from
+     *  provided by the OpenMVG list file.
+     *
+     *  \var cs_List_struct::lsChannel
+     *  Camera sensor channel number
+     *  \var cs_List_struct::lsTime
+     *  Camera sensor image capture timestamp
+     */
 
-        /* Indexation */
-        unsigned long lsIndex;
+    typedef struct cs_List_struct {
 
         /* Channel */
         unsigned long lsChannel;
@@ -243,25 +248,40 @@
 
     /*! \brief Software main function
      *  
-     *  The main function is responsible of verifying if two camera sensors
-     *  frustum have a common volume. It asks the frustum definition of the two
-     *  sensors and calls the detection algorithm.
+     *  The main function starts by importing information contained in the
+     *  OpenMVG list file. It then parses the created informations stack to
+     *  determine which camera sensors have an intersection of their respective
+     *  frustum.
      *  
-     *  When an intersection is detected, the software output TRUE string in 
-     *  standard output and FALSE otherwise.
+     *  The main function fills the output file, as waited by OpenMVG, specifying
+     *  which sensor image have a common view on the base of their frustum.
      *  
-     *  \param argc Standard main parameter
-     *  \param argv Standard main parameter
+     *  \param  argc Standard main parameter
+     *  \param  argv Standard main parameter
+     *
+     *  \return Code returned to system
      */
 
     int main ( int argc, char ** argv );
 
-    unsigned long cs_omvg_frusmtum_list(
-
-        char      const *  const csList,
-        cs_List_t       **       csStack
-
-    );
+    /*! \brief OpenMVG list importation
+     * 
+     *  This function is responsible of informations importation from OpenMVG
+     *  list file that are needed for frustum intersection computation. Those
+     *  informations are the camera sensor image capture timestamp and the
+     *  camera sensor channel.
+     *
+     *  The information are stored in a stack that is create and filled by this
+     *  function. Note that, for performance purpose, the actual size, in memory,
+     *  of the stack can be greater than the returned size.
+     *
+     *  \param  csList   Path to the OpenMVG list file
+     *  \param  csStack  Pointer to the information stack base pointer
+     *
+     *  \return Returns the size of the created stack
+     */
+     
+    unsigned long cs_omvg_frusmtum_list ( char const * const csList, cs_List_t ** csStack );
 
     /*! \brief Eyesis4Pi frustum composer
      *
