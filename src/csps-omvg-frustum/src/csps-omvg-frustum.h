@@ -164,6 +164,19 @@
     Header - Structures
  */
 
+    typedef struct cs_List_struct {
+
+        /* Indexation */
+        unsigned long lsIndex;
+
+        /* Channel */
+        unsigned long lsChannel;
+
+        /* Timestamp */
+        lp_Time_t     lsTime;
+
+    } cs_List_t;
+
     /*! \struct cs_Frustum_struct
      *  \brief Frustum definition
      *
@@ -243,6 +256,13 @@
 
     int main ( int argc, char ** argv );
 
+    unsigned long cs_omvg_frusmtum_list(
+
+        char      const *  const csList,
+        cs_List_t       **       csStack
+
+    );
+
     /*! \brief Eyesis4Pi frustum composer
      *
      *  This function creates the frustum definition of a given sensor of an 
@@ -271,7 +291,7 @@
      *  \param csFrustum    Returned frustum definition
      */
 
-    void cs_frustum_eyesis4pi(
+    void cs_omvg_frustum_eyesis4pi(
 
         char         const * const csCamera, 
         int          const         csChannel, 
@@ -307,7 +327,7 @@
      *  \return Returns CS_TRUE on intersection and CS_FALSE otherwise.
      */
 
-    int cs_frustum_intersection(
+    int cs_omvg_frustum_intersection(
 
         cs_Frustum_t const * const csFrus_A,
         cs_Frustum_t const * const csFrus_B

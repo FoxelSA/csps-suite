@@ -51,6 +51,8 @@
 
         /* Structure path variables */
         char csPath[256] = { 0 };
+        char csList[256] = { 0 };
+        char csPair[256] = { 0 };
 
         /* Stream pointer variables */
         char csGPSd[256] = { 0 };
@@ -61,35 +63,34 @@
         /* Camera designation variables */
         char csCamera[256] = { 0 };
 
-        /* Channel designation variables */
-        int csChannelA = 0;
-        int csChannelB = 0;
-
         /* Sensor size variables */
         double csNPlane =  1.0;
         double csFPlane = 30.0;
 
-        /* Timestamps variables */
-        lp_Time_t csTSA = lp_Time_s( 0 );
-        lp_Time_t csTUA = lp_Time_s( 0 );
-        lp_Time_t csTSB = lp_Time_s( 0 );
-        lp_Time_t csTUB = lp_Time_s( 0 );
+        /* Size variables */
+        unsigned long csSize = 0;
+
+        /* Pair composition variables */
+        unsigned long csLoopA = 0;
+        unsigned long csLoopB = 0;
+
+        /* Stack variables */
+        cs_List_t * csStack = NULL;
+
+        /* Output stream variables */
+        FILE * csStream = NULL;
 
         /* Search in parameters */
-        stdp( stda( argc, argv, "--path"         , "-p" ), argv,   csPath    , CS_STRING );
-        stdp( stda( argc, argv, "--camera"       , "-c" ), argv,   csCamera  , CS_STRING );
-        stdp( stda( argc, argv, "--gps-tag"      , "-g" ), argv,   csGPSd    , CS_STRING );
-        stdp( stda( argc, argv, "--gps-mod"      , "-m" ), argv,   csGPSm    , CS_STRING );
-        stdp( stda( argc, argv, "--imu-tag"      , "-i" ), argv,   csIMUd    , CS_STRING );
-        stdp( stda( argc, argv, "--imu-mod"      , "-k" ), argv,   csIMUm    , CS_STRING );
-        stdp( stda( argc, argv, "--channel-a"    , "-r" ), argv, & csChannelA, CS_INT    );
-        stdp( stda( argc, argv, "--channel-b"    , "-s" ), argv, & csChannelB, CS_INT    );
-        stdp( stda( argc, argv, "--plane-near"   , "-n" ), argv, & csNPlane  , CS_DOUBLE );
-        stdp( stda( argc, argv, "--plane-far"    , "-f" ), argv, & csFPlane  , CS_DOUBLE );
-        stdp( stda( argc, argv, "--second-a"     , "-a" ), argv, & csTSA     , CS_ULLONG );
-        stdp( stda( argc, argv, "--microsecond-a", "-u" ), argv, & csTUA     , CS_ULLONG );
-        stdp( stda( argc, argv, "--second-b"     , "-b" ), argv, & csTSB     , CS_ULLONG );
-        stdp( stda( argc, argv, "--microsecond-b", "-v" ), argv, & csTUB     , CS_ULLONG );
+        stdp( stda( argc, argv, "--path"      , "-p" ), argv,   csPath  , CS_STRING );
+        stdp( stda( argc, argv, "--list"      , "-l" ), argv,   csList  , CS_STRING );
+        stdp( stda( argc, argv, "--pairs"     , "-r" ), argv,   csPair  , CS_STRING );
+        stdp( stda( argc, argv, "--camera"    , "-c" ), argv,   csCamera, CS_STRING );
+        stdp( stda( argc, argv, "--gps-tag"   , "-g" ), argv,   csGPSd  , CS_STRING );
+        stdp( stda( argc, argv, "--gps-mod"   , "-m" ), argv,   csGPSm  , CS_STRING );
+        stdp( stda( argc, argv, "--imu-tag"   , "-i" ), argv,   csIMUd  , CS_STRING );
+        stdp( stda( argc, argv, "--imu-mod"   , "-k" ), argv,   csIMUm  , CS_STRING );
+        stdp( stda( argc, argv, "--plane-near", "-n" ), argv, & csNPlane, CS_DOUBLE );
+        stdp( stda( argc, argv, "--plane-far" , "-f" ), argv, & csFPlane, CS_DOUBLE );
 
         /* Execution switch */
         if ( stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
@@ -99,11 +100,11 @@
 
         } else {
 
-            /* Check camera devices consistency */
-            if ( ( strcasecmp( csCamera, LF_EYESIS4PI_1 ) == 0 ) || ( strcasecmp( csCamera, LF_EYESIS4PI_2 ) == 0 ) ) {
+            /* Import OpenMVG list */
+            if ( ( csSize = cs_omvg_frusmtum_list( csList, & csStack ) ) != 0 ) {
 
-                /* Check channels consistency */
-                if ( ( csChannelA >= 0 ) && ( csChannelA < 26 ) && ( csChannelB >= 0 ) && ( csChannelB < 26 ) ) {
+                /* Create output stream handle */
+                if ( ( csStream = fopen( csPair, "w" ) ) != NULL ) {
 
                     /* CSPS query structures */
                     lp_Query_Position_t    csQpositA;
@@ -111,72 +112,93 @@
                     lp_Query_Orientation_t csQorienA;
                     lp_Query_Orientation_t csQorienB;
 
-                    /* CSPS timestamp variables */
-                    lp_Time_t csTimeA = lp_timestamp_compose( csTSA, csTUA );
-                    lp_Time_t csTimeB = lp_timestamp_compose( csTSB, csTUB );
+                    /* First level composition loop */
+                    for ( csLoopA = 0; csLoopA < csSize; csLoopA ++ ) {
 
-                    /* CSPS query - Positions */
-                    csQpositA = lp_query_position_by_timestamp( csPath, LP_DEVICE_TYPE_GPS, csGPSd, csGPSm, csTimeA );
-                    csQpositB = lp_query_position_by_timestamp( csPath, LP_DEVICE_TYPE_GPS, csGPSd, csGPSm, csTimeB );
+                        /* CSPS query - Positions */
+                        csQpositA = lp_query_position_by_timestamp( csPath, LP_DEVICE_TYPE_GPS, csGPSd, csGPSm, csStack[csLoopA].lsTime );
 
-                    /* CSPS query - Orientations */
-                    csQorienA = lp_query_orientation_by_timestamp( csPath, LP_DEVICE_TYPE_IMU, csIMUd, csIMUm, csTimeA );
-                    csQorienB = lp_query_orientation_by_timestamp( csPath, LP_DEVICE_TYPE_IMU, csIMUd, csIMUm, csTimeB );
+                        /* CSPS query - Orientations */
+                        csQorienA = lp_query_orientation_by_timestamp( csPath, LP_DEVICE_TYPE_IMU, csIMUd, csIMUm, csStack[csLoopA].lsTime );
 
-                    /* Check query status */
-                    if ( 
+                        /* Second level composition loop */
+                        for ( csLoopB = 0; csLoopB < csSize; csLoopB ++ ) {
 
-                        ( csQpositA.qrStatus == LP_TRUE ) && 
-                        ( csQpositB.qrStatus == LP_TRUE ) && 
-                        ( csQorienA.qrStatus == LP_TRUE ) && 
-                        ( csQorienB.qrStatus == LP_TRUE ) 
+                            /* Implicit composition check */
+                            if ( csLoopA != csLoopB ) {
 
-                    ) {
+                                /* CSPS query - Positions */
+                                csQpositB = lp_query_position_by_timestamp( csPath, LP_DEVICE_TYPE_GPS, csGPSd, csGPSm, csStack[csLoopB].lsTime );
 
-                        /* Frustums variables */
-                        cs_Frustum_t csFrus_A, csFrus_B;
+                                /* CSPS query - Orientations */
+                                csQorienB = lp_query_orientation_by_timestamp( csPath, LP_DEVICE_TYPE_IMU, csIMUd, csIMUm, csStack[csLoopB].lsTime );
 
-                        /* Compute corrected positions - Local flat earth model */
-                        csQpositB.qrLongitude = ( csQpositB.qrLongitude - csQpositA.qrLongitude ) * ( ( ( 6367514.5 + csQpositA.qrAltitude ) * LF_PI / 180.0 ) );
-                        csQpositB.qrLatitude  = ( csQpositB.qrLatitude  - csQpositA.qrLatitude  ) * ( ( ( 6367514.5 + csQpositA.qrAltitude ) * LF_PI / 180.0 ) );
-                        csQpositB.qrAltitude  = ( csQpositB.qrAltitude  - csQpositA.qrAltitude  );
+                                /* Check query status */
+                                if ( 
 
-                        /* Compute frustum of first camera */
-                        cs_frustum_eyesis4pi( 
+                                    ( csQpositA.qrStatus == LP_TRUE ) && 
+                                    ( csQpositB.qrStatus == LP_TRUE ) && 
+                                    ( csQorienA.qrStatus == LP_TRUE ) && 
+                                    ( csQorienB.qrStatus == LP_TRUE ) 
 
-                            csCamera, csChannelA,
-                            csQorienA.qrfxx, csQorienA.qrfxy, csQorienA.qrfxz,
-                            csQorienA.qrfyx, csQorienA.qrfyy, csQorienA.qrfyz,
-                            csQorienA.qrfzx, csQorienA.qrfzy, csQorienA.qrfzz,
-                            0.0, 0.0, 0.0,
-                            csNPlane, csFPlane, & csFrus_A
+                                ) {
 
-                        );
+                                    /* Frustums variables */
+                                    cs_Frustum_t csFrustA, csFrustB;
 
-                        /* Compute frustum of second camera */
-                        cs_frustum_eyesis4pi( 
+                                    /* Compute corrected positions - Local flat earth model */
+                                    csQpositB.qrLongitude = ( csQpositB.qrLongitude - csQpositA.qrLongitude ) * ( ( ( 6367514.5 + csQpositA.qrAltitude ) * LF_PI / 180.0 ) );
+                                    csQpositB.qrLatitude  = ( csQpositB.qrLatitude  - csQpositA.qrLatitude  ) * ( ( ( 6367514.5 + csQpositA.qrAltitude ) * LF_PI / 180.0 ) );
+                                    csQpositB.qrAltitude  = ( csQpositB.qrAltitude  - csQpositA.qrAltitude  );
 
-                            csCamera, csChannelB,
-                            csQorienB.qrfxx, csQorienB.qrfxy, csQorienB.qrfxz,
-                            csQorienB.qrfyx, csQorienB.qrfyy, csQorienB.qrfyz,
-                            csQorienB.qrfzx, csQorienB.qrfzy, csQorienB.qrfzz,
-                            csQpositB.qrLongitude, csQpositB.qrLatitude, csQpositB.qrAltitude,
-                            csNPlane, csFPlane, & csFrus_B
+                                    /* Compute frustum of first camera */
+                                    cs_omvg_frustum_eyesis4pi( 
 
-                        );
+                                        csCamera, csStack[csLoopA].lsChannel,
+                                        csQorienA.qrfxx, csQorienA.qrfxy, csQorienA.qrfxz,
+                                        csQorienA.qrfyx, csQorienA.qrfyy, csQorienA.qrfyz,
+                                        csQorienA.qrfzx, csQorienA.qrfzy, csQorienA.qrfzz,
+                                        0.0, 0.0, 0.0,
+                                        csNPlane, csFPlane, & csFrustA
 
-                        /* Frustum intersection detection */
-                        if ( cs_frustum_intersection( & csFrus_A, & csFrus_B ) == CS_TRUE ) fprintf( CS_OUT, "TRUE" ); else fprintf( CS_OUT, "FALSE" );
-                
-                    /* Display message */
-                    } else { fprintf( CS_ERR, "Error : CSPS query by timestamp failed\n" ); }
+                                    );
+
+                                    /* Compute frustum of second camera */
+                                    cs_omvg_frustum_eyesis4pi( 
+
+                                        csCamera, csStack[csLoopB].lsChannel,
+                                        csQorienB.qrfxx, csQorienB.qrfxy, csQorienB.qrfxz,
+                                        csQorienB.qrfyx, csQorienB.qrfyy, csQorienB.qrfyz,
+                                        csQorienB.qrfzx, csQorienB.qrfzy, csQorienB.qrfzz,
+                                        csQpositB.qrLongitude, csQpositB.qrLatitude, csQpositB.qrAltitude,
+                                        csNPlane, csFPlane, & csFrustB
+
+                                    );
+
+                                    /* Frustum intersection detection */
+                                    if ( cs_omvg_frustum_intersection( & csFrustA, & csFrustB ) == CS_TRUE ) fprintf( csStream, "%lu ", csLoopB );
+
+                                /* Display message */
+                                } else { fprintf( CS_ERR, "Warning : unable to query position/orientation with couple (%lu,%lu)\n", csLoopA, csLoopB ); }
+
+                            }
+
+                        }
+
+                        /* Send eol to output stream */
+                        fprintf( csStream, "\n" );
+
+                    }
 
                 /* Display message */
-                } else { fprintf( CS_ERR, "Error : device sensor index out of calibration range\n" ); }
+                } else { fprintf( CS_ERR, "Error : unable to open output file\n" ); }
+
+                /* Unallocate stack */
+                cs_omvg_frusmtum_list( "", & csStack );
 
             /* Display message */
-            } else { fprintf( CS_ERR, "Error : unknown camera device\n" ); }
-
+            } else { fprintf( CS_ERR, "Error : unable to read OpenMVG list\n" ); }
+            
         }
 
         /* Return to system */
@@ -185,10 +207,70 @@
     }
 
 /*
+    Source - OpenMVG list importation
+*/
+
+    unsigned long cs_omvg_frusmtum_list(
+
+        char      const *  const csList,
+        cs_List_t       **       csStack
+
+    ) {
+
+        /* Reading buffer variables */
+        char csBuffer[1024] = { 0 };
+
+        /* Stack size variables */
+        unsigned long csVirt = 1024;
+        unsigned long csSize = 0;
+
+        /* Timestamp composition variables */
+        lp_Time_t csSec = 0;
+        lp_Time_t csMic = 0;
+
+        /* List handle variables */
+        FILE * csStream = NULL;
+
+        /* Check handle creation */
+        if ( ( csStream = fopen( csList, "r" ) ) != NULL ) {
+
+            /* Allocate stack initial segment */
+            * csStack = ( cs_List_t * ) malloc( csVirt * sizeof( cs_List_t ) );
+
+            /* Read list by line */
+            while ( fgets( csBuffer, sizeof( csBuffer ), csStream ) > 0 ) {
+
+                /* Decompose image name */
+                sscanf( csBuffer, "%" lp_Time_i "_%" lp_Time_i "-%lu", & csSec, & csMic, & ( ( ( * csStack ) + csSize )->lsChannel ) );
+
+                /* Compose timestamp */
+                ( ( * csStack ) + csSize )->lsTime = lp_timestamp_compose( csSec, csMic );
+
+                /* Stack memory management */
+                if ( ( ++ csSize ) >= csVirt ) * csStack = ( cs_List_t * ) realloc( * csStack, ( csVirt += 1024 ) * sizeof( cs_List_t ) );
+
+            }
+
+            /* Close list handle */
+            fclose( csStream );
+
+        } else {
+
+            /* Unallocate stack memory */
+            free( * csStack );
+
+        }
+
+        /* Return stack size */
+        return( csSize );
+
+    }
+
+/*
     Source - Eyesis4Pi frustum composer
 */
 
-    void cs_frustum_eyesis4pi(
+    void cs_omvg_frustum_eyesis4pi(
 
         char         const * const csCamera, 
         int          const         csChannel, 
@@ -319,7 +401,7 @@
     Source - Frustum intersection detection
  */
 
-    int cs_frustum_intersection(
+    int cs_omvg_frustum_intersection(
 
         cs_Frustum_t const * const csFrus_A,
         cs_Frustum_t const * const csFrus_B
