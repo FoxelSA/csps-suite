@@ -36,13 +36,13 @@
  *      Attribution" section of <http://foxel.ch/license>.
  */
 
-    /*! \file   csps-frustum.h
+    /*! \file   csps-omvg-frustum.h
      *  \author Nils Hamel <n.hamel@foxel.ch>
      *   
      *  Software main header
      */
 
-    /*! \mainpage csps-frustum
+    /*! \mainpage csps-omvg-frustum
      *
      *  \section csps-suite
      *  \section _ CSPS library front-end suite
@@ -108,24 +108,24 @@
  */
 
     /* Standard help */
-    # define CS_HELP "Usage summary :\n"            \
-    "  csps-frustum [Arguments] [Parameters] ...\n" \
-    "Short arguments and parameters summary :\n"    \
-    "  -p CSPS-processed structure path\n"          \
-    "  -c Camera MAC address\n"                     \
-    "  -g GPS CSPS-tag\n"                           \
-    "  -m GPS CSPS-module\n"                        \
-    "  -i IMU CSPS-tag\n"                           \
-    "  -k IMU CSPS-module\n"                        \
-    "  -r Channel A sensor index\n"                 \
-    "  -s Channel B sensor index\n"                 \
-    "  -n Frustum near plane\n"                     \
-    "  -f Frustum far plane\n"                      \
-    "  -a Unix timestamp A\n"                       \
-    "  -u Timestamp microseconds A\n"               \
-    "  -b Unix timestamp B\n"                       \
-    "  -v Timestamp microseconds B\n"               \
-    "csps-frustum - csps-suite\n"                   \
+    # define CS_HELP "Usage summary :\n"                 \
+    "  csps-omvg-frustum [Arguments] [Parameters] ...\n" \
+    "Short arguments and parameters summary :\n"         \
+    "  -p CSPS-processed structure path\n"               \
+    "  -c Camera MAC address\n"                          \
+    "  -g GPS CSPS-tag\n"                                \
+    "  -m GPS CSPS-module\n"                             \
+    "  -i IMU CSPS-tag\n"                                \
+    "  -k IMU CSPS-module\n"                             \
+    "  -r Channel A sensor index\n"                      \
+    "  -s Channel B sensor index\n"                      \
+    "  -n Frustum near plane\n"                          \
+    "  -f Frustum far plane\n"                           \
+    "  -a Unix timestamp A\n"                            \
+    "  -u Timestamp microseconds A\n"                    \
+    "  -b Unix timestamp B\n"                            \
+    "  -v Timestamp microseconds B\n"                    \
+    "csps-omvg-frustum - csps-suite\n"                   \
     "Copyright (c) 2013-2014 FOXEL SA\n"
 
     /* Define standard types */

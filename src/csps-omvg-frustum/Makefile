@@ -3,7 +3,7 @@
 #   make - Configuration - Bases
 #
 
-    MAKE_NAME:=csps-frustum
+    MAKE_NAME:=csps-omvg-frustum
     MAKE_CODE:=c
     MAKE_TYPE:=suite
 
