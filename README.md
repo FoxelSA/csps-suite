@@ -6,7 +6,7 @@ The csps-suite is dedicated to CSPS processing using libcsps. It provides a seri
 
 ### Documentation
 
-A detailed documentation can be generated through doxygen. A more general documentation can be consulted on the [wiki](https://github.com/niam-foxel/csps-suite/wiki).
+A detailed documentation can be generated through doxygen. A more general documentation can be consulted on the [wiki](https://github.com/FoxelSA/csps-suite/wiki).
 
 
 ### Copyright
