@@ -74,6 +74,9 @@
         unsigned long csLoopA = 0;
         unsigned long csLoopB = 0;
 
+        /* Timestamp delay variables */
+        unsigned long csDelay = 0;
+
         /* Stack variables */
         cs_List_t * csStack = NULL;
 
@@ -91,6 +94,7 @@
         stdp( stda( argc, argv, "--imu-mod"   , "-k" ), argv,   csIMUm  , CS_STRING );
         stdp( stda( argc, argv, "--plane-near", "-n" ), argv, & csNPlane, CS_DOUBLE );
         stdp( stda( argc, argv, "--plane-far" , "-f" ), argv, & csFPlane, CS_DOUBLE );
+        stdp( stda( argc, argv, "--delay"     , "-d" ), argv, & csDelay , CS_ULONG  );
 
         /* Execution switch */
         if ( stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
@@ -101,7 +105,7 @@
         } else {
 
             /* Import OpenMVG list */
-            if ( ( csSize = cs_omvg_frusmtum_list( csList, & csStack ) ) != 0 ) {
+            if ( ( csSize = cs_omvg_frusmtum_list( csList, & csStack, csDelay ) ) != 0 ) {
 
                 /* Create output stream handle */
                 if ( ( csStream = fopen( csPair, "w" ) ) != NULL ) {
@@ -194,7 +198,7 @@
                 } else { fprintf( CS_ERR, "Error : unable to open output file\n" ); }
 
                 /* Unallocate stack */
-                cs_omvg_frusmtum_list( "", & csStack );
+                cs_omvg_frusmtum_list( "", & csStack, 0 );
 
             /* Display message */
             } else { fprintf( CS_ERR, "Error : unable to read OpenMVG list\n" ); }
@@ -210,7 +214,7 @@
     Source - OpenMVG list importation
 */
 
-    unsigned long cs_omvg_frusmtum_list ( char const * const csList, cs_List_t ** csStack ) {
+    unsigned long cs_omvg_frusmtum_list( char const * const csList, cs_List_t ** csStack, unsigned long csDelay ) {
 
         /* Reading buffer variables */
         char csBuffer[1024] = { 0 };
@@ -239,7 +243,7 @@
                 sscanf( csBuffer, "%" lp_Time_i "_%" lp_Time_i "-%lu", & csSec, & csMic, & ( ( ( * csStack ) + csSize )->lsChannel ) );
 
                 /* Compose timestamp */
-                ( ( * csStack ) + csSize )->lsTime = lp_timestamp_compose( csSec, csMic );
+                ( ( * csStack ) + csSize )->lsTime = lp_timestamp_compose( csSec + csDelay, csMic );
 
                 /* Stack memory management */
                 if ( ( ++ csSize ) >= csVirt ) * csStack = ( cs_List_t * ) realloc( * csStack, ( csVirt += 1024 ) * sizeof( cs_List_t ) );

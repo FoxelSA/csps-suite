@@ -121,6 +121,7 @@
     "  -k IMU CSPS-module\n"                             \
     "  -n Frustum near plane\n"                          \
     "  -f Frustum far plane\n"                           \
+    "  -d Timestamp delay on seconds\n\n"                \
     "csps-omvg-frustum - csps-suite\n"                   \
     "Copyright (c) 2013-2014 FOXEL SA\n"
 
@@ -277,11 +278,12 @@
      *
      *  \param  csList   Path to the OpenMVG list file
      *  \param  csStack  Pointer to the information stack base pointer
+     *  \param  csDelay  Delay to add to timestamp second part
      *
      *  \return Returns the size of the created stack
      */
      
-    unsigned long cs_omvg_frusmtum_list ( char const * const csList, cs_List_t ** csStack );
+    unsigned long cs_omvg_frusmtum_list ( char const * const csList, cs_List_t ** csStack, unsigned long csDelay );
 
     /*! \brief Eyesis4Pi frustum composer
      *
