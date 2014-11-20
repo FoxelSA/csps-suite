@@ -81,8 +81,8 @@
     Header - Include guard
  */
 
-    # ifndef __CS_FRUSTUM__
-    # define __CS_FRUSTUM__
+    # ifndef __CS_OMVG_FRUSTUM__
+    # define __CS_OMVG_FRUSTUM__
 
 /* 
     Header - C/C++ compatibility
@@ -283,7 +283,13 @@
      *  \return Returns the size of the created stack
      */
      
-    unsigned long cs_omvg_frusmtum_list ( char const * const csList, cs_List_t ** csStack, unsigned long csDelay );
+    unsigned long cs_omvg_frusmtum_list ( 
+
+        char const          * const csList, 
+        cs_List_t           **      csStack, 
+        unsigned long const         csDelay 
+
+    );
 
     /*! \brief Eyesis4Pi frustum composer
      *

@@ -125,6 +125,9 @@
                         /* CSPS query - Orientations */
                         csQorienA = lp_query_orientation_by_timestamp( csPath, LP_DEVICE_TYPE_IMU, csIMUd, csIMUm, csStack[csLoopA].lsTime );
 
+                        /* Send self comparison to output stream */
+                        fprintf( csStream, "%lu ", csLoopA );
+
                         /* Second level composition loop */
                         for ( csLoopB = 0; csLoopB < csSize; csLoopB ++ ) {
 
@@ -214,7 +217,13 @@
     Source - OpenMVG list importation
 */
 
-    unsigned long cs_omvg_frusmtum_list( char const * const csList, cs_List_t ** csStack, unsigned long csDelay ) {
+    unsigned long cs_omvg_frusmtum_list ( 
+
+        char const          * const csList, 
+        cs_List_t           **      csStack, 
+        unsigned long const         csDelay 
+
+    ) {
 
         /* Reading buffer variables */
         char csBuffer[1024] = { 0 };
@@ -234,7 +243,7 @@
         if ( ( csStream = fopen( csList, "r" ) ) != NULL ) {
 
             /* Allocate stack initial segment */
-            * csStack = ( cs_List_t * ) malloc( csVirt * sizeof( cs_List_t ) );
+            ( * csStack ) = ( cs_List_t * ) malloc( csVirt * sizeof( cs_List_t ) );
 
             /* Read list by line */
             while ( fgets( csBuffer, sizeof( csBuffer ), csStream ) > 0 ) {
@@ -246,7 +255,7 @@
                 ( ( * csStack ) + csSize )->lsTime = lp_timestamp_compose( csSec + csDelay, csMic );
 
                 /* Stack memory management */
-                if ( ( ++ csSize ) >= csVirt ) * csStack = ( cs_List_t * ) realloc( * csStack, ( csVirt += 1024 ) * sizeof( cs_List_t ) );
+                if ( ( ++ csSize ) >= csVirt ) ( * csStack ) = ( cs_List_t * ) realloc( ( * csStack ), ( csVirt += 1024 ) * sizeof( cs_List_t ) );
 
             }
 
@@ -256,7 +265,7 @@
         } else {
 
             /* Unallocate stack memory */
-            free( * csStack );
+            if ( ( * csStack ) != NULL ) free( * csStack );
 
         }
 
