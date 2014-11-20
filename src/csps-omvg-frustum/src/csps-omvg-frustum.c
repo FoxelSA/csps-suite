@@ -129,66 +129,61 @@
                         fprintf( csStream, "%lu ", csLoopA );
 
                         /* Second level composition loop */
-                        for ( csLoopB = 0; csLoopB < csSize; csLoopB ++ ) {
+                        for ( csLoopB = csLoopA + 1; csLoopB < csSize; csLoopB ++ ) {
 
-                            /* Implicit composition check */
-                            if ( csLoopA != csLoopB ) {
+                            /* CSPS query - Positions */
+                            csQpositB = lp_query_position_by_timestamp( csPath, LP_DEVICE_TYPE_GPS, csGPSd, csGPSm, csStack[csLoopB].lsTime );
 
-                                /* CSPS query - Positions */
-                                csQpositB = lp_query_position_by_timestamp( csPath, LP_DEVICE_TYPE_GPS, csGPSd, csGPSm, csStack[csLoopB].lsTime );
+                            /* CSPS query - Orientations */
+                            csQorienB = lp_query_orientation_by_timestamp( csPath, LP_DEVICE_TYPE_IMU, csIMUd, csIMUm, csStack[csLoopB].lsTime );
 
-                                /* CSPS query - Orientations */
-                                csQorienB = lp_query_orientation_by_timestamp( csPath, LP_DEVICE_TYPE_IMU, csIMUd, csIMUm, csStack[csLoopB].lsTime );
+                            /* Check query status */
+                            if ( 
 
-                                /* Check query status */
-                                if ( 
+                                ( csQpositA.qrStatus == LP_TRUE ) && 
+                                ( csQpositB.qrStatus == LP_TRUE ) && 
+                                ( csQorienA.qrStatus == LP_TRUE ) && 
+                                ( csQorienB.qrStatus == LP_TRUE ) 
 
-                                    ( csQpositA.qrStatus == LP_TRUE ) && 
-                                    ( csQpositB.qrStatus == LP_TRUE ) && 
-                                    ( csQorienA.qrStatus == LP_TRUE ) && 
-                                    ( csQorienB.qrStatus == LP_TRUE ) 
+                            ) {
 
-                                ) {
+                                /* Frustums variables */
+                                cs_Frustum_t csFrustA, csFrustB;
 
-                                    /* Frustums variables */
-                                    cs_Frustum_t csFrustA, csFrustB;
+                                /* Compute corrected positions - Local flat earth model */
+                                csQpositB.qrLongitude = ( csQpositB.qrLongitude - csQpositA.qrLongitude ) * ( ( ( 6367514.5 + csQpositA.qrAltitude ) * LF_PI / 180.0 ) );
+                                csQpositB.qrLatitude  = ( csQpositB.qrLatitude  - csQpositA.qrLatitude  ) * ( ( ( 6367514.5 + csQpositA.qrAltitude ) * LF_PI / 180.0 ) );
+                                csQpositB.qrAltitude  = ( csQpositB.qrAltitude  - csQpositA.qrAltitude  );
 
-                                    /* Compute corrected positions - Local flat earth model */
-                                    csQpositB.qrLongitude = ( csQpositB.qrLongitude - csQpositA.qrLongitude ) * ( ( ( 6367514.5 + csQpositA.qrAltitude ) * LF_PI / 180.0 ) );
-                                    csQpositB.qrLatitude  = ( csQpositB.qrLatitude  - csQpositA.qrLatitude  ) * ( ( ( 6367514.5 + csQpositA.qrAltitude ) * LF_PI / 180.0 ) );
-                                    csQpositB.qrAltitude  = ( csQpositB.qrAltitude  - csQpositA.qrAltitude  );
+                                /* Compute frustum of first camera */
+                                cs_omvg_frustum_eyesis4pi( 
 
-                                    /* Compute frustum of first camera */
-                                    cs_omvg_frustum_eyesis4pi( 
+                                    csCamera, csStack[csLoopA].lsChannel,
+                                    csQorienA.qrfxx, csQorienA.qrfxy, csQorienA.qrfxz,
+                                    csQorienA.qrfyx, csQorienA.qrfyy, csQorienA.qrfyz,
+                                    csQorienA.qrfzx, csQorienA.qrfzy, csQorienA.qrfzz,
+                                    0.0, 0.0, 0.0,
+                                    csNPlane, csFPlane, & csFrustA
 
-                                        csCamera, csStack[csLoopA].lsChannel,
-                                        csQorienA.qrfxx, csQorienA.qrfxy, csQorienA.qrfxz,
-                                        csQorienA.qrfyx, csQorienA.qrfyy, csQorienA.qrfyz,
-                                        csQorienA.qrfzx, csQorienA.qrfzy, csQorienA.qrfzz,
-                                        0.0, 0.0, 0.0,
-                                        csNPlane, csFPlane, & csFrustA
+                                );
 
-                                    );
+                                /* Compute frustum of second camera */
+                                cs_omvg_frustum_eyesis4pi( 
 
-                                    /* Compute frustum of second camera */
-                                    cs_omvg_frustum_eyesis4pi( 
+                                    csCamera, csStack[csLoopB].lsChannel,
+                                    csQorienB.qrfxx, csQorienB.qrfxy, csQorienB.qrfxz,
+                                    csQorienB.qrfyx, csQorienB.qrfyy, csQorienB.qrfyz,
+                                    csQorienB.qrfzx, csQorienB.qrfzy, csQorienB.qrfzz,
+                                    csQpositB.qrLongitude, csQpositB.qrLatitude, csQpositB.qrAltitude,
+                                    csNPlane, csFPlane, & csFrustB
 
-                                        csCamera, csStack[csLoopB].lsChannel,
-                                        csQorienB.qrfxx, csQorienB.qrfxy, csQorienB.qrfxz,
-                                        csQorienB.qrfyx, csQorienB.qrfyy, csQorienB.qrfyz,
-                                        csQorienB.qrfzx, csQorienB.qrfzy, csQorienB.qrfzz,
-                                        csQpositB.qrLongitude, csQpositB.qrLatitude, csQpositB.qrAltitude,
-                                        csNPlane, csFPlane, & csFrustB
+                                );
 
-                                    );
+                                /* Frustum intersection detection */
+                                if ( cs_omvg_frustum_intersection( & csFrustA, & csFrustB ) == CS_TRUE ) fprintf( csStream, "%lu ", csLoopB );
 
-                                    /* Frustum intersection detection */
-                                    if ( cs_omvg_frustum_intersection( & csFrustA, & csFrustB ) == CS_TRUE ) fprintf( csStream, "%lu ", csLoopB );
-
-                                /* Display message */
-                                } else { fprintf( CS_ERR, "Warning : unable to query position/orientation with couple (%lu,%lu)\n", csLoopA, csLoopB ); }
-
-                            }
+                            /* Display message */
+                            } else { fprintf( CS_ERR, "Warning : unable to query position/orientation with couple (%lu,%lu)\n", csLoopA, csLoopB ); }
 
                         }
 
