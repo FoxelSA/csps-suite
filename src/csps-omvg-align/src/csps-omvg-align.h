@@ -162,6 +162,8 @@
 
     int main ( int argc, char ** argv );
 
+    void cs_omvg_align_lt( int const n, double const * const c1, double const * const c2, double R[3][3], double T[3] );
+
     /*! \brief Arguments common handler
      *  
      *  This function searches in the argv string array the position of the
@@ -191,6 +193,8 @@
      */
 
     void stdp ( int argi, char ** argv, void * const param, int const type );
+
+    extern void dgesv_( char* jobu, char * jobvt, int * m, int * n, double * a, int * lda, double * s, double * u, int * ldu, double * vt, int * ldvt,double * work, int * lwork, int * info );
 
 /* 
     Header - C/C++ compatibility

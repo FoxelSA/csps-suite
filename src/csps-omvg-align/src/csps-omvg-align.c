@@ -81,6 +81,117 @@
     }
 
 /*
+    Source - Linear transformation estimation
+*/
+
+    void cs_omvg_align_lt( int const n, double const * const c1, double const * const c2, double R[3][3], double T[3] ) {
+
+        /* Parsing variables */
+        unsigned long csParse = 0;
+
+        /* Coordinates mean variables */
+        double csMean[6] = { 0.0 };
+
+        /* Matrix variables */
+        double csH[9] = { 0.0 };
+        double csU[9] = { 0.0 };
+        double csS[3] = { 0.0 };
+        double csV[9] = { 0.0 };
+
+        int ldh = 3, mh = 3, nh = 3;
+        int info = 0;
+        int lwork = -1;
+        double wkopt;
+        double * work;
+
+        /* Coordinates accumulation */
+        for ( csParse = 0; csParse < n; csParse ++ ) {
+
+            csMean[0] += * ( c1 + csParse * 3     );
+            csMean[1] += * ( c1 + csParse * 3 + 1 );
+            csMean[2] += * ( c1 + csParse * 3 + 2 );
+            csMean[3] += * ( c2 + csParse * 3     );
+            csMean[4] += * ( c2 + csParse * 3 + 1 );
+            csMean[5] += * ( c2 + csParse * 3 + 2 );
+
+        }
+
+        /* Compute mean of coordinates */
+        csMean[0] /= ( double ) n;
+        csMean[1] /= ( double ) n;
+        csMean[2] /= ( double ) n;
+        csMean[3] /= ( double ) n;
+        csMean[4] /= ( double ) n;
+        csMean[5] /= ( double ) n;
+
+        /* Compute accumulated matrix */
+        for ( csParse = 0; csParse < n; csParse ++ ) {
+
+            csH[0] += ( * ( c1 + csParse * 3     ) - csMean[0] ) * ( * ( c2 + csParse * 3     ) - csMean[3] );
+            csH[1] += ( * ( c1 + csParse * 3     ) - csMean[0] ) * ( * ( c2 + csParse * 3 + 1 ) - csMean[4] );
+            csH[2] += ( * ( c1 + csParse * 3     ) - csMean[0] ) * ( * ( c2 + csParse * 3 + 2 ) - csMean[5] );
+            csH[3] += ( * ( c1 + csParse * 3 + 1 ) - csMean[1] ) * ( * ( c2 + csParse * 3     ) - csMean[3] );
+            csH[4] += ( * ( c1 + csParse * 3 + 1 ) - csMean[1] ) * ( * ( c2 + csParse * 3 + 1 ) - csMean[4] );
+            csH[5] += ( * ( c1 + csParse * 3 + 1 ) - csMean[1] ) * ( * ( c2 + csParse * 3 + 2 ) - csMean[5] );
+            csH[6] += ( * ( c1 + csParse * 3 + 2 ) - csMean[2] ) * ( * ( c2 + csParse * 3     ) - csMean[3] );
+            csH[7] += ( * ( c1 + csParse * 3 + 2 ) - csMean[2] ) * ( * ( c2 + csParse * 3 + 1 ) - csMean[4] );
+            csH[8] += ( * ( c1 + csParse * 3 + 2 ) - csMean[2] ) * ( * ( c2 + csParse * 3 + 2 ) - csMean[5] );
+
+        }
+
+        /* Singular values decompostion - computation buffer */
+        dgesvd_( "All", "All", & mh, & nh, csH, & ldh, csS, csU, & ldh, csV, & ldh, & wkopt, & lwork, & info );
+
+        /* Allocate computation buffer */
+        work = ( double * ) malloc( lwork = ( ( int ) wkopt ) * sizeof( double ) );
+
+        /* Singular values decompostion */
+        dgesvd_( "All", "All", & mh, & nh, csH, & ldh, csS, csU, & ldh, csV, & ldh, work, & lwork, & info );
+
+        /* Unallocate computation buffer */
+        free( ( void * ) work );
+
+        /* CompcsUte rotation matrix */
+        R[0][0] = * ( csV     ) * * ( csU     ) + * ( csV + 1 ) * * ( csU + 3 ) + * ( csV + 2 ) * * ( csU + 6 );
+        R[0][1] = * ( csV + 3 ) * * ( csU     ) + * ( csV + 4 ) * * ( csU + 3 ) + * ( csV + 5 ) * * ( csU + 6 );
+        R[0][2] = * ( csV + 6 ) * * ( csU     ) + * ( csV + 7 ) * * ( csU + 3 ) + * ( csV + 8 ) * * ( csU + 6 );
+        R[1][0] = * ( csV     ) * * ( csU + 1 ) + * ( csV + 1 ) * * ( csU + 4 ) + * ( csV + 2 ) * * ( csU + 7 );
+        R[1][1] = * ( csV + 3 ) * * ( csU + 1 ) + * ( csV + 4 ) * * ( csU + 4 ) + * ( csV + 5 ) * * ( csU + 7 );
+        R[1][2] = * ( csV + 6 ) * * ( csU + 1 ) + * ( csV + 7 ) * * ( csU + 4 ) + * ( csV + 8 ) * * ( csU + 7 );
+        R[2][0] = * ( csV     ) * * ( csU + 2 ) + * ( csV + 1 ) * * ( csU + 5 ) + * ( csV + 2 ) * * ( csU + 8 );
+        R[2][1] = * ( csV + 3 ) * * ( csU + 2 ) + * ( csV + 4 ) * * ( csU + 5 ) + * ( csV + 5 ) * * ( csU + 8 );
+        R[2][2] = * ( csV + 6 ) * * ( csU + 2 ) + * ( csV + 7 ) * * ( csU + 5 ) + * ( csV + 8 ) * * ( csU + 8 );
+
+        /* Verification of rotation matrix determinant */
+        if ( (
+
+            R[0][0] * ( R[1][1] * R[2][2] - R[2][1] * R[1][2] ) -
+            R[0][1] * ( R[1][0] * R[2][2] - R[2][0] * R[1][2] ) +
+            R[0][2] * ( R[1][0] * R[2][1] - R[2][0] * R[1][1] )
+
+        ) < 0.0 ) {
+
+            /* RecompcsUte rotation matrix */
+            R[0][0] = * ( csV     ) * * ( csU     ) + * ( csV + 1 ) * * ( csU + 3 ) - * ( csV + 2 ) * * ( csU + 6 );
+            R[0][1] = * ( csV + 3 ) * * ( csU     ) + * ( csV + 4 ) * * ( csU + 3 ) - * ( csV + 5 ) * * ( csU + 6 );
+            R[0][2] = * ( csV + 6 ) * * ( csU     ) + * ( csV + 7 ) * * ( csU + 3 ) - * ( csV + 8 ) * * ( csU + 6 );
+            R[1][0] = * ( csV     ) * * ( csU + 1 ) + * ( csV + 1 ) * * ( csU + 4 ) - * ( csV + 2 ) * * ( csU + 7 );
+            R[1][1] = * ( csV + 3 ) * * ( csU + 1 ) + * ( csV + 4 ) * * ( csU + 4 ) - * ( csV + 5 ) * * ( csU + 7 );
+            R[1][2] = * ( csV + 6 ) * * ( csU + 1 ) + * ( csV + 7 ) * * ( csU + 4 ) - * ( csV + 8 ) * * ( csU + 7 );
+            R[2][0] = * ( csV     ) * * ( csU + 2 ) + * ( csV + 1 ) * * ( csU + 5 ) - * ( csV + 2 ) * * ( csU + 8 );
+            R[2][1] = * ( csV + 3 ) * * ( csU + 2 ) + * ( csV + 4 ) * * ( csU + 5 ) - * ( csV + 5 ) * * ( csU + 8 );
+            R[2][2] = * ( csV + 6 ) * * ( csU + 2 ) + * ( csV + 7 ) * * ( csU + 5 ) - * ( csV + 8 ) * * ( csU + 8 );
+
+        }
+
+        /* Compute translation vector */
+        T[0] = - R[0][0] * csMean[0] - R[0][1] * csMean[1] - R[0][2] * csMean[2] + csMean[3];
+        T[1] = - R[1][0] * csMean[0] - R[1][1] * csMean[1] - R[1][2] * csMean[2] + csMean[4];
+        T[2] = - R[2][0] * csMean[0] - R[2][1] * csMean[1] - R[2][2] * csMean[2] + csMean[5];
+
+    }                               
+
+/*
     Source - Arguments common handler
  */
 
