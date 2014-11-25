@@ -162,6 +162,34 @@
 
     int main ( int argc, char ** argv );
 
+    /*! \brief Linear transformation estimation
+     * 
+     *  This function is designed to estimates the rotation and translation,
+     *  that defines the linear tranform, needed to align two similar data
+     *  sets. It is typically used to synchronize visual odometry coming from
+     *  OpenMVG process and the GPS track extracted from the camera device logs.
+     *
+     *  It then waits two arrays storing, through one dimensional arrays, the
+     *  three components of the camera sensor positions coming from visual
+     *  odometry and the three WGS84 camera sensor positions coming from the
+     *  GPS device. The 3-coordinates are store successively as follows : 
+     * 
+     *      x1, y1, z1, x2, y2, z2, ... xn, yn, zn
+     * 
+     *  Moreover, for good estimation of the rotation and translation between
+     *  the two sets of data, the information stored in each array have to be
+     *  as similar as possible.
+     *
+     *  \param csN      Number of coordinates stored in each array; multiplying
+     *                  this value by three gives the size, in type units, of
+     *                  each array
+     *  \param csrData  Pointer to array that store the reference curve (GPS)
+     *  \param csaData  Pointer to array that store the curve to align on the
+     *                  reference curve
+     *  \param csR      Returned estimation of rotation matrix
+     *  \param csT      Returned estimation of translation vector
+     */
+
     void cs_omvg_align_lt( int const csN, double const * const csrData, double const * const csaData, double csR[3][3], double csT[3] );
 
     /*! \brief Arguments common handler
@@ -194,7 +222,7 @@
 
     void stdp ( int argi, char ** argv, void * const param, int const type );
 
-    extern void dgesvd_( char* jobu, char * jobvt, int * m, int * n, double * a, int * lda, double * s, double * u, int * ldu, double * vt, int * ldvt,double * work, int * lwork, int * info );
+    extern void dgesvd_( char * jobu, char * jobvt, int * m, int * n, double * a, int * lda, double * s, double * u, int * ldu, double * vt, int * ldvt,double * work, int * lwork, int * info );
 
 /* 
     Header - C/C++ compatibility
