@@ -162,7 +162,7 @@
 
     int main ( int argc, char ** argv );
 
-    void cs_omvg_align_lt( int const n, double const * const c1, double const * const c2, double R[3][3], double T[3] );
+    void cs_omvg_align_lt( int const csN, double const * const csrData, double const * const csaData, double csR[3][3], double csT[3] );
 
     /*! \brief Arguments common handler
      *  
@@ -194,7 +194,7 @@
 
     void stdp ( int argi, char ** argv, void * const param, int const type );
 
-    extern void dgesv_( char* jobu, char * jobvt, int * m, int * n, double * a, int * lda, double * s, double * u, int * ldu, double * vt, int * ldvt,double * work, int * lwork, int * info );
+    extern void dgesvd_( char* jobu, char * jobvt, int * m, int * n, double * a, int * lda, double * s, double * u, int * ldu, double * vt, int * ldvt,double * work, int * lwork, int * info );
 
 /* 
     Header - C/C++ compatibility
