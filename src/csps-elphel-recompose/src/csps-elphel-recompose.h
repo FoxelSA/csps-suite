@@ -141,6 +141,9 @@
     # define CS_FALSE           LP_FALSE
     # define CS_TRUE            LP_TRUE
 
+    /* Define special timestamps value */
+    # define CS_INFT            0xFFFFFFFFFFFFFFFF
+
     /* Define directory entity type */
     # define CS_FILE            0
     # define CS_DIRECTORY       1
@@ -226,7 +229,8 @@
      *  \param csDestination    Destination file path
      */
 
-    void cs_elphel_recompose_append ( char const * const csSource, char const * const csDestination );
+    //void cs_elphel_recompose_append ( char const * const csSource, char const * const csDestination );
+    void cs_elphel_recompose_append ( char const * const csSource, char const * const csDestination, lp_Time_t csOverlapp );
 
     /*! \brief Timestamp extremums extractors
      *
