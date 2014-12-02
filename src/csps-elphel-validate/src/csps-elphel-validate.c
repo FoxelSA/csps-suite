@@ -55,9 +55,6 @@
         char csEnt[256] = { 0 };
         char csExp[256] = { 0 };
 
-        /* Maximum interval variables */
-        double csInterval = 5.0;
-
         /* Minimum size variables */
         long csMinimum = 2524160;
 
@@ -68,7 +65,6 @@
         stdp( stda( argc, argv, "--recomposed"  , "-r" ), argv,   csRec     , CS_STRING );
         stdp( stda( argc, argv, "--validated"   , "-v" ), argv,   csVal     , CS_STRING );
         stdp( stda( argc, argv, "--minimum-size", "-m" ), argv, & csMinimum , CS_LONG   );
-        stdp( stda( argc, argv, "--interval"    , "-i" ), argv, & csInterval, CS_DOUBLE );
 
         /* Execution switch */
         if ( stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
@@ -96,8 +92,8 @@
                             /* Display information */
                             fprintf( CS_OUT, "Validating   : %s\n  Exportation    : %s\n", basename( csEnt ), basename( csExp ) );
 
-                            /* GPS-event decimation process */
-                            fprintf( CS_OUT, "  GPS decimation : %u\n", cs_elphel_decimate( csEnt, csExp, csInterval ) );
+                            /* Copy validated log-file */
+                            cs_elphel_validate_copy( csEnt, csExp );
 
                         } else {
 
@@ -120,23 +116,13 @@
     }
 
 /*
-    Source - Logs-files GPS-events decimation
+    Source - File copy
 */
 
-    unsigned int cs_elphel_decimate( char const * const csIFile, char const * const csOFile, double csInterval ) {
+    void cs_elphel_validate_copy( char const * const csIFile, char const * const csOFile ) {
 
         /* Records buffer variables */
         unsigned char csRec[CS_RECLEN] = { 0 };
-
-        /* Exportation flag variables */
-        unsigned int csFlag = 0;
-
-        /* Decimation counter variables */
-        unsigned int csCount = 0;
-
-        /* Timestamp variables */
-        lp_Time_t csIMUTime = 0;
-        lp_Time_t csGPSTime = 0;
 
         /* File handle variables */
         FILE * csIStream = fopen( csIFile, "rb" );
@@ -145,40 +131,8 @@
         /* Check stream creation */
         if ( ( csIStream != NULL ) && ( csOStream != NULL ) ) {
 
-            /* Parsing input stream */
-            while ( fread( csRec, 1, CS_RECLEN, csIStream ) == CS_RECLEN ) {
-
-                /* Reset exportation flag */
-                csFlag = CS_TRUE;
-
-                /* Events type selector */
-                if ( ( csRec[3] & lp_Byte_s( 0x0F ) ) == CS_IMU ) {
-
-                    /* Extract imu-event timestamp */
-                    csIMUTime = lp_timestamp( ( lp_Void_t * ) csRec );
-
-                } else if ( ( csRec[3] & lp_Byte_s( 0x0F ) ) == CS_GPS ) {
-
-                    /* Extract gps-event timestamp */
-                    csGPSTime = lp_timestamp( ( lp_Void_t * ) csRec );
-
-                    /* Verify gps-event decimation condition */
-                    if ( ( csIMUTime == 0 ) || ( lp_timestamp_float( lp_timestamp_diff( csGPSTime, csIMUTime ) ) > csInterval ) ) {
-
-                        /* Update counter */
-                        csCount ++; 
-
-                        /* Cancel record exportation */
-                        csFlag = CS_FALSE;
-
-                    }
-
-                }
-
-                /* Write recored in output stream */
-                if ( csFlag == CS_TRUE ) fwrite( csRec, 1, CS_RECLEN, csOStream );
-
-            }
+            /* Records copy loop */
+            while ( fread( csRec, 1, CS_RECLEN, csIStream ) == CS_RECLEN ) fwrite( csRec, 1, CS_RECLEN, csOStream );
 
             /* Close streams */
             fclose( csIStream );
@@ -186,9 +140,6 @@
 
         /* Display message */
         } else { fprintf( CS_ERR, "Error : unable to access %s or/and %s\n", basename( ( char * ) csIFile ), basename( ( char * ) csOFile ) ); }
-
-        /* Returns decimation count */
-        return( csCount );
 
     }
 

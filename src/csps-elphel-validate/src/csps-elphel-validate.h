@@ -185,20 +185,15 @@
 
     int main ( int argc, char ** argv );
 
-    /*! \brief Logs-files GPS-events decimation
+    /*! \brief File copy
      *
-     *  This function, as soon as the logs-file passed the validation check,
-     *  parse the IMU/GPS-events in order to remove GPS-events that are logged
-     *  with a timestamp too fat away of their nearest IMU-event timestamps.
+     *  This function simply copies the source file in the output destination.
      *
-     *  \param  csIFile     Input logs-file to process
-     *  \param  csOFile     Output processed logs-file
-     *  \param  csInterval  Maximum interval between IMU/GPS-event timestamps
-     *
-     *  \return Returns the GPS-events decimation count
+     *  \param csIFile Source file path
+     *  \param csOFile destination file path
      */
 
-    unsigned int cs_elphel_decimate ( char const * const csIFile, char const * const csOFile, double csInterval );
+    void cs_elphel_validate_copy ( char const * const csIFile, char const * const csOFile );
 
     /*! \brief Directory entity enumeration
      *  
