@@ -54,6 +54,9 @@
         char csDec[256] = { 0 };
         char csEnt[256] = { 0 };
 
+        /* Decomposition index variables */
+        long csIndex = 1;
+
         /* Decompostion condition variables */
         double csInterval = 1.0;
 
@@ -69,9 +72,6 @@
             printf( CS_HELP );
 
         } else {
-
-            /* Decomposition index variables */
-            int csIndex = 1;
 
             /* Directory entity enumeration */
             while ( cs_elphel_decompose_enum( csRaw, csEnt ) != CS_FALSE ) {
@@ -108,7 +108,7 @@
         unsigned char csRec[CS_RECLEN] = { 0 };
 
         /* Decomposition segment path variables */
-        char csSpl[256] = { 0 };
+        char csSeg[256] = { 0 };
 
         /* Parsing flag variables */
         int csFlag = CS_FALSE;
@@ -125,25 +125,25 @@
         FILE * csOStream = NULL;
 
         /* Compose initial decomposition segment path */
-        sprintf( csSpl, "%s/log-decomposition.log-%05i", csDirectory, csIndex ++ );
+        sprintf( csSeg, "%s/log-decomposition.log-%05i", csDirectory, csIndex ++ );
 
         /* Create input stream */
         csIStream = fopen( csLog, "rb" );
 
         /* Create output stream */
-        csOStream = fopen( csSpl, "wb" );
+        csOStream = fopen( csSeg, "wb" );
 
         /* Check stream creation */
         if ( ( csIStream != NULL ) && ( csOStream != NULL ) ) { 
 
             /* Display decomposition information */
-            fprintf( CS_OUT, "Decomposing : %s\n  %s\n", basename( ( char * ) csLog ), basename( csSpl ) );
+            fprintf( CS_OUT, "Decomposing : %s\n  %s\n", basename( ( char * ) csLog ), basename( csSeg ) );
 
             /* Parsing input stream */
             while ( fread( csRec, 1, CS_RECLEN, csIStream ) == CS_RECLEN ) {
 
                 /* Detect IMU events */
-                if ( ( csRec[3] & lp_Byte_s( 0x0F ) ) == CS_IMU ) {
+                if ( CS_EVENT( csRec, CS_IMU ) ) {
 
                     /* Read record timestamp */
                     csCTime = lp_timestamp( ( lp_Void_t * ) csRec );
@@ -160,16 +160,16 @@
                         if ( lp_timestamp_float( lp_timestamp_diff( csCTime, csPTime ) ) > csInterval ) {
 
                             /* Update decomposition segment path */
-                            sprintf( csSpl, "%s/log-decomposition.log-%05i", csDirectory, csIndex ++ );
+                            sprintf( csSeg, "%s/log-decomposition.log-%05i", csDirectory, csIndex ++ );
 
                             /* Close output stream */
                             fclose( csOStream );
 
                             /* Open output stream */
-                            csOStream = fopen( csSpl, "wb" );
+                            csOStream = fopen( csSeg, "wb" );
 
                             /* Display decomposition information */
-                            fprintf( CS_OUT, "  %s (%s)\n", strrchr( csSpl, '/' ) + 1, csPure == CS_TRUE ? "Pure  " : "Impure" );
+                            fprintf( CS_OUT, "  %s (%s)\n", strrchr( csSeg, '/' ) + 1, csPure == CS_TRUE ? "INI" : "IEI" );
 
                         }
 
@@ -198,7 +198,7 @@
             fclose( csIStream );
 
         /* Display message */
-        } else { fprintf( CS_ERR, "Error : unable to access %s or/and %s\n", basename( ( char * ) csLog ), basename( csSpl ) ); }
+        } else { fprintf( CS_ERR, "Error : unable to access %s or/and %s\n", basename( ( char * ) csLog ), basename( csSeg ) ); }
 
         /* Return decomposition index */
         return( csIndex );

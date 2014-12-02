@@ -160,6 +160,9 @@
     Header - Preprocessor macros
  */
 
+    /* Event recognition macro */
+    # define CS_EVENT(r,e)      ( ( r[3] & lp_Byte_s( 0x0F ) ) == e )
+
 /* 
     Header - Typedefs
  */
