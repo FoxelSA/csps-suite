@@ -59,8 +59,8 @@
         double csInterval = 1.0;
 
         /* Search in parameters */
-        stdp( stda( argc, argv,  "--decomposed", "-d" ), argv,   csDeco, CS_STRING );
-        stdp( stda( argc, argv,  "--recomposed", "-r" ), argv,   csReco, CS_STRING );
+        stdp( stda( argc, argv,  "--decomposed", "-d" ), argv,   csDeco     , CS_STRING );
+        stdp( stda( argc, argv,  "--recomposed", "-r" ), argv,   csReco     , CS_STRING );
         stdp( stda( argc, argv,  "--interval"  , "-g" ), argv, & csInterval , CS_DOUBLE );
 
         /* Execution switch */
@@ -86,10 +86,8 @@
             /* Stack memory variables */
             unsigned int csSelect = 0;
 
+            /* File indexation variables */
             unsigned int csIncrem = 0;
-
-            /* Decimation overlapp timestamp */
-            lp_Time_t    csOverlp = lp_Time_s( CS_INFT );
 
             /* Decimation reference timestamp */
             lp_Time_t    csEpoch  = lp_Time_s( CS_INFT );
@@ -172,23 +170,6 @@
                                 /* Memorize stack reference */
                                 csSelect = csParse;
 
-                                /* Setting overlapp condition */
-                                csOverlp = lp_Time_s( 0 );
-
-                                /* Memorize reference timestamp */
-                                csEpoch = csStack[csSelect].dsLast;
-
-                            } else
-
-                            /* Overlapp appending condition trigger */
-                            if ( ( lp_timestamp_ge( csEpoch, csStack[csParse].dsFirst ) == CS_TRUE ) && ( lp_timestamp_ge( csEpoch, csStack[csParse].dsLast ) == CS_FALSE ) ) {
-
-                                /* Memorize stack reference */
-                                csSelect = csParse;
-
-                                /* Setting overlapp condition */
-                                csOverlp = csEpoch;
-
                                 /* Memorize reference timestamp */
                                 csEpoch = csStack[csSelect].dsLast;
 
@@ -213,18 +194,15 @@
                     csStack[csSelect].dsFlag = CS_TRUE;
 
                     /* Display appending information */
-                    fprintf( CS_OUT, "  %s %" lp_Time_p "\n", strrchr( csStack[csSelect].dsName, '/' ) + 1, csOverlp );
+                    fprintf( CS_OUT, "  %s\n", strrchr( csStack[csSelect].dsName, '/' ) + 1 );
 
                     /* Append logs-file content */
-                    cs_elphel_recompose_append( csStack[csSelect].dsName, csExpo, csOverlp );
+                    cs_elphel_recompose_append( csStack[csSelect].dsName, csExpo );
 
                 } else {
 
                     /* Reset epoch value */
                     csEpoch = lp_Time_s( CS_INFT );
-
-                    /* Reset overlapp condition */
-                    csOverlp = lp_Time_s( 0 );
 
                 }
                 
@@ -241,16 +219,10 @@
     Source - File content appender
 */
 
-    void cs_elphel_recompose_append( char const * const csSource, char const * const csDestination, lp_Time_t csOverlapp ) {
+    void cs_elphel_recompose_append( char const * const csSource, char const * const csDestination ) {
 
         /* Appending buffer variables */
-        char csBuffer[1024] = { 0 };
-
-        /* Appending length variables */
-        size_t csRead = 0;
-
-        /* Overlapp condition flag variables */
-        int csFlag = CS_FALSE;
+        char csBuffer[CS_RECLEN] = { 0 };
 
         /* Create input stream */
         FILE * csIStream = fopen( csSource, "rb" );
@@ -262,26 +234,7 @@
         if ( ( csIStream != NULL ) && ( csOStream != NULL ) ) {
 
             /* Appending loop */
-            while ( ( csRead = fread( csBuffer, 1, 1024, csIStream ) ) > 0 ) {
-
-                /* Check overlapp flag */
-                if ( csFlag == CS_FALSE ) {
-
-                    /* Filter IMU events */
-                    if ( ( csBuffer[3] & ( ( char ) 0x0F ) ) == CS_IMU ) {
-
-                        /* Check overlapp condition */
-                        if ( lp_timestamp_ge( csOverlapp, lp_timestamp( ( lp_Void_t * ) csBuffer ) ) == CS_FALSE ) csFlag = CS_TRUE;
-                        
-
-                    }
-
-                }
-
-                /* Append record on overlapp flag */
-                if ( csFlag == CS_TRUE ) fwrite( csBuffer, 1, csRead, csOStream );
-
-            }
+            while ( fread( csBuffer, 1, CS_RECLEN, csIStream ) == CS_RECLEN ) fwrite( csBuffer, 1, CS_RECLEN, csOStream );
 
             /* Delete streams */
             fclose( csIStream );
@@ -311,11 +264,11 @@
         /* Check stream creation */
         if ( csStream != NULL ) {
 
-            /* Parse stream */
+            /* Parse input stream */
             while ( fread( csRec, 1, CS_RECLEN, csStream ) == CS_RECLEN ) {
             
-                /* Event type detection - IMU */
-                if ( ( csRec[3] & lp_Byte_s( 0x0F ) ) == CS_IMU ) {
+                /* Event type detection */
+                if ( CS_EVENT( csRec, CS_IMU ) ) {
 
                     /* Last timestamp extraction */
                     * csLast = lp_timestamp( ( lp_Void_t * ) csRec );

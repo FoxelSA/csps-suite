@@ -108,14 +108,13 @@
  */
 
     /* Standard help */
-    # define CS_HELP "Usage summary :\n"                           \
-    "  csps-elphel-validate [Arguments] [Parameters] ...\n"        \
-    "Short arguments and parameters summary :\n"                   \
-    "  -r Directory containing recomposed logs-files\n"            \
-    "  -v Directory where validated logs-files are exported\n"     \
-    "  -m Minimum size, in bytes, for logs-file validation\n"      \
-    "  -i Interval, in seconds, for maximum IMU/GPS-event delay\n" \
-    "csps-elphel-validate - csps-suite\n"                          \
+    # define CS_HELP "Usage summary :\n"                       \
+    "  csps-elphel-validate [Arguments] [Parameters] ...\n"    \
+    "Short arguments and parameters summary :\n"               \
+    "  -r Directory containing recomposed logs-files\n"        \
+    "  -v Directory where validated logs-files are exported\n" \
+    "  -m Minimum size, in bytes, for logs-file validation\n"  \
+    "csps-elphel-validate - csps-suite\n"                      \
     "Copyright (c) 2013-2014 FOXEL SA\n"
 
     /* Define standard types */

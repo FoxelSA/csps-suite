@@ -166,6 +166,9 @@
     Header - Preprocessor macros
  */
 
+    /* Event recognition macro */
+    # define CS_EVENT(r,e)      ( ( r[3] & lp_Byte_s( 0x0F ) ) == e )
+
 /* 
     Header - Typedefs
  */
@@ -229,8 +232,7 @@
      *  \param csDestination    Destination file path
      */
 
-    //void cs_elphel_recompose_append ( char const * const csSource, char const * const csDestination );
-    void cs_elphel_recompose_append ( char const * const csSource, char const * const csDestination, lp_Time_t csOverlapp );
+    void cs_elphel_recompose_append ( char const * const csSource, char const * const csDestination );
 
     /*! \brief Timestamp extremums extractors
      *
