@@ -178,21 +178,21 @@
                                 /* Memorize reference timestamp */
                                 csEpoch = csStack[csSelect].dsLast;
 
-                            } //else
+                            } else
 
                             /* Overlapp appending condition trigger */
-                            //if ( lp_timestamp_ge( csEpoch, csStack[csParse].dsFirst ) == CS_TRUE ) {
+                            if ( ( lp_timestamp_ge( csEpoch, csStack[csParse].dsFirst ) == CS_TRUE ) && ( lp_timestamp_ge( csEpoch, csStack[csParse].dsLast ) == CS_FALSE ) ) {
 
                                 /* Memorize stack reference */
-                                //csSelect = csParse;
+                                csSelect = csParse;
 
                                 /* Setting overlapp condition */
-                                //csOverlp = csEpoch;
+                                csOverlp = csEpoch;
 
                                 /* Memorize reference timestamp */
-                                //csEpoch = csStack[csSelect].dsLast;
+                                csEpoch = csStack[csSelect].dsLast;
 
-                            //}
+                            }
 
                         }
 
@@ -213,7 +213,7 @@
                     csStack[csSelect].dsFlag = CS_TRUE;
 
                     /* Display appending information */
-                    fprintf( CS_OUT, "  %s\n", strrchr( csStack[csSelect].dsName, '/' ) + 1 );
+                    fprintf( CS_OUT, "  %s %" lp_Time_p "\n", strrchr( csStack[csSelect].dsName, '/' ) + 1, csOverlp );
 
                     /* Append logs-file content */
                     cs_elphel_recompose_append( csStack[csSelect].dsName, csExpo, csOverlp );
@@ -222,6 +222,9 @@
 
                     /* Reset epoch value */
                     csEpoch = lp_Time_s( CS_INFT );
+
+                    /* Reset overlapp condition */
+                    csOverlp = lp_Time_s( 0 );
 
                 }
                 
