@@ -81,8 +81,9 @@
                 /* Parse stream */
                 while ( ( fread( csRec, 1, CS_RECLEN, csStream ) == CS_RECLEN ) && ( csTime == 0 ) ) {            
 
-                    /* Event type detection - IMU */
-                    if ( ( csRec[3] & lp_Byte_s( 0x0F ) ) == CS_MAS ) {
+                    /* Event detection */
+                    //if ( ( csRec[3] & lp_Byte_s( 0x0F ) ) == CS_MAS ) {
+                    if ( CS_EVENT( csRec, CS_MAS ) ) {
 
                         /* Retrieve record master timestamp */
                         csTime = lp_timestamp( ( lp_Void_t * ) ( csRec + 8 ) );
@@ -122,50 +123,54 @@
                     /* Retrieve record timestamp */
                     csTime = lp_timestamp( ( lp_Void_t * ) csRec );
 
-                    /* Event type detection - IMU */
-                    if ( ( csRec[3] & lp_Byte_s( 0x0F ) ) == CS_IMU ) {
+                    /* Event detection */
+                    if ( CS_EVENT( csRec, CS_IMU ) ) {
 
-                        /* Check display flag */
+                        /* Display flag verification */
                         if ( strstr( csFlag, "i" ) != CS_NULL ) {
 
                             /* Display event timestamp */
                             fprintf( CS_OUT, "IMU : %010" lp_Time_p ".%06" lp_Time_p, lp_timestamp_sec( csTime ), lp_timestamp_usec( csTime ) );
 
-                            /* Display line end */
+                            /* Display record content */
+                            if ( strstr( csFlag, "b" ) != CS_NULL ) csps_elphel_cat_record( csRec );
+
+                            /* Display EOL */
                             fprintf( CS_OUT, "\n" );
 
                         }
 
-                    /* Event type detection - Master */
                     } else
-                    if ( ( csRec[3] & lp_Byte_s( 0x0F ) ) == CS_MAS ) {
+                    if ( CS_EVENT( csRec, CS_MAS ) ) {
 
-                        /* Check display flag */
+                        /* Display flag verification */
                         if ( strstr( csFlag, "m" ) != CS_NULL ) {
 
                             /* Display event timestamp */
                             fprintf( CS_OUT, "MAS : %010" lp_Time_p ".%06" lp_Time_p, lp_timestamp_sec( csTime ), lp_timestamp_usec( csTime ) );
 
+                            /* Display record content */
+                            if ( strstr( csFlag, "b" ) != CS_NULL ) csps_elphel_cat_record( csRec );
+
                             /* Retrieve master timestamp */
                             csTime = lp_timestamp( ( lp_Void_t * ) ( csRec + 8 ) );
 
                             /* Display secondary information */
-                            fprintf( CS_OUT, " : %010" lp_Time_p ".%06" lp_Time_p, lp_timestamp_sec( csTime ), lp_timestamp_usec( csTime ) );
-
-                            /* Display line end */
-                            fprintf( CS_OUT, "\n" );
+                            fprintf( CS_OUT, " : %010" lp_Time_p ".%06" lp_Time_p "\n", lp_timestamp_sec( csTime ), lp_timestamp_usec( csTime ) );
 
                         }
 
-                    /* Event type detection - GPS */
                     } else
-                    if ( ( csRec[3] & lp_Byte_s( 0x0F ) ) == CS_GPS ) {
+                    if ( CS_EVENT( csRec, CS_GPS ) ) {
 
-                        /* Check display flag */
+                        /* Display flag verification */
                         if ( strstr( csFlag, "g" ) != CS_NULL ) {
 
                             /* Display event timestamp */
                             fprintf( CS_OUT, "GPS : %010" lp_Time_p ".%06" lp_Time_p, lp_timestamp_sec( csTime ), lp_timestamp_usec( csTime ) );
+
+                            /* Display record content */
+                            if ( strstr( csFlag, "b" ) != CS_NULL ) csps_elphel_cat_record( csRec );
 
                             /* Display NMEA type */
                             switch ( lp_nmea_sentence( csRec + 8, ( CS_RECLEN - 8 ) << 1, csNMEAchar ) ) {
@@ -178,12 +183,21 @@
                             };
 
                             /* Display NMEA sentence */
-                            fprintf( CS_OUT, "%s", csNMEAchar );
-
-                            /* Display line end */
-                            fprintf( CS_OUT, "\n" );
+                            fprintf( CS_OUT, "%s\n", csNMEAchar );
 
                         }
+
+                    } else 
+                    if ( strstr( csFlag, "o" ) != CS_NULL ) {
+
+                        /* Display event timestamp */
+                        fprintf( CS_OUT, "UNK : %010" lp_Time_p ".%06" lp_Time_p, lp_timestamp_sec( csTime ), lp_timestamp_usec( csTime ) );
+
+                        /* Display record content */
+                        if ( strstr( csFlag, "b" ) != CS_NULL ) csps_elphel_cat_record( csRec );
+
+                        /* Display EOL */
+                        fprintf( CS_OUT, "\n" );
 
                     }
 
@@ -196,6 +210,26 @@
 
         /* Return to system */
         return( EXIT_SUCCESS );
+
+    }
+
+/*
+    Source - Record buffer ASCII display
+*/  
+
+    void csps_elphel_cat_record( lp_Byte_t * csRec ) {
+
+        /* Parsing variables */
+        int csParse = 0;
+
+        /* Display frame */
+        fprintf( CS_OUT, " [ " );
+
+        /* Display loop */
+        for ( csParse = 0; csParse < CS_RECLEN ; csParse ++ ) fprintf( CS_OUT, "%02x ", csRec[csParse] );
+
+        /* Display frame */
+        fprintf( CS_OUT, "] " );
 
     }
 

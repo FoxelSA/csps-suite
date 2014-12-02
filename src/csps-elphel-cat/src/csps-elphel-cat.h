@@ -111,7 +111,7 @@
     "  csps-elphel-cat [Arguments] [Parameters] ...\n"        \
     "Short arguments and parameters summary :\n"              \
     "  -l Path to logs-file to display\n"                     \
-    "  -f Display flag [i|m|g] for [IMU|master|GPS] events\n" \
+    "  -f Display flag [i|m|g|o|b]\n"                         \
     "  -m Display first master timestamp only\n"              \
     "csps-elphel-cat - csps-suite\n"                          \
     "Copyright (c) 2013-2014 FOXEL SA\n"
@@ -148,6 +148,9 @@
     Header - Preprocessor macros
  */
 
+    /* Event recognition macro */
+    # define CS_EVENT(r,e)      ( ( r[3] & lp_Byte_s( 0x0F ) ) == e )
+
 /* 
     Header - Typedefs
  */
@@ -170,6 +173,16 @@
      */
 
     int main ( int argc, char ** argv );
+
+    /*! \brief Record buffer ASCII display
+     *
+     *  This function simply display the content of a record buffer in ASCII
+     *  hexadecimal form using software standard output.
+     *
+     *  \param csRec Pointer to first element of the record buffer
+     */
+
+    void csps_elphel_cat_record ( lp_Byte_t * csRec );
 
     /*! \brief Arguments common handler
      *  
