@@ -41,7 +41,7 @@
     Source - Includes
  */
 
-    # include "csps-elphel-recompose.h"
+    # include "csps-elphel-merge.h"
 
 /*
     Source - Software main function
@@ -50,18 +50,14 @@
     int main ( int argc, char ** argv ) {
 
         /* Software path variables */
-        char csDeco[256] = { 0 };
-        char csReco[256] = { 0 };
-        char csFile[256] = { 0 };
-        char csExpo[256] = { 0 };
-
-        /* Composition gap variables */
-        double csInterval = 1.0;
+        char csSrc[256] = { 0 };
+        char csDst[256] = { 0 };
+        char csFil[256] = { 0 };
+        char csMrg[256] = { 0 };
 
         /* Search in parameters */
-        stdp( stda( argc, argv,  "--decomposed", "-d" ), argv,   csDeco     , CS_STRING );
-        stdp( stda( argc, argv,  "--recomposed", "-r" ), argv,   csReco     , CS_STRING );
-        stdp( stda( argc, argv,  "--interval"  , "-i" ), argv, & csInterval , CS_DOUBLE );
+        stdp( stda( argc, argv,  "--source"     , "-s" ), argv, csSrc, CS_STRING );
+        stdp( stda( argc, argv,  "--destination", "-d" ), argv, csDst, CS_STRING );
 
         /* Execution switch */
         if ( stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
@@ -71,6 +67,9 @@
 
         } else {
 
+            /* Records buffer variables */
+            lp_Byte_t csBuffer[CS_RECLEN] = { 0 };
+
             /* Logs-files stack variables */
             cs_Descriptor_t csStack[CS_SIZE];
 
@@ -78,43 +77,50 @@
             unsigned int csIndex  = 0;
 
             /* Stack decimation variables */
-            signed   int csDecim  = 0;
+            signed   int csAppend  = 0;
 
-            /* Stack parsing variables */
-            unsigned int csParse  = 0;
+            /* Parsing variables */
+            unsigned int csParse   = 0;
 
-            /* Stack memory variables */
-            unsigned int csSelect = 0;
+            /* Selection variables */
+            unsigned int csSelect  = 0;
 
-            /* File indexation variables */
-            unsigned int csIncrem = 0;
+            /* Timestamp variables */
+            lp_Time_t    csPush    = 0;
+            lp_Time_t    csLKnown  = 0;
 
-            /* Decimation reference timestamp */
-            lp_Time_t    csEpoch  = lp_Time_s( CS_INFT );
+            /* Appending flag variables */
+            unsigned int csFlag    = CS_FALSE;
+
+            /* Stream variables */
+            FILE * csIStream = NULL;
+            FILE * csOStream = NULL;
 
             /* Directory entity enumeration */
-            while ( cs_elphel_recompose_enum( csDeco, csFile ) != CS_FALSE ) {
+            while ( cs_elphel_merge_enum( csSrc, csFil ) != CS_FALSE ) {
 
                 /* Consider only file entity */
-                if ( cs_elphel_recompose_detect( csFile, CS_FILE ) == CS_TRUE ) {
+                if ( cs_elphel_merge_detect( csFil, CS_FILE ) == CS_TRUE ) {
 
                     /* Check log-file tag */
-                    if ( strstr( csFile, CS_PATH_PATTERN ) != 0 ) {
+                    if ( strstr( csFil, CS_PATH_PATTERN ) != 0 ) {
 
                         /* Assign logs-file path */
-                        strcpy( csStack[csIndex].dsName, csFile );
+                        strcpy( csStack[csIndex].dsName, csFil );
 
                         /* Initialize appending flag */
                         csStack[csIndex].dsFlag = CS_FALSE;
 
                         /* Extract logs-file timestamp extremums */
-                        cs_elphel_recompose_extremum( csFile, & ( csStack[csIndex].dsFirst ), & ( csStack[csIndex].dsLast ) );
+                        if ( ( csStack[csIndex].dsFirst = cs_elphel_merge_first( csFil ) ) != lp_Time_s( CS_INFT ) ) {
 
-                        /* Display information */
-                        fprintf( CS_OUT, "Stacking : %s\n", basename( csFile ) );
+                            /* Display information */
+                            fprintf( CS_OUT, "Stacking : %s\n", basename( csFil ) );
 
-                        /* Update stack size */
-                        csDecim = ( ++ csIndex ); 
+                            /* Update stack size */
+                            csAppend = ( ++ csIndex ); 
+
+                        }
 
                     }
 
@@ -122,91 +128,90 @@
 
             }
 
-            /* Stack decimation */
-            while ( csDecim > 0 ) {
+            /* Compose output file name */
+            sprintf( csMrg, "%s/log-merge.log-0", csDst );
 
-                /* Reset memory index */
-                csSelect = csIndex;
+            /* Create output stream handle */
+            if ( ( csOStream = fopen( csMrg, "wb" ) ) != NULL ) {
 
-                /* Check appending mode */
-                if ( csEpoch == lp_Time_s( CS_INFT ) ) {
+                /* Appending loop */
+                while ( csAppend > 0 ) {
 
-                    /* Parse stack for oldest timestamp */
+                    /* Push infinit time */
+                    csPush = lp_Time_s( CS_INFT );
+
+                    /* Reset selection */
+                    csSelect = csIndex;
+
+                    /* Search oldest segment */
                     for ( csParse = 0; csParse < csIndex; csParse ++ ) {
 
-                        /* Search for oldest timestamp */
-                        if ( ( csStack[csParse].dsFlag == CS_FALSE ) && ( lp_timestamp_ge( csEpoch, csStack[csParse].dsLast ) == CS_TRUE ) ) {
-
-                            /* Memorize stack reference */
-                            csSelect = csParse;
-
-                            /* Memorize reference timestamp */
-                            csEpoch = csStack[csSelect].dsLast;
-
-                        }
-
-                    }
-
-                    /* Compose exportation file path */
-                    sprintf( csExpo, "%s/log-recomposition.log-%05u", csReco, ++ csIncrem );
-
-                    /* Display initial segment occurence */
-                    fprintf( CS_OUT, "Recomposing %s\n", basename( csExpo ) );
-
-                } else {
-
-                    /* Reset parsing variable */
-                    csParse = 0;
-
-                    /* Parse stack for next segment */
-                    while ( ( csSelect == csIndex ) && ( csParse < csIndex ) ) {
-
-                        /* Compute last-first timestamp distance */
+                        /* Check stack element flag */
                         if ( csStack[csParse].dsFlag == CS_FALSE ) {
 
-                            /* Proximity appending condition trigger */
-                            if ( lp_timestamp_float( lp_timestamp_diff( csEpoch, csStack[csParse].dsFirst ) ) < csInterval ) {
+                            /* Compare timestamp */
+                            if ( lp_timestamp_ge( csPush, csStack[csParse].dsFirst ) == CS_TRUE ) {
 
-                                /* Memorize stack reference */
+                                /* Update search timestamp */
+                                csPush = csStack[csParse].dsFirst;
+
+                                /* Update selection stack index */
                                 csSelect = csParse;
-
-                                /* Memorize reference timestamp */
-                                csEpoch = csStack[csSelect].dsLast;
 
                             }
 
                         }
 
-                        /* Update parser */
-                        csParse ++;
-
                     }
 
-                }
+                    /* Display append information */
+                    fprintf( CS_OUT, "Appending : %s\n", basename( csStack[csSelect].dsName ) );
 
-                /* Check appending possibility */
-                if ( csSelect < csIndex ) {
-
-                    /* Update stack decimation */
-                    csDecim --;
-
-                    /* Reset append flag */
+                    /* Update selection state */
                     csStack[csSelect].dsFlag = CS_TRUE;
 
-                    /* Display appending information */
-                    fprintf( CS_OUT, "  %s\n", strrchr( csStack[csSelect].dsName, '/' ) + 1 );
+                    /* Appending condition flag reset */
+                    csFlag = CS_FALSE;
 
-                    /* Append logs-file content */
-                    cs_elphel_recompose_append( csStack[csSelect].dsName, csExpo );
+                    /* Create input stream */
+                    if ( ( csIStream = fopen( csStack[csSelect].dsName, "rb" ) ) != NULL ) {
 
-                } else {
+                        /* Sub-appending loop */
+                        while ( fread( csBuffer, 1, CS_RECLEN, csIStream ) == CS_RECLEN ) {
 
-                    /* Reset epoch value */
-                    csEpoch = lp_Time_s( CS_INFT );
+                            /* Check record event type */
+                            if ( CS_EVENT( csBuffer, CS_IMU ) ) {
+
+                                /* Appending condition trigger */
+                                if ( ( lp_timestamp_ge( csLKnown, lp_timestamp( ( lp_Void_t * ) csBuffer ) ) ) == CS_FALSE ) {
+
+                                    /* Set appending condition flag */
+                                    csFlag = CS_TRUE;
+
+                                }
+
+                            }
+
+                            /* Append record */
+                            if ( csFlag == CS_TRUE ) fwrite( csBuffer, 1, CS_RECLEN, csOStream );
+
+                        }
+
+                        /* Close input stream */
+                        fclose( csIStream );
+
+                    } else { fprintf( CS_ERR, "Error : unable to access %s\n", basename( csStack[csSelect].dsName ) ); }
+
+                    /* Update appending loop state */
+                    csAppend --;
 
                 }
-                
-            }
+
+                /* Close output stream */
+                fclose( csOStream );
+
+            /* Display message */
+            } else { fprintf( CS_ERR, "Error : unable to access %s\n", basename( csMrg ) ); }
 
         }
 
@@ -216,68 +221,28 @@
     }
 
 /*
-    Source - File content appender
-*/
-
-    void cs_elphel_recompose_append( char const * const csSource, char const * const csDestination ) {
-
-        /* Appending buffer variables */
-        char csBuffer[CS_RECLEN] = { 0 };
-
-        /* Create input stream */
-        FILE * csIStream = fopen( csSource, "rb" );
-
-        /* Create output stream */
-        FILE * csOStream = fopen( csDestination, "ab" );
-
-        /* Check stream creation */
-        if ( ( csIStream != NULL ) && ( csOStream != NULL ) ) {
-
-            /* Appending loop */
-            while ( fread( csBuffer, 1, CS_RECLEN, csIStream ) == CS_RECLEN ) fwrite( csBuffer, 1, CS_RECLEN, csOStream );
-
-            /* Delete streams */
-            fclose( csIStream );
-            fclose( csOStream );
-
-        /* Display message */
-        } else { fprintf( CS_ERR, "Error : unable to access %s or/and %s\n", basename( ( char * ) csSource ), basename( ( char * ) csDestination ) ); }
-
-    }
-
-/*
-    Source - Timestamp extremums extractors
+    Source - First timestamp extraction
  */
 
-    void cs_elphel_recompose_extremum( char const * const csFile, lp_Time_t * const csFirst, lp_Time_t * const csLast ) {
+    lp_Time_t cs_elphel_merge_first( char const * const csFil ) {
 
         /* Records buffer variables */
         unsigned char csRec[CS_RECLEN] = { 0 };
 
-        /* Create input stream */
-        FILE * csStream = fopen( csFile, "rb" );
+        /* Returned value variables */
+        lp_Time_t csFirst = lp_Time_s( CS_INFT );
 
-        /* Clear timestamps */
-        * csFirst = 0;
-        * csLast  = 0;
+        /* Create input stream */
+        FILE * csStream = fopen( csFil, "rb" );
 
         /* Check stream creation */
         if ( csStream != NULL ) {
 
             /* Parse input stream */
-            while ( fread( csRec, 1, CS_RECLEN, csStream ) == CS_RECLEN ) {
-            
-                /* Event type detection */
-                if ( CS_EVENT( csRec, CS_IMU ) ) {
+            while ( ( csFirst == lp_Time_s( CS_INFT ) ) && ( fread( csRec, 1, CS_RECLEN, csStream ) == CS_RECLEN ) ) {
 
-                    /* Last timestamp extraction */
-                    * csLast = lp_timestamp( ( lp_Void_t * ) csRec );
-
-                    /* First timestamp extraction */
-                    if ( * csFirst == 0 ) * csFirst = * csLast;
-                    
-
-                }
+                /* Event type detection and timestamp assignation */
+                if ( CS_EVENT( csRec, CS_IMU ) ) csFirst = lp_timestamp( ( lp_Void_t * ) csRec );
 
             }
 
@@ -285,7 +250,10 @@
             fclose( csStream );
 
         /* Display message */
-        } else { fprintf( CS_ERR, "Error : unable to access %s\n", basename( ( char * ) csFile ) ); }
+        } else { fprintf( CS_ERR, "Error : unable to access %s\n", basename( ( char * ) csFil ) ); }
+
+        /* Return first timestamp */
+        return( csFirst );
 
     }
 
@@ -293,7 +261,7 @@
     Source - Directory entity enumeration
  */
 
-    int cs_elphel_recompose_enum( char const * const csDirectory, char * const csName ) {
+    int cs_elphel_merge_enum( char const * const csDirectory, char * const csName ) {
 
         /* Directory variables */
         static DIR           * csDirect = NULL;
@@ -306,7 +274,7 @@
             csDirect = opendir( csDirectory );
 
             /* Recusive initialization */
-            return( cs_elphel_recompose_enum( csDirectory, csName ) );
+            return( cs_elphel_merge_enum( csDirectory, csName ) );
 
         } else {
 
@@ -343,7 +311,7 @@
     Source - Directory entity type detection
 */
 
-    int cs_elphel_recompose_detect( char const * const csEntity, int const csType ) {
+    int cs_elphel_merge_detect( char const * const csEntity, int const csType ) {
 
         /* Check type of entity to verify */
         if ( csType == CS_FILE ) {

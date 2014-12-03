@@ -36,13 +36,13 @@
  *      Attribution" section of <http://foxel.ch/license>.
  */
 
-    /*! \file   csps-elphel-recompose.h
+    /*! \file   csps-elphel-merge.h
      *  \author Nils Hamel <n.hamel@foxel.ch>
      *   
      *  Software main header
      */
 
-    /*! \mainpage csps-elphel-recompose
+    /*! \mainpage csps-elphel-merge
      *
      *  \section csps-suite
      *  \section _ CSPS library front-end suite
@@ -81,8 +81,8 @@
     Header - Include guard
  */
 
-    # ifndef __CS_ELPHEL_RECOMPOSE__
-    # define __CS_ELPHEL_RECOMPOSE__
+    # ifndef __CS_ELPHEL_MERGE__
+    # define __CS_ELPHEL_MERGE__
 
 /* 
     Header - C/C++ compatibility
@@ -108,13 +108,12 @@
  */
 
     /* Standard help */
-    # define CS_HELP "Usage summary :\n"                                \
-    "  csps-elphel-recompose [Arguments] [Parameters] ...\n"            \
-    "Short arguments and parameters summary :\n"                        \
-    "  -d Directory containing the segments to recompose\n"             \
-    "  -r Directory that recieve recomposed segments\n"                 \
-    "  -i Maximum interval, in seconds, that induce a recomposition\n"  \
-    "csps-elphel-recompose - csps-suite\n"                              \
+    # define CS_HELP "Usage summary :\n"                 \
+    "  csps-elphel-merge [Arguments] [Parameters] ...\n" \
+    "Short arguments and parameters summary :\n"         \
+    "  -s Directory containing the segments to merge\n"  \
+    "  -d Directory that recieve merged segments\n\n"    \
+    "csps-elphel-merge - csps-suite\n"                   \
     "Copyright (c) 2013-2014 FOXEL SA\n"
 
     /* Define standard types */
@@ -189,21 +188,13 @@
      *  Appended flag - True if file already appended
      *  \var cs_Descriptor_struct::dsFirst
      *  Raw logs-file first IMU timestamp
-     *  \var cs_Descriptor_struct::dsLast
-     *  Raw logs-file last IMU timestamp
      */ 
 
     typedef struct cs_Descriptor_struct {
 
-        /* Logs-file name */
         char      dsName[256];
-
-        /* Appending flag */
         int       dsFlag;
-
-        /* Temporal boundaries */
         lp_Time_t dsFirst;
-        lp_Time_t dsLast;
 
     } cs_Descriptor_t;
 
@@ -213,9 +204,8 @@
 
     /*! \brief Software main function
      *  
-     *  The main function proceed to the analysis and appending procedure on
-     *  logs-files contained in the provided directory in order to obtain
-     *  contigous logs-files.
+     *  The main function lists the log-files present in the input directory and
+     *  merge them together in a single log-file in their chronologic order.
      *  
      *  \param argc Standard main parameter
      *  \param argv Standard main parameter
@@ -223,18 +213,7 @@
 
     int main ( int argc, char ** argv );
 
-    /*! \brief File content appender
-     *
-     *  This function opens the destination file and appends, in binary mode,
-     *  the content of the source file.
-     *
-     *  \param csSource         Source file path
-     *  \param csDestination    Destination file path
-     */
-
-    void cs_elphel_recompose_append ( char const * const csSource, char const * const csDestination );
-
-    /*! \brief Timestamp extremums extractors
+    /*! \brief First timestamp extraction
      *
      *  This function parses the provided logs-file and extract, for IMU events
      *  only, the lowest and highest timestamps found in the file.
@@ -244,7 +223,7 @@
      *  \param csLast   Variable reference used to return last timestamp
      */
 
-    void cs_elphel_recompose_extremum ( char const * const csFile, lp_Time_t * const csFirst, lp_Time_t * const csLast );
+    lp_Time_t cs_elphel_merge_first( char const * const csFil );
 
     /*! \brief Directory entity enumeration
      *  
@@ -260,7 +239,7 @@
      *  \return Returns code indicating enumeration status
      */
 
-    int cs_elphel_recompose_enum ( char const * const csDirectory, char * const csName );
+    int cs_elphel_merge_enum ( char const * const csDirectory, char * const csName );
 
     /*! \brief Directory entity type detection
      *
@@ -273,7 +252,7 @@
      *  \return Returns CS_TRUE if verification passed, CS_FALSE otherwise
      */
 
-    int cs_elphel_recompose_detect ( char const * const csEntity, int const csType );
+    int cs_elphel_merge_detect ( char const * const csEntity, int const csType );
 
     /*! \brief Arguments common handler
      *  
