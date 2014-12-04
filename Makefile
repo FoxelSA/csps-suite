@@ -7,6 +7,11 @@
     MAKE_DOCENT:=doc
     MAKE_LIBRAR:=lib
     MAKE_SOURCE:=src
+    MAKE_INPATH:=/usr/bin
+    MAKE_CMCOPY:=cp
+    MAKE_CMREMF:=rm -f
+    MAKE_CMMKDR:=mkdir -p
+    MAKE_CMMKLN:=ln -sf
 
 #
 #   make - Modules
@@ -27,8 +32,9 @@
     all:make-directories make-modules make-build
     build:make-directories make-build
     modules:make-modules
-    documentation:make-directories make-doc
+    documentation:make-directories make-documentation
     clean:make-clean
+    clean-all:make-clean make-clean-modules
     clean-modules:make-clean-modules
     clean-documentation:make-clean-documentation
     install:make-install
@@ -39,42 +45,42 @@
 #
 
     make-build:
-	@$(foreach SOFT, $(MAKE_BUILDS), $(MAKE) -C $(MAKE_SOURCE)/$(SOFT) all && cp $(MAKE_SOURCE)/$(SOFT)/$(MAKE_BINARY)/$(SOFT) $(MAKE_BINARY)/ && ) true
+	@$(foreach SOFT, $(MAKE_BUILDS), $(MAKE) -C $(MAKE_SOURCE)/$(SOFT) all OPENMP=$(OPENMP) && $(MAKE_CMCOPY) $(MAKE_SOURCE)/$(SOFT)/$(MAKE_BINARY)/$(SOFT) $(MAKE_BINARY)/ && ) true
 
     make-modules:
-	@$(foreach LIBS, $(MAKE_MODULE), $(MAKE) -C $(LIBS) all && ) true
+	@$(foreach LIBS, $(MAKE_MODULE), $(MAKE) -C $(LIBS) all OPENMP=$(OPENMP) && ) true
 
-    make-doc:
-	@$(foreach SOFT, $(MAKE_BUILDS), $(MAKE) -C $(MAKE_SOURCE)/$(SOFT) documentation && ln -fs ../../$(MAKE_SOURCE)/$(SOFT)/$(MAKE_DOCENT)/html $(MAKE_DOCENT)/html/$(SOFT) && ) true
+    make-documentation:
+	@$(foreach SOFT, $(MAKE_BUILDS), $(MAKE) -C $(MAKE_SOURCE)/$(SOFT) documentation && $(MAKE_CMMKLN) ../../$(MAKE_SOURCE)/$(SOFT)/$(MAKE_DOCENT)/html $(MAKE_DOCENT)/html/$(SOFT) && ) true
 
 #
 #   make - Cleaning
 #
 
     make-clean:
+	$(MAKE_CMREMF) $(MAKE_BINARY)/*
 	@$(foreach SOFT, $(MAKE_BUILDS), $(MAKE) -C $(MAKE_SOURCE)/$(SOFT) clean && ) true
-	rm -f $(MAKE_BINARY)/*
 
     make-clean-modules:
 	@$(foreach LIBS, $(MAKE_MODULE), $(MAKE) -C $(LIBS) clean && ) true
 
     make-clean-documentation:
-	rm -f $(MAKE_DOCENT)/html/*
+	$(MAKE_CMREMF) $(MAKE_DOCENT)/html/*
 
 #
 #   make - Implementation
 #
 
     make-install:
-	@$(foreach SOFT, $(MAKE_BUILDS), cp $(MAKE_BINARY)/$(SOFT) /usr/bin/$(SOFT) && ) true
+	@$(foreach SOFT, $(MAKE_BUILDS), $(MAKE_CMCOPY) $(MAKE_BINARY)/$(SOFT) $(MAKE_INPATH)/$(SOFT) && ) true
 
     make-uninstall:
-	@$(foreach SOFT, $(MAKE_BUILDS), rm -f /usr/bin/$(SOFT) && ) true
+	@$(foreach SOFT, $(MAKE_BUILDS), $(MAKE_CMREMF) $(MAKE_INPATH)/$(SOFT) && ) true
 
 #
 #   make - Directories
 #
 
     make-directories:
-	mkdir -p $(MAKE_BINARY) $(MAKE_DOCENT)
+	$(MAKE_CMMKDR) $(MAKE_BINARY) $(MAKE_DOCENT)
 
