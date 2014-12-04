@@ -1,77 +1,80 @@
 
 #
-#   make - Configuration - Directories
+#   make - Configuration
 #
 
     MAKE_BINARY:=bin
-    MAKE_DOCUME:=doc
+    MAKE_DOCENT:=doc
     MAKE_LIBRAR:=lib
     MAKE_SOURCE:=src
 
 #
-#   make - Configuration - Units
+#   make - Modules
 #
 
-    MAKE_SOFTS:=$(notdir $(wildcard $(MAKE_SOURCE)/*) )
+    MAKE_MODULE:=$(MAKE_LIBRAR)/libcsps $(MAKE_LIBRAR)/libfastcal
 
 #
-#   make - Configuration - Libraries
+#   make - Enumeration
 #
 
-    MAKE_DEPENDS:=$(MAKE_LIBRAR)/libcsps $(MAKE_LIBRAR)/libfastcal
+    MAKE_BUILDS:=$(notdir $(wildcard $(MAKE_SOURCE)/*) )
 
 #
-#   make - Build - Default
+#   make - Targets
 #
 
-    all:directories libraries units
-    build:directories units
-    modules:libraries
+    all:make-directories make-modules make-build
+    build:make-directories make-build
+    modules:make-modules
+    documentation:make-directories make-doc
+    clean:make-clean
+    clean-modules:make-clean-modules
+    clean-documentation:make-clean-documentation
+    install:make-install
+    uninstall:make-uninstall
 
 #
-#   make - Build - Stack
+#   make - Directives
 #
 
-    units:
-	@$(foreach SOFT, $(MAKE_SOFTS), $(MAKE) -C $(MAKE_SOURCE)/$(SOFT) clean && $(MAKE) -C $(MAKE_SOURCE)/$(SOFT) all && cp $(MAKE_SOURCE)/$(SOFT)/$(MAKE_BINARY)/$(SOFT) $(MAKE_BINARY)/ && ) true
+    make-build:
+	@$(foreach SOFT, $(MAKE_BUILDS), $(MAKE) -C $(MAKE_SOURCE)/$(SOFT) all && cp $(MAKE_SOURCE)/$(SOFT)/$(MAKE_BINARY)/$(SOFT) $(MAKE_BINARY)/ && ) true
+
+    make-modules:
+	@$(foreach LIBS, $(MAKE_MODULE), $(MAKE) -C $(LIBS) all && ) true
+
+    make-doc:
+	@$(foreach SOFT, $(MAKE_BUILDS), $(MAKE) -C $(MAKE_SOURCE)/$(SOFT) documentation && ln -fs ../../$(MAKE_SOURCE)/$(SOFT)/$(MAKE_DOCENT)/html $(MAKE_DOCENT)/html/$(SOFT) && ) true
 
 #
-#   make - Build - Libraries
+#   make - Cleaning
 #
 
-    libraries:
-	@$(foreach LIB, $(MAKE_DEPENDS), $(MAKE) -C $(LIB) clean && $(MAKE) -C $(LIB) all && ) true
+    make-clean:
+	@$(foreach SOFT, $(MAKE_BUILDS), $(MAKE) -C $(MAKE_SOURCE)/$(SOFT) clean && ) true
+	rm -f $(MAKE_BINARY)/*
+
+    make-clean-modules:
+	@$(foreach LIBS, $(MAKE_MODULE), $(MAKE) -C $(LIBS) clean && ) true
+
+    make-clean-documentation:
+	rm -f $(MAKE_DOCENT)/html/*
 
 #
-#   make - Build - Documentation
+#   make - Implementation
 #
 
-    documentation:directories
-	mkdir -p $(MAKE_DOCUME)/html && rm $(MAKE_DOCUME)/html/* -f
-	@$(foreach DOC, $(MAKE_SOFTS), $(MAKE) -C $(MAKE_SOURCE)/$(DOC) documentation && cd $(MAKE_DOCUME)/html/ && ln -s ../../$(MAKE_SOURCE)/$(DOC)/$(MAKE_DOCUME)/html $(DOC) && cd - && ) true
+    make-install:
+	@$(foreach SOFT, $(MAKE_BUILDS), cp $(MAKE_BINARY)/$(SOFT) /usr/bin/$(SOFT) && ) true
+
+    make-uninstall:
+	@$(foreach SOFT, $(MAKE_BUILDS), rm -f /usr/bin/$(SOFT) && ) true
 
 #
-#   make - Management - Directories
+#   make - Directories
 #
 
-    directories:
-	mkdir -p $(MAKE_BINARY)
-	mkdir -p $(MAKE_DOCUME)
-
-#
-#   make - Management - Cleaning builds
-#
-
-    clean:
-	rm $(MAKE_BINARY)/* -f
-
-#
-#   make - Management - Implementation
-#
-
-    install:
-	cp $(addprefix $(MAKE_BINARY)/,$(MAKE_SOFTS)) /usr/bin 2>/dev/null || :
-
-    uninstall:
-	@$(foreach SOFT, $(MAKE_SOFTS), rm -f /usr/bin/$(SOFT) && ) true
+    make-directories:
+	mkdir -p $(MAKE_BINARY) $(MAKE_DOCENT)
 
