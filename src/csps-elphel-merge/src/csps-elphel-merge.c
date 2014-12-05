@@ -185,9 +185,6 @@
                                 /* Appending condition trigger */
                                 if ( ( lp_timestamp_ge( csLKnown, lp_timestamp( ( lp_Void_t * ) csBuffer ) ) ) == CS_FALSE ) {
 
-                                    //fprintf( stderr, "%" lp_Time_p ".%06" lp_Time_p " - ", lp_timestamp_sec( csLKnown ), lp_timestamp_usec( csLKnown ) );
-                                    //fprintf( stderr, "%" lp_Time_p ".%06" lp_Time_p "\n", lp_timestamp_sec( lp_timestamp( ( lp_Void_t * ) csBuffer ) ), lp_timestamp_usec( lp_timestamp( ( lp_Void_t * ) csBuffer ) ) );
-
                                     /* Set appending condition flag */
                                     csFlag = CS_TRUE;
 
