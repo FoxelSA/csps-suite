@@ -99,6 +99,7 @@
     # include <stdio.h>
     # include <stdlib.h>
     # include <string.h>
+    # include <stdint.h>
     # include <libgen.h>
     # include <dirent.h>
     # include <csps-all.h>
@@ -156,12 +157,24 @@
     # define CS_MAS             LP_DEVICE_EYESIS4PI_MASEVT
     # define CS_GPS             LP_DEVICE_EYESIS4PI_GPSEVT
 
+    /* Define sentence buffer size */
+    # define CS_NTYPE           4
+    # define CS_REPET           5
+    # define CS_BSIZE           CS_RECLEN * CS_NTYPE
+
+    /* Define GPS timestamp reconstruction modes */
+    # define CS_MODE_PARSE      0
+    # define CS_MODE_WRITE      1
+    # define CS_MODE_AVOID      2
+
 /* 
     Header - Preprocessor macros
  */
 
     /* Event recognition macro */
+    # define CS_TIMES(r)        ( lp_timestamp( ( lp_Void_t * ) r ) )
     # define CS_EVENT(r,e)      ( ( r[3] & lp_Byte_s( 0x0F ) ) == e )
+    # define CS_NMEAT(r)        ( r[8] & 0x0F )
 
 /* 
     Header - Typedefs
@@ -188,6 +201,12 @@
     int main ( int argc, char ** argv );
 
     unsigned long cs_elphel_gps_process ( FILE * const csIStream, FILE * const csOStream, double csTol );
+
+    int cs_elphel_gps_bloc ( lp_Byte_t const * const csBlock );
+
+    lp_Time_t cs_elphel_gps_timestamp ( lp_Time_t csReference, unsigned long csRepet );
+
+    void cs_elphel_gps_header ( lp_Time_t * const csHeader, lp_Time_t const csTime );
 
     /*! \brief Directory entity enumeration
      *  
@@ -217,18 +236,6 @@
      */
 
     int cs_elphel_gps_detect ( char const * const csEntity, int const csType );
-
-    /*! \brief File size extractor
-     *
-     *  Compute and returns the length, in bytes, of the file provided as
-     *  parameter.
-     *
-     *  \param  csFile Path to file
-     *
-     *  \return Returns file size in bytes - Zero is returned on error
-     */
-
-    size_t cs_elphel_gps_filesize( char const * const csFile );
 
     /*! \brief Arguments common handler
      *  

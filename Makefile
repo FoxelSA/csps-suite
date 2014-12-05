@@ -9,15 +9,17 @@
     MAKE_SOURCE:=src
     MAKE_INPATH:=/usr/bin
     MAKE_CMCOPY:=cp
-    MAKE_CMREMF:=rm -f
+    MAKE_CMRMFL:=rm -f
     MAKE_CMMKDR:=mkdir -p
     MAKE_CMMKLN:=ln -sf
+
+    BUILD_SUBMD:=$(MAKE_LIBRAR)/libcsps $(MAKE_LIBRAR)/libfastcal
 
 #
 #   make - Modules
 #
 
-    MAKE_MODULE:=$(MAKE_LIBRAR)/libcsps $(MAKE_LIBRAR)/libfastcal
+    MAKE_MODULE:=$(foreach LIBS, $(BUILD_SUBMD), $(if $(findstring /lib/, $(LIBS)), , $(LIBS)))
 
 #
 #   make - Enumeration
@@ -58,24 +60,25 @@
 #
 
     make-clean:
-	$(MAKE_CMREMF) $(MAKE_BINARY)/*
+	$(MAKE_CMRMFL) $(MAKE_BINARY)/*
 	@$(foreach SOFT, $(MAKE_BUILDS), $(MAKE) -C $(MAKE_SOURCE)/$(SOFT) clean && ) true
 
     make-clean-modules:
 	@$(foreach LIBS, $(MAKE_MODULE), $(MAKE) -C $(LIBS) clean && ) true
 
     make-clean-documentation:
-	$(MAKE_CMREMF) $(MAKE_DOCENT)/html/*
+	$(MAKE_CMRMFL) $(MAKE_DOCENT)/html/*
+	@$(foreach SOFT, $(MAKE_BUILDS), $(MAKE) -C $(MAKE_SOURCE)/$(SOFT) clean-documentation && ) true
 
 #
 #   make - Implementation
 #
 
     make-install:
-	@$(foreach SOFT, $(MAKE_BUILDS), $(MAKE_CMCOPY) $(MAKE_BINARY)/$(SOFT) $(MAKE_INPATH)/$(SOFT) && ) true
+	@$(foreach SOFT, $(MAKE_BUILDS), $(MAKE) -C $(MAKE_SOURCE)/$(SOFT) install && ) true
 
     make-uninstall:
-	@$(foreach SOFT, $(MAKE_BUILDS), $(MAKE_CMREMF) $(MAKE_INPATH)/$(SOFT) && ) true
+	@$(foreach SOFT, $(MAKE_BUILDS), $(MAKE) -C $(MAKE_SOURCE)/$(SOFT) uninstall && ) true
 
 #
 #   make - Directories

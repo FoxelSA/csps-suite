@@ -130,47 +130,197 @@
 
     unsigned long cs_elphel_gps_process( FILE * const csIStream, FILE * const csOStream, double csTol ) {
 
+        /* Records buffer stack variables */
+        lp_Byte_t csStackSent[CS_NTYPE][CS_RECLEN] = { { 0 } };
+
+        /* Records types stack variables */
+        lp_Byte_t csStackType[CS_NTYPE] = { 0 };
+
         /* Records buffer variables */
         lp_Byte_t csBuffer[CS_RECLEN] = { 0 };
 
-        /* Timestamp variables */
-        lp_Time_t csGPStime = 0;
-        lp_Time_t csIMUtime = 0;
+        /* Timestamps variables */
+        lp_Time_t csTimer = 0;
+        lp_Time_t csTimea = 0;
+        lp_Time_t csTimeb = 0;
+        lp_Time_t csTimec = 0;
+
+        /* Parsing variables */
+        unsigned int csParse = 0;
+
+        /* Sentence type variables */
+        unsigned int csType  = 0;
+
+        /* Decimation stack variables */
+        unsigned long csStack = 0;
+        unsigned long csRepet = 0;
 
         /* Returned value variables */
         unsigned long csCount = 0;
 
-        /* Content parsing loop */
+        /* Content parsing */
         while ( fread( csBuffer, 1, CS_RECLEN, csIStream ) == CS_RECLEN ) {
 
-            /* Event selector */
+            /* Event type verification */
             if ( CS_EVENT( csBuffer, CS_GPS ) ) {
 
-                /* Read timestamp */
-                csGPStime = lp_timestamp( ( lp_Void_t * ) csBuffer );    
+                /* Memorize very first timestamp */
+                if ( csTimec == 0 ) csTimec = CS_TIMES( csBuffer );
+               
+                /* Detect sentence type */
+                csType = CS_NMEAT( csBuffer );
 
-                /* Decimation condition trigger */
-                if ( lp_timestamp_float( lp_timestamp_diff( csGPStime, csIMUtime ) ) < csTol ) {
+                /* Sentence type detection */
+                if ( csType == LP_NMEA_IDENT_GGA ) {
 
-                     /* Export record buffer */
-                     fwrite( csBuffer, 1, CS_RECLEN, csOStream ); 
+                    /* Initial bloc skipping verification */
+                    if ( lp_timestamp_eq( csTimea, csTimec ) == CS_FALSE ) {
 
-                /* Decimation count */
-                } else { csCount ++; }
+                        /* Check stack state */
+                        if ( csStack == CS_NTYPE ) {
+
+                            /* Bloc validation verification */
+                            if ( cs_elphel_gps_bloc( csStackType ) == CS_TRUE ) {
+
+                                /* Check reference timestamp repetition */
+                                if ( lp_timestamp_eq( csTimea, csTimeb ) == CS_FALSE ) {
+
+                                    /* Update reference memory */
+                                    csTimeb = csTimea;
+
+                                    /* Reset repetition condition */
+                                    csRepet = 0;
+
+                                } else {
+
+                                    /* Update repetition counter */
+                                    csRepet ++;
+
+                                }
+
+                                /* Repetition overflow */
+                                if ( csRepet < CS_REPET ) {
+
+                                    /* Rebuild timestamp */
+                                    csTimer = cs_elphel_gps_timestamp( csTimea, csRepet );
+
+                                    /* Records exportation loop */
+                                    for ( csParse = 0; csParse < CS_NTYPE; csParse ++ ) {
+
+                                        /* Override record header */
+                                        cs_elphel_gps_header( ( lp_Time_t * ) csStackSent[csParse], csTimer );
+
+                                        /* Export stacked record */
+                                        fwrite( csStackSent[csParse], 1, CS_RECLEN, csOStream );
+
+                                    }
+
+                                }
+
+                            /* Update decimation count */
+                            } else { csCount += csStack; }
+
+                        /* Update decimation count */
+                        } else { csCount += csStack; }
+
+                    /* Update decimation count */
+                    } else { csCount += csStack; }
+
+                    /* Reset stack state */
+                    csStack = 0;
+
+                    /* Reset stack content */
+                    memset( ( void * ) csStackType, 0, CS_NTYPE );
+
+                /* Sentence type detection */
+                } else if ( csType == LP_NMEA_IDENT_RMC ) {
+
+                    /* Read record timestamp */
+                    csTimea = CS_TIMES( csBuffer );
+
+                }
+
+                /* Check stack state */
+                if ( csStack < CS_NTYPE ) {
+
+                    /* Logging sentence type */
+                    csStackType[csType] ++;
+
+                    /* Push buffer content */
+                    for ( csParse = 0; csParse < CS_RECLEN; csParse ++ ) {
+
+                        /* Bytes copy */
+                        csStackSent[csStack][csParse] = csBuffer[csParse];
+
+                    }
+
+                }
+
+                /* Update stack */
+                csStack ++;
 
             } else {
 
-                /* Event selector */
-                if ( CS_EVENT( csBuffer, CS_IMU ) ) csIMUtime = lp_timestamp( ( lp_Void_t * ) csBuffer );
-
-                 /* Export record buffer */
+                /* Export record buffer */
                 fwrite( csBuffer, 1, CS_RECLEN, csOStream );
 
             }
 
         }
 
+        /* Return decimation count */
         return( csCount );
+
+    }
+
+/*
+    Source - NMEA sentence block validation
+ */
+
+    int cs_elphel_gps_bloc( lp_Byte_t const * const csBlock ) {
+
+        /* Parsing variables */
+        int csParse = 0;
+
+        /* Returned value variables */
+        int csReturn = CS_TRUE;
+
+        /* Validation loop */
+        while ( ( csParse < CS_NTYPE ) && ( csReturn == CS_TRUE ) ) {
+
+            /* Validation condition */
+            if ( csBlock[csParse++] != 1 ) csReturn = CS_FALSE;
+
+        }
+
+        /* Return results */
+        return( csReturn );
+
+    }
+
+/*
+    Source - GPS timestamp reconstruction
+*/
+
+    lp_Time_t cs_elphel_gps_timestamp( lp_Time_t csReference, unsigned long csRepet ) {
+
+        /* Computation buffer variables */
+        lp_Time_t csReturn = csRepet * 200000lu;
+
+        /* Compute reconstructed timestamp */
+        return( lp_timestamp_add( csReference, lp_timestamp_compose( csReturn / 1000000, csReturn % 1000000 ) ) );
+
+
+    }
+
+/*
+    Source - Record header override
+*/
+
+    void cs_elphel_gps_header( lp_Time_t * const csHeader, lp_Time_t const csTime ) {
+
+        /* Override record header */
+        ( * csHeader ) = csTime | ( ( * csHeader ) & 0x00000000FFF00000llu );
 
     }
 
@@ -278,37 +428,6 @@
             return( CS_FALSE );
 
         }
-
-    }
-
-/*
-    Source - File size extractor
- */
-
-    size_t cs_elphel_validate_filesize( char const * const csFile ) {
-
-        /* Returned variables */
-        size_t csSize = 0L;
-
-        /* Ask pointed file handle */
-        FILE * csHandle = fopen( csFile, "rb" );
-
-        /* Check file handle */
-        if ( csHandle != NULL ) {
-
-            /* Update file offset */
-            fseek( csHandle, 0L, SEEK_END );
-
-            /* Ask value of updated offset */
-            csSize = ftell( csHandle );
-
-            /* Close file handle */
-            fclose( csHandle );            
-
-        }
-
-        /* Return file size */
-        return( csSize );
 
     }
 
