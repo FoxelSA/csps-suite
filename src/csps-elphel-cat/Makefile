@@ -39,7 +39,11 @@
 ifeq ($(CONFIG_TYPE),suite)
     MAKE_LIBSWAP:=../../
 else
+ifeq ($(CONFIG_TYPE),libcommon)
+    MAKE_LIBSWAP:=../../
+else
     MAKE_LIBSWAP:=
+endif
 endif
 ifeq ($(CONFIG_TYPE),libstatic)
     MAKE_SUFFIX:=.a
@@ -88,12 +92,17 @@ ifeq ($(CONFIG_TYPE),suite)
     all:make-directories $(CONFIG_NAME)
     clean:make-clean
 else
+ifeq ($(CONFIG_TYPE),libcommon)
+    all:make-directories $(CONFIG_NAME)
+    clean:make-clean
+else
     all:make-directories make-modules $(CONFIG_NAME)
     build:make-directories $(CONFIG_NAME)
     modules:make-modules
     clean:make-clean
     clean-all:make-clean make-clean-modules
     clean-modules:make-clean-modules
+endif
 endif
     documentation:make-directories make-documentation
     clean-documentation:make-clean-documentation

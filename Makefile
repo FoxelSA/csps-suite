@@ -13,7 +13,7 @@
     MAKE_CMMKDR:=mkdir -p
     MAKE_CMMKLN:=ln -sf
 
-    BUILD_SUBMD:=$(MAKE_LIBRAR)/libcsps $(MAKE_LIBRAR)/libfastcal
+    BUILD_SUBMD:=$(MAKE_LIBRAR)/libcsps $(MAKE_LIBRAR)/libfastcal $(MAKE_LIBRAR)/libcommon
 
 #
 #   make - Modules
