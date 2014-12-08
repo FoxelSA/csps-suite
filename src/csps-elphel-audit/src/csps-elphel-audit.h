@@ -97,12 +97,9 @@
  */
 
     # include <stdio.h>
-    # include <stdlib.h>
-    # include <string.h>
     # include <libgen.h>
-    # include <time.h>
-    # include <dirent.h>
     # include <csps-all.h>
+    # include <common-all.h>
 
 /* 
     Header - Preprocessor definitions
@@ -116,52 +113,15 @@
     "csps-elphel-audit - csps-suite\n"                    \
     "Copyright (c) 2013-2014 FOXEL SA\n"
 
-    /* Define standard types */
-    # define CS_NULL            0
-    # define CS_STRING          1
-    # define CS_CHAR            2
-    # define CS_SHORT           3
-    # define CS_INT             4
-    # define CS_LONG            5
-    # define CS_LLONG           6
-    # define CS_UCHAR           7
-    # define CS_USHORT          8
-    # define CS_UINT            9
-    # define CS_ULONG           10
-    # define CS_ULLONG          11
-    # define CS_FLOAT           12
-    # define CS_DOUBLE          13
-
-    /* Define standard output */
-    # define CS_OUT             stdout
-    # define CS_ERR             stderr
-
-    /* Define boolean constants */
-    # define CS_FALSE           LP_FALSE
-    # define CS_TRUE            LP_TRUE
-
-    /* Define directory entity type */
-    # define CS_FILE            0
-    # define CS_DIRECTORY       1
-
-    /* Define directory structure */
-    # define CS_PATH_PATTERN    ".log-"
-
-    /* Define record length */
-    # define CS_RECLEN          LP_DEVICE_EYESIS4PI_RECLEN
-
-    /* Define events type */
-    # define CS_IMU             LP_DEVICE_EYESIS4PI_IMUEVT
-    # define CS_MAS             LP_DEVICE_EYESIS4PI_MASEVT
-    # define CS_GPS             LP_DEVICE_EYESIS4PI_GPSEVT
+    /* Define timestamp printf model */
+    # define CS_MD      "%010" lp_Time_p ".%06" lp_Time_p
 
 /* 
     Header - Preprocessor macros
  */
 
-    /* Display macros */
-    # define CS_TS(t)           lp_timestamp_sec(t), lp_timestamp_usec(t)
-    # define CS_MD              "%010" lp_Time_p ".%06" lp_Time_p
+    /* Define timestamp display macro */
+    # define CS_TS(t)   lp_timestamp_sec(t), lp_timestamp_usec(t)
 
 /* 
     Header - Typedefs
@@ -177,108 +137,29 @@
 
     /*! \brief Software main function
      *  
-     *  The main function enumerates all elphel camera event logger output
-     *  logs-files contained in the provided directory. The audit process is
-     *  then called for each enumerated logs-file.
+     *  The main function enumerates the log-files found in the input directory.
+     *  The log-files are then openned and audited by the specific procedure.
+     *  The audit results are printed using standard output.
      *  
-     *  \param argc Standard main parameter
-     *  \param argv Standard main parameter
+     *  \param  argc Standard main parameter
+     *  \param  argv Standard main parameter
+     *
+     *  \return Returns exit code
      */
 
     int main ( int argc, char ** argv );
 
     /*! \brief Audit procedure
      *
-     *  This function performs an advanced audit of the considered logs-file,
-     *  parsing its content and displaying extracted informations.
+     *  This function performs an advanced audit of the considered logs-file.
+     *  The audit checks log-file consistency and timestamp ranges by event
+     *  types.
      * 
      *  \param csFile Considered logs-file path
-     *  \param csSize Size, in bytes, of file
+     *  \param csSize Stream handle to the file to audit
      */
 
-    void cs_elphel_audit ( char const * const csFile, size_t const csSize );
-
-    /*! \brief Human readable timestamp converter
-     *
-     *  Convert unix timestamp in human readable format through string.
-     *
-     *  \param  csTimestamp Unix timestamp
-     *
-     *  \return Returns pointer to string that contains conversion
-     */
-
-    char * cs_elphel_audit_utcstring ( lp_Time_t csTimestamp );
-
-    /*! \brief Directory entity enumeration
-     *  
-     *  Enumerates entity contained in the pointed directory. The function
-     *  detects automatically if an enumeration is under way and returns, one
-     *  by one, the name of the found entities. When enumeration is terminated,
-     *  the function closes itself the directory handle.
-     *
-     *  \param  csDirectory Directory to enumerates
-     *  \param  csName      String that recieve the entity name, appended to the
-     *                      directory path
-     *
-     *  \return Returns code indicating enumeration status
-     */
-
-    int cs_elphel_audit_enum ( char const * const csDirectory, char * const csName );
-
-    /*! \brief Directory entity type detection
-     *
-     *  This function checks if directory entity if of the type file or
-     *  directory according to the parameter.
-     *
-     *  \param  csEntity    Path to the entity
-     *  \param  csType      Type of the entity to check
-     *
-     *  \return Returns CS_TRUE if verification passed, CS_FALSE otherwise
-     */
-
-    int cs_elphel_audit_detect ( char const * const csEntity, int const csType );
-
-    /*! \brief File size extractor
-     *
-     *  Compute and returns the length, in bytes, of the file provided as
-     *  parameter.
-     *
-     *  \param  csFile Path to file
-     *
-     *  \return Returns file size in bytes - Zero is returned on error
-     */
-
-    size_t cs_elphel_audit_filesize( char const * const csFile );
-
-    /*! \brief Arguments common handler
-     *  
-     *  This function searches in the argv string array the position of the
-     *  argument defined through ltag/stag and returns the detected index.
-     *  
-     *  \param  argc    Standard main parameter
-     *  \param  argv    Standard main parameter
-     *  \param  ltag    Long-form argument string
-     *  \param  stag    Short-form argument string
-     *
-     *  \return Returns index of parameter in argv
-     */
-
-    int stda ( int argc, char ** argv, char const * const ltag, char const * const stag );
-
-    /*! \brief Parameters common handler
-     *  
-     *  This function interprets the parameter in the desired type and returns
-     *  it through the param variable. The argi variable is typically set using
-     *  stda function. If argi is set to CS_NULL, the function does nothing.
-     *  
-     *  \param argi     Index of the parameter in argv
-     *  \param argv     Standard main parameter
-     *  \param param    Pointer to the variable that recieve the interpreted
-     *                  parameter
-     *  \param type     Type to use for parameter interpretation
-     */
-
-    void stdp ( int argi, char ** argv, void * const param, int const type );
+    void cs_elphel_audit ( char const * const csFile, FILE * const csStream );
 
 /* 
     Header - C/C++ compatibility
