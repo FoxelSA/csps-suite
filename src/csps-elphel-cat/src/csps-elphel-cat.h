@@ -151,7 +151,7 @@
      *  This function simply displays the content of a record buffer in ASCII
      *  hexadecimal form using software standard output.
      *
-     *  \param csRec Pointer to first element of the record buffer
+     *  \param csBuffer Pointer to first element of the record buffer
      */
 
     void csps_elphel_cat_record ( lp_Byte_t * csBuffer );

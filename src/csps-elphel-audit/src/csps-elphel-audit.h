@@ -149,8 +149,8 @@
      *  The audit checks logs-file consistency and timestamp ranges by event
      *  types.
      * 
-     *  \param csFile Considered logs-file path
-     *  \param csSize Stream handle to the file to audit
+     *  \param csFile   Path to the logs-file
+     *  \param csStream Stream to the logs-file
      */
 
     void cs_elphel_audit ( char const * const csFile, FILE * const csStream );
