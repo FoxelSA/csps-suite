@@ -24,7 +24,7 @@
 
     BUILD_FLAGS:=-Wall -funsigned-char -O3
     BUILD_LINKD:=-lm -lGL -lGLU -lglut
-    BUILD_SUBMD:=$(MAKE_LIBRAR)/libcsps $(MAKE_LIBRAR)/libcsps/lib/libinter $(MAKE_LIBRAR)/libfastcal
+    BUILD_SUBMD:=$(MAKE_LIBRAR)/libcsps $(MAKE_LIBRAR)/libcsps/lib/libinter $(MAKE_LIBRAR)/libfastcal $(MAKE_LIBRAR)/libcommon
 
 #
 #   make - Modules

@@ -64,7 +64,6 @@
     /* Standard includes */
     # include <stdio.h>
     # include <stdlib.h>
-    # include <string.h>
     # include <unistd.h>
     # include <math.h>
     # include <libgen.h>
@@ -77,13 +76,12 @@
     /* CSPS includes */
     # include <csps-all.h>
 
+    /* Common library includes */
+    # include <common-all.h>
+
 /* 
     Header - Preprocessor definitions
  */
-
-    /* Define standard output */
-    # define CS_OUT         stdout
-    # define CS_ERR         stderr
 
     /* Define execution flag */
     # define CS_FLAG_CREATE 0

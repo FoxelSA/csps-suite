@@ -63,16 +63,16 @@
         int csWindow = 0;
 
         /* Search in parameters */
-        stdp( stda( argc, argv, "--path"   , "-p" ), argv, csPath.ptRoot, CS_STRING );
-        stdp( stda( argc, argv, "--cam-mod", "-c" ), argv, csPath.ptCAMm, CS_STRING );
-        stdp( stda( argc, argv, "--gps-mod", "-g" ), argv, csPath.ptGPSm, CS_STRING );
-        stdp( stda( argc, argv, "--imu-mod", "-i" ), argv, csPath.ptIMUm, CS_STRING );
-        stdp( stda( argc, argv, "--cam-tag", "-a" ), argv, csPath.ptCAMd, CS_STRING );
-        stdp( stda( argc, argv, "--gps-tag", "-s" ), argv, csPath.ptGPSd, CS_STRING );
-        stdp( stda( argc, argv, "--imu-tag", "-m" ), argv, csPath.ptIMUd, CS_STRING );
+        lc_stdp( lc_stda( argc, argv, "--path"   , "-p" ), argv, csPath.ptRoot, LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--cam-mod", "-m" ), argv, csPath.ptCAMm, LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--gps-mod", "-n" ), argv, csPath.ptGPSm, LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--imu-mod", "-s" ), argv, csPath.ptIMUm, LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--cam-tag", "-c" ), argv, csPath.ptCAMd, LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--gps-tag", "-g" ), argv, csPath.ptGPSd, LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--imu-tag", "-i" ), argv, csPath.ptIMUd, LC_STRING );
 
         /* Execution switch */
-        if ( stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
+        if ( lc_stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
 
             /* Display help summary */
             printf( CS_HELP );
@@ -128,63 +128,6 @@
 
         /* Return to system */
         return( EXIT_SUCCESS );
-
-    }
-
-/*
-    Source - Arguments common handler
- */
-
-    int stda( int argc, char ** argv, char const * const ltag, char const * const stag ) {
-
-        /* Search for argument */
-        while ( ( -- argc ) > 0 ) {
-
-            /* Search for tag matching */
-            if ( ( strcmp( argv[ argc ], ltag ) == 0 ) || ( strcmp( argv[ argc ], stag ) == 0 ) ) {
-
-                /* Return pointer to argument parameter */
-                return( argc + 1 );
-
-            }
-
-        /* Argument not found */
-        } return( CS_NULL );
-
-    }
-
-/*
-    Source - Parameters common handler
- */
-
-    void stdp( int argi, char ** argv, void * const param, int const type ) {
-
-        /* Index consistency */
-        if ( argi == CS_NULL ) return;
-
-        /* Select type */
-        switch ( type ) {
-
-            /* Specific reading operation - Integers */
-            case ( CS_CHAR   ) : { * ( signed char        * ) param = atoi ( ( const char * ) argv[argi] ); } break;
-            case ( CS_SHORT  ) : { * ( signed short       * ) param = atoi ( ( const char * ) argv[argi] ); } break;
-            case ( CS_INT    ) : { * ( signed int         * ) param = atoi ( ( const char * ) argv[argi] ); } break;
-            case ( CS_LONG   ) : { * ( signed long        * ) param = atol ( ( const char * ) argv[argi] ); } break;
-            case ( CS_LLONG  ) : { * ( signed long long   * ) param = atoll( ( const char * ) argv[argi] ); } break;
-            case ( CS_UCHAR  ) : { * ( unsigned char      * ) param = atol ( ( const char * ) argv[argi] ); } break;
-            case ( CS_USHORT ) : { * ( unsigned short     * ) param = atol ( ( const char * ) argv[argi] ); } break;
-            case ( CS_UINT   ) : { * ( unsigned int       * ) param = atol ( ( const char * ) argv[argi] ); } break;
-            case ( CS_ULONG  ) : { * ( unsigned long      * ) param = atoll( ( const char * ) argv[argi] ); } break;
-            case ( CS_ULLONG ) : { * ( unsigned long long * ) param = atoll( ( const char * ) argv[argi] ); } break;
-
-            /* Specific reading operation - Floating point */
-            case ( CS_FLOAT  ) : { * ( float              * ) param = atof ( ( const char * ) argv[argi] ); } break;
-            case ( CS_DOUBLE ) : { * ( double             * ) param = atof ( ( const char * ) argv[argi] ); } break;
-
-            /* Specific reading operation - String */
-            case ( CS_STRING ) : { strcpy( ( char * ) param, ( const char * ) argv[argi] );  } break;
-
-        };
 
     }
 

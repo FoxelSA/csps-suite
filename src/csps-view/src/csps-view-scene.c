@@ -392,7 +392,7 @@
             cs_view_controls_reset( CS_VIEW_CONTROLS_SET, ( csLon / csAcc ), ( csLat / csAcc ), ( csAlt / csAcc ) );
 
         /* Display message */
-        } else { fprintf( CS_ERR, "Error : unable to access CSPS stream using %s path\n", basename( csPath.ptRoot ) ); } 
+        } else { fprintf( LC_ERR, "Error : unable to access CSPS stream using %s path\n", basename( csPath.ptRoot ) ); } 
 
     }
 
