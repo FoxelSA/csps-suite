@@ -67,12 +67,18 @@
     Header - Preprocessor definitions
  */
 
+    /* Define timestamp printf model */
+    # define LC_TSM     "%010" lp_Time_p ".%06" lp_Time_p
+
 /* 
     Header - Preprocessor macros
  */
 
     /* Define timestamp reader macro */
     # define LC_TSR(b)  lp_timestamp( ( lp_Void_t * ) b );
+
+    /* Define timestamp decomposition macro */
+    # define LC_TSD(t)  lp_timestamp_sec(t), lp_timestamp_usec(t)
 
 /* 
     Header - Typedefs

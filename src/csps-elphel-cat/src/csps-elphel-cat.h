@@ -101,6 +101,7 @@
     # include <string.h>
     # include <libgen.h>
     # include <csps-all.h>
+    # include <common-all.h>
 
 /* 
     Header - Preprocessor definitions
@@ -116,40 +117,9 @@
     "csps-elphel-cat - csps-suite\n"                   \
     "Copyright (c) 2013-2014 FOXEL SA\n"
 
-    /* Define standard types */
-    # define CS_NULL            0
-    # define CS_STRING          1
-    # define CS_CHAR            2
-    # define CS_SHORT           3
-    # define CS_INT             4
-    # define CS_LONG            5
-    # define CS_LLONG           6
-    # define CS_UCHAR           7
-    # define CS_USHORT          8
-    # define CS_UINT            9
-    # define CS_ULONG           10
-    # define CS_ULLONG          11
-    # define CS_FLOAT           12
-    # define CS_DOUBLE          13
-
-    /* Define standard output */
-    # define CS_OUT             stdout
-    # define CS_ERR             stderr
-
-    /* Define record length */
-    # define CS_RECLEN          LP_DEVICE_EYESIS4PI_RECLEN
-
-    /* Define events type */
-    # define CS_IMU             LP_DEVICE_EYESIS4PI_IMUEVT
-    # define CS_MAS             LP_DEVICE_EYESIS4PI_MASEVT
-    # define CS_GPS             LP_DEVICE_EYESIS4PI_GPSEVT
-
 /* 
     Header - Preprocessor macros
  */
-
-    /* Event recognition macro */
-    # define CS_EVENT(r,e)      ( ( r[3] & lp_Byte_s( 0x0F ) ) == e )
 
 /* 
     Header - Typedefs
@@ -182,37 +152,7 @@
      *  \param csRec Pointer to first element of the record buffer
      */
 
-    void csps_elphel_cat_record ( lp_Byte_t * csRec );
-
-    /*! \brief Arguments common handler
-     *  
-     *  This function searches in the argv string array the position of the
-     *  argument defined through ltag/stag and returns the detected index.
-     *  
-     *  \param  argc    Standard main parameter
-     *  \param  argv    Standard main parameter
-     *  \param  ltag    Long-form argument string
-     *  \param  stag    Short-form argument string
-     *
-     *  \return Returns index of parameter in argv
-     */
-
-    int stda ( int argc, char ** argv, char const * const ltag, char const * const stag );
-
-    /*! \brief Parameters common handler
-     *  
-     *  This function interprets the parameter in the desired type and returns
-     *  it through the param variable. The argi variable is typically set using
-     *  stda function. If argi is set to CS_NULL, the function does nothing.
-     *  
-     *  \param argi     Index of the parameter in argv
-     *  \param argv     Standard main parameter
-     *  \param param    Pointer to the variable that recieve the interpreted
-     *                  parameter
-     *  \param type     Type to use for parameter interpretation
-     */
-
-    void stdp ( int argi, char ** argv, void * const param, int const type );
+    void csps_elphel_cat_record ( lp_Byte_t * csBuffer );
 
 /* 
     Header - C/C++ compatibility

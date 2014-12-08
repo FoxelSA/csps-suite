@@ -244,22 +244,22 @@
 
         /* Display information - Master */
         fprintf( LC_OUT, "    Master events summary\n" );
-        fprintf( LC_OUT, "        Range : " CS_MD " - " CS_MD "\n", CS_TS( csCAMinit ), CS_TS( csCAMtime ) );
-        fprintf( LC_OUT, "        Span  : " CS_MD "\n", CS_TS( lp_timestamp_diff( csCAMinit, csCAMtime ) ) );
-        fprintf( LC_OUT, "        Steps : " CS_MD " - " CS_MD "\n", CS_TS( csCAMstpi ), CS_TS( csCAMstpm ) );
-        fprintf( LC_OUT, "        Synch : " CS_MD " - " CS_MD "\n", CS_TS( csCAMmain ), CS_TS( csCAMdiff ) );
+        fprintf( LC_OUT, "        Range : " LC_TSM " - " LC_TSM "\n", LC_TSD( csCAMinit ), LC_TSD( csCAMtime ) );
+        fprintf( LC_OUT, "        Span  : " LC_TSM "\n", LC_TSD( lp_timestamp_diff( csCAMinit, csCAMtime ) ) );
+        fprintf( LC_OUT, "        Steps : " LC_TSM " - " LC_TSM "\n", LC_TSD( csCAMstpi ), LC_TSD( csCAMstpm ) );
+        fprintf( LC_OUT, "        Synch : " LC_TSM " - " LC_TSM "\n", LC_TSD( csCAMmain ), LC_TSD( csCAMdiff ) );
 
         /* Display information - IMU */
         fprintf( LC_OUT, "    IMU events summary\n" );
-        fprintf( LC_OUT, "        Range : " CS_MD " - " CS_MD "\n", CS_TS( csIMUinit ), CS_TS( csIMUtime ) );
-        fprintf( LC_OUT, "        Span  : " CS_MD "\n", CS_TS( lp_timestamp_diff( csIMUinit, csIMUtime ) ) );
-        fprintf( LC_OUT, "        Steps : " CS_MD " - " CS_MD "\n", CS_TS( csIMUstpi ), CS_TS( csIMUstpm ) );
+        fprintf( LC_OUT, "        Range : " LC_TSM " - " LC_TSM "\n", LC_TSD( csIMUinit ), LC_TSD( csIMUtime ) );
+        fprintf( LC_OUT, "        Span  : " LC_TSM "\n", LC_TSD( lp_timestamp_diff( csIMUinit, csIMUtime ) ) );
+        fprintf( LC_OUT, "        Steps : " LC_TSM " - " LC_TSM "\n", LC_TSD( csIMUstpi ), LC_TSD( csIMUstpm ) );
 
         /* Display information - GPS */
         fprintf( LC_OUT, "    GPS events summary\n" );
-        fprintf( LC_OUT, "        Range : " CS_MD " - " CS_MD "\n", CS_TS( csGPSinit ), CS_TS( csGPStime ) );
-        fprintf( LC_OUT, "        Span  : " CS_MD "\n", CS_TS( lp_timestamp_diff( csGPSinit, csGPStime ) ) );
-        fprintf( LC_OUT, "        Steps : " CS_MD " - " CS_MD "\n", CS_TS( csGPSstpi ), CS_TS( csGPSstpm ) );
+        fprintf( LC_OUT, "        Range : " LC_TSM " - " LC_TSM "\n", LC_TSD( csGPSinit ), LC_TSD( csGPStime ) );
+        fprintf( LC_OUT, "        Span  : " LC_TSM "\n", LC_TSD( lp_timestamp_diff( csGPSinit, csGPStime ) ) );
+        fprintf( LC_OUT, "        Steps : " LC_TSM " - " LC_TSM "\n", LC_TSD( csGPSstpi ), LC_TSD( csGPSstpm ) );
 
     }
 

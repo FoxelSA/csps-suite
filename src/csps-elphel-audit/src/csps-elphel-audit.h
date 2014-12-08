@@ -113,15 +113,9 @@
     "csps-elphel-audit - csps-suite\n"                    \
     "Copyright (c) 2013-2014 FOXEL SA\n"
 
-    /* Define timestamp printf model */
-    # define CS_MD      "%010" lp_Time_p ".%06" lp_Time_p
-
 /* 
     Header - Preprocessor macros
  */
-
-    /* Define timestamp display macro */
-    # define CS_TS(t)   lp_timestamp_sec(t), lp_timestamp_usec(t)
 
 /* 
     Header - Typedefs
