@@ -100,14 +100,39 @@
     # include <stdlib.h>
     # include <string.h>
     # include <math.h>
+    # include <time.h>
+    # include <dirent.h>
+    # include <csps-all.h>
 
 /* 
     Header - Preprocessor definitions
  */
 
+    /* Define standard output */
+    # define LC_OUT         stdout
+    # define LC_ERR         stderr
+
+    /* Define boolean constants */
+    # define LC_FALSE       LP_FALSE
+    # define LC_TRUE        LP_TRUE
+
+    /* Define log-files pattern */
+    # define LC_PATTERN     ".log-"
+
+    /* Define record buffer size */
+    # define LC_RECORD      LP_DEVICE_EYESIS4PI_RECLEN
+
+    /* Define events type */
+    # define LC_IMU         LP_DEVICE_EYESIS4PI_IMUEVT
+    # define LC_MAS         LP_DEVICE_EYESIS4PI_MASEVT
+    # define LC_GPS         LP_DEVICE_EYESIS4PI_GPSEVT
+
 /* 
     Header - Preprocessor macros
  */
+
+    /* Event type detection macro */
+    # define LC_EDM(r,t)    ( ( r[3] & lp_Byte_s( 0x0F ) ) == t )
 
 /* 
     Header - Typedefs

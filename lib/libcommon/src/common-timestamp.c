@@ -36,67 +36,37 @@
  *      Attribution" section of <http://foxel.ch/license>.
  */
 
-    /*! \file   common-all.h
-     *  \author Nils Hamel <n.hamel@foxel.ch>
-     *
-     *  Library general includer
-     */
 
 /* 
-    Header - Include guard
+    Source - Includes
  */
 
-    # ifndef __LC_ALL__
-    # define __LC_ALL__
-
-/* 
-    Header - C/C++ compatibility
- */
-
-    # ifdef __cplusplus
-    extern "C" {
-    # endif
-
-/* 
-    Header - Includes
- */
-
-    # include "common.h"
-    # include "common-stdap.h"
-    # include "common-file.h"
     # include "common-timestamp.h"
 
-/* 
-    Header - Preprocessor definitions
- */
-
-/* 
-    Header - Preprocessor macros
- */
-
-/* 
-    Header - Typedefs
- */
-
-/* 
-    Header - Structures
- */
-
-/* 
-    Header - Function prototypes
- */
-
-/* 
-    Header - C/C++ compatibility
- */
-
-    # ifdef __cplusplus
-    }
-    # endif
-
 /*
-    Header - Include guard
+    Source - Human readable timestamp converter
  */
 
-    # endif
+    char * lc_timestamp_utc( lp_Time_t lcTimestamp ) {
+
+        /* Static string variables */
+        static char lcHuman[256] = { 0 };
+
+        /* Timestamp variables */
+        time_t lcUnixTime = lp_timestamp_sec( lcTimestamp );
+
+        /* Decomposed time variables */
+        struct tm * lcTime;
+
+        /* Create decomposed time structure */
+        lcTime = gmtime( & lcUnixTime );
+
+        /* Create human readable string */
+        strftime ( lcHuman, 256, "%Y-%m-%dT%H:%M:%S+00:00", lcTime );
+
+        /* Returns pointer to string */
+        return( lcHuman );
+
+    }
+
 

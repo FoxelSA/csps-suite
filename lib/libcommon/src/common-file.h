@@ -36,18 +36,18 @@
  *      Attribution" section of <http://foxel.ch/license>.
  */
 
-    /*! \file   common-all.h
+    /*! \file   common-file.h
      *  \author Nils Hamel <n.hamel@foxel.ch>
      *
-     *  Library general includer
+     *  Generic operations on files and directories
      */
 
 /* 
     Header - Include guard
  */
 
-    # ifndef __LC_ALL__
-    # define __LC_ALL__
+    # ifndef __LC_FILE__
+    # define __LC_FILE__
 
 /* 
     Header - C/C++ compatibility
@@ -62,13 +62,14 @@
  */
 
     # include "common.h"
-    # include "common-stdap.h"
-    # include "common-file.h"
-    # include "common-timestamp.h"
 
 /* 
     Header - Preprocessor definitions
  */
+
+    /* Define entity type */
+    # define LC_FILE        0
+    # define LC_DIRECTORY   1
 
 /* 
     Header - Preprocessor macros
@@ -86,12 +87,53 @@
     Header - Function prototypes
  */
 
+    /*! \brief Directory entity enumeration
+     *  
+     *  Enumerates directory entities contained in the pointed directory. The
+     *  function detects automatically if an enumeration is under way and
+     *  returns, one by one, the name of the found entities. When enumeration
+     *  is terminated, the function closes itself the directory handle.
+     *
+     *  \param  lcDirectory Directory to enumerates
+     *  \param  lcName      String that recieve the entity name, appended to the
+     *                      directory path
+     *
+     *  \return Returns code indicating enumeration status
+     */
+
+    int lc_file_enum ( char const * const lcDirectory, char * const lcName );
+
+    /*! \brief Directory entity type detection
+     *
+     *  This function returns true if directory entity pointed by lcEntity is
+     *  of type provided by lcType, false otherwise.
+     *
+     *  \param  lcEntity    Path to the entity
+     *  \param  lcType      Type of the entity to check
+     *
+     *  \return Returns true if verification passed, false otherwise
+     */
+
+    int lc_file_detect ( char const * const lcEntity, int const lcType );
+
+    /*! \brief File entity size detection
+     *  
+     *  This function returns the size, in bytes, of the provided file. If the
+     *  file is not found or inaccessible, the function returns zero.
+     *
+     *  \param  lcFile Path to the file
+     *
+     *  \return Returns the size of file in bytes.
+     */
+
+    size_t lc_file_size ( char const * const lcFile );
+
 /* 
     Header - C/C++ compatibility
  */
 
     # ifdef __cplusplus
-    }
+    } 
     # endif
 
 /*

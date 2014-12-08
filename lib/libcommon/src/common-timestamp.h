@@ -36,18 +36,18 @@
  *      Attribution" section of <http://foxel.ch/license>.
  */
 
-    /*! \file   common-all.h
+    /*! \file   common-timestamp.h
      *  \author Nils Hamel <n.hamel@foxel.ch>
      *
-     *  Library general includer
+     *  Generic timestamp operation
      */
 
 /* 
     Header - Include guard
  */
 
-    # ifndef __LC_ALL__
-    # define __LC_ALL__
+    # ifndef __LC_TIMESTAMP__
+    # define __LC_TIMESTAMP__
 
 /* 
     Header - C/C++ compatibility
@@ -62,9 +62,6 @@
  */
 
     # include "common.h"
-    # include "common-stdap.h"
-    # include "common-file.h"
-    # include "common-timestamp.h"
 
 /* 
     Header - Preprocessor definitions
@@ -73,6 +70,9 @@
 /* 
     Header - Preprocessor macros
  */
+
+    /* Define timestamp reader macro */
+    # define LC_TSR(b)  lp_timestamp( ( lp_Void_t * ) b );
 
 /* 
     Header - Typedefs
@@ -86,12 +86,25 @@
     Header - Function prototypes
  */
 
+    /*! \brief Human readable timestamp converter
+     *
+     *  This function waits a timestamp variables and convert the seconds part
+     *  in a human readable form using UTC time. The result is returned using
+     *  a static char array.
+     * 
+     *  \param  lcTimestamp     Timestamp to convert
+     *
+     *  \return Returns the pointer to the first character of the string
+     */
+
+    char * lc_timestamp_utc ( lp_Time_t lcTimestamp );
+
 /* 
     Header - C/C++ compatibility
  */
 
     # ifdef __cplusplus
-    }
+    } 
     # endif
 
 /*
