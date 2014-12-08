@@ -100,8 +100,8 @@
     # include <stdlib.h>
     # include <string.h>
     # include <libgen.h>
-    # include <dirent.h>
     # include <csps-all.h>
+    # include <common-all.h>
 
 /* 
     Header - Preprocessor definitions
@@ -116,57 +116,9 @@
     "csps-elphel-merge - csps-suite\n"                   \
     "Copyright (c) 2013-2014 FOXEL SA\n"
 
-    /* Define standard types */
-    # define CS_NULL            0
-    # define CS_STRING          1
-    # define CS_CHAR            2
-    # define CS_SHORT           3
-    # define CS_INT             4
-    # define CS_LONG            5
-    # define CS_LLONG           6
-    # define CS_UCHAR           7
-    # define CS_USHORT          8
-    # define CS_UINT            9
-    # define CS_ULONG           10
-    # define CS_ULLONG          11
-    # define CS_FLOAT           12
-    # define CS_DOUBLE          13
-
-    /* Define standard output */
-    # define CS_OUT             stdout
-    # define CS_ERR             stderr
-
-    /* Define boolean variables */
-    # define CS_FALSE           LP_FALSE
-    # define CS_TRUE            LP_TRUE
-
-    /* Define special timestamps value */
-    # define CS_INFT            0xFFFFFFFFFFFFFFFF
-
-    /* Define directory entity type */
-    # define CS_FILE            0
-    # define CS_DIRECTORY       1
-
-    /* Define descriptors stack size */
-    # define CS_SIZE            1024
-
-    /* Define directory structure */
-    # define CS_PATH_PATTERN    ".log-"
-
-    /* Define record length */
-    # define CS_RECLEN          LP_DEVICE_EYESIS4PI_RECLEN
-
-    /* Define events type */
-    # define CS_IMU             LP_DEVICE_EYESIS4PI_IMUEVT
-    # define CS_MAS             LP_DEVICE_EYESIS4PI_MASEVT
-    # define CS_GPS             LP_DEVICE_EYESIS4PI_GPSEVT
-
 /* 
     Header - Preprocessor macros
  */
-
-    /* Event recognition macro */
-    # define CS_EVENT(r,e)      ( ( r[3] & lp_Byte_s( 0x0F ) ) == e )
 
 /* 
     Header - Typedefs
@@ -177,10 +129,10 @@
  */
 
     /*! \struct cs_Descriptor_struct
-     *  \brief Raw logs-file descriptor
+     *  \brief Logs-file descriptor
      *
-     *  This structure stores the necessary information to perform contigous
-     *  logs-files detection and appending.
+     *  This structure stores the necessary information to perform logs-files
+     *  merging.
      *
      *  \var cs_Descriptor_struct::dsName
      *  Stores raw logs-file path
@@ -213,76 +165,17 @@
 
     int main ( int argc, char ** argv );
 
-    /*! \brief First timestamp extraction
+    /*! \brief First timestamp detection
      *
-     *  This function parses the provided logs-file and extract, for IMU events
-     *  only, the lowest and highest timestamps found in the file.
+     *  This function searches the first IMU-events found in the provided
+     *  logs-file and returns its timestamp.
      *
-     *  \param csFile   File on which extremum analysis is performed
-     *  \param csFirst  Variable reference used to return first timestamp
-     *  \param csLast   Variable reference used to return last timestamp
+     *  \param  csFile   Provided logs-file path
+     *
+     *  \return Returns first IMU-event timestamp
      */
 
-    lp_Time_t cs_elphel_merge_first( char const * const csFil );
-
-    /*! \brief Directory entity enumeration
-     *  
-     *  Enumerates entity contained in the pointed directory. The function
-     *  detects automatically if an enumeration is under way and returns, one
-     *  by one, the name of the found entities. When enumeration is terminated,
-     *  the function closes itself the directory handle.
-     *
-     *  \param  csDirectory Directory to enumerates
-     *  \param  csName      String that recieve the entity name, appended to the
-     *                      directory path
-     *
-     *  \return Returns code indicating enumeration status
-     */
-
-    int cs_elphel_merge_enum ( char const * const csDirectory, char * const csName );
-
-    /*! \brief Directory entity type detection
-     *
-     *  This function checks if directory entity if of the type file or
-     *  directory according to the parameter.
-     *
-     *  \param  csEntity    Path to the entity
-     *  \param  csType      Type of the entity to check
-     *
-     *  \return Returns CS_TRUE if verification passed, CS_FALSE otherwise
-     */
-
-    int cs_elphel_merge_detect ( char const * const csEntity, int const csType );
-
-    /*! \brief Arguments common handler
-     *  
-     *  This function searches in the argv string array the position of the
-     *  argument defined through ltag/stag and returns the detected index.
-     *  
-     *  \param  argc    Standard main parameter
-     *  \param  argv    Standard main parameter
-     *  \param  ltag    Long-form argument string
-     *  \param  stag    Short-form argument string
-     *
-     *  \return Returns index of parameter in argv
-     */
-
-    int stda ( int argc, char ** argv, char const * const ltag, char const * const stag );
-
-    /*! \brief Parameters common handler
-     *  
-     *  This function interprets the parameter in the desired type and returns
-     *  it through the param variable. The argi variable is typically set using
-     *  stda function. If argi is set to CS_NULL, the function does nothing.
-     *  
-     *  \param argi     Index of the parameter in argv
-     *  \param argv     Standard main parameter
-     *  \param param    Pointer to the variable that recieve the interpreted
-     *                  parameter
-     *  \param type     Type to use for parameter interpretation
-     */
-
-    void stdp ( int argi, char ** argv, void * const param, int const type );
+    lp_Time_t cs_elphel_merge_first( char const * const csFile );
 
 /* 
     Header - C/C++ compatibility

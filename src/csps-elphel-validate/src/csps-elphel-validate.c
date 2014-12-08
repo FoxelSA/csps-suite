@@ -87,7 +87,7 @@
                         if ( lc_file_size( csEnt ) > csMinimum ) {
 
                             /* Build validated temporary logs-file path */
-                            sprintf( csExp, "%s/log-validated.log-%05li", csDst, csIndex ++ );
+                            sprintf( csExp, "%s/log-container.log-%05li", csDst, csIndex ++ );
 
                             /* Display information */
                             fprintf( LC_OUT, "Validating : %s\n    Exported in %s\n", basename( csEnt ), basename( csExp ) );

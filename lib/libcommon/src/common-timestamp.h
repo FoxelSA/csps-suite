@@ -67,6 +67,10 @@
     Header - Preprocessor definitions
  */
 
+    /* Define unix timestamp limites */
+    # define CS_EPOCH   0x0000000000000000
+    # define CS_INFTY   0xFFFFFFFFFFFFFFFF
+
     /* Define timestamp printf model */
     # define LC_TSM     "%010" lp_Time_p ".%06" lp_Time_p
 
