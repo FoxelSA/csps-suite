@@ -101,8 +101,8 @@
     # include <string.h>
     # include <stdint.h>
     # include <libgen.h>
-    # include <dirent.h>
     # include <csps-all.h>
+    # include <common-all.h>
 
 /* 
     Header - Preprocessor definitions
@@ -112,69 +112,18 @@
     # define CS_HELP "Usage summary :\n"                       \
     "  csps-elphel-gps [Arguments] [Parameters] ...\n"         \
     "Short arguments and parameters summary :\n"               \
-    "  -r Directory containing recomposed logs-files\n"        \
-    "  -v Directory where validated logs-files are exported\n" \
-    "  -m Minimum size, in bytes, for logs-file validation\n"  \
+    "  -s Directory containing logs-files to decimate\n"       \
+    "  -d Directory where decimated logs-files are exported\n" \
     "csps-elphel-gps - csps-suite\n"                           \
     "Copyright (c) 2013-2014 FOXEL SA\n"
-
-    /* Define standard types */
-    # define CS_NULL            0
-    # define CS_STRING          1
-    # define CS_CHAR            2
-    # define CS_SHORT           3
-    # define CS_INT             4
-    # define CS_LONG            5
-    # define CS_LLONG           6
-    # define CS_UCHAR           7
-    # define CS_USHORT          8
-    # define CS_UINT            9
-    # define CS_ULONG           10
-    # define CS_ULLONG          11
-    # define CS_FLOAT           12
-    # define CS_DOUBLE          13
-
-    /* Define standard output */
-    # define CS_OUT             stdout
-    # define CS_ERR             stderr
-
-    /* Define boolean variables */
-    # define CS_FALSE           LP_FALSE
-    # define CS_TRUE            LP_TRUE
-
-    /* Define directory entity type */
-    # define CS_FILE            0
-    # define CS_DIRECTORY       1
-
-    /* Define directory structure */
-    # define CS_PATH_PATTERN    ".log-"
-
-    /* Define record length */
-    # define CS_RECLEN          LP_DEVICE_EYESIS4PI_RECLEN
-
-    /* Define events type */
-    # define CS_IMU             LP_DEVICE_EYESIS4PI_IMUEVT
-    # define CS_MAS             LP_DEVICE_EYESIS4PI_MASEVT
-    # define CS_GPS             LP_DEVICE_EYESIS4PI_GPSEVT
 
     /* Define sentence buffer size */
     # define CS_NTYPE           4
     # define CS_REPET           5
-    # define CS_BSIZE           CS_RECLEN * CS_NTYPE
-
-    /* Define GPS timestamp reconstruction modes */
-    # define CS_MODE_PARSE      0
-    # define CS_MODE_WRITE      1
-    # define CS_MODE_AVOID      2
 
 /* 
     Header - Preprocessor macros
  */
-
-    /* Event recognition macro */
-    # define CS_TIMES(r)        ( lp_timestamp( ( lp_Void_t * ) r ) )
-    # define CS_EVENT(r,e)      ( ( r[3] & lp_Byte_s( 0x0F ) ) == e )
-    # define CS_NMEAT(r)        ( r[8] & 0x0F )
 
 /* 
     Header - Typedefs
@@ -190,82 +139,77 @@
 
     /*! \brief Software main function
      *  
-     *  The main function considers recomposed logs-files and proceed to a
-     *  validation of the recomposition based on the file size. It also remove
-     *  GPS-events that are too far away of their nearest IMU-event.
+     *  The main function expects logs-files that have been processed in order
+     *  to remove anomalous records or block of records. It parses the logs-files
+     *  contained in the source directory and calls the GPS decimation process
+     *  for each logs-files. The decimated logs-files are the written in the
+     *  destination directory.
      *  
-     *  \param argc Standard main parameter
-     *  \param argv Standard main parameter
+     *  \param  argc Standard main parameter
+     *  \param  argv Standard main parameter
+     *
+     *  \return Return exit code
      */
 
     int main ( int argc, char ** argv );
 
-    unsigned long cs_elphel_gps_process ( FILE * const csIStream, FILE * const csOStream, double csTol );
+    /*! \brief Logs-file GPS decimation
+     *
+     *  The way this function works is highly related to Elphel camera device
+     *  hardware. The function performs a GPS decimation based on block of
+     *  NMEA sentence completion and on the timestamp of the GPS-events. It also
+     *  rebuild the timestamps of the GPS-events after validation of the block.
+     *
+     *  \param  csIStream Input logs-file handle
+     *  \param  csOStream Output logs-file handle
+     *
+     *  \return Returns the number of discarded GPS events
+     */
+
+    unsigned long cs_elphel_gps_process ( FILE * const csIStream, FILE * const csOStream );
+
+    /*! \brief NMEA sentence block validation
+     *
+     *  This function waits an array with each of its element associated to a
+     *  type of NMEA sentence. Each array element are expected to carry the count
+     *  of NMEA sentence of the type its related to.
+     *
+     *  This array is then parsed by the function in order to be sure that, for
+     *  a given GPS measure, each NMEA type appears only one. The block of
+     *  sentence can then be discarded otherwise.
+     * 
+     *  \param  csBlock Pointer to the first element of the array
+     *
+     *  \return Returns true if each sentence type appears only once, false
+     *          otherwise
+     */
 
     int cs_elphel_gps_bloc ( lp_Byte_t const * const csBlock );
 
-    lp_Time_t cs_elphel_gps_timestamp ( lp_Time_t csReference, unsigned long csRepet );
+    /*! \brief GPS timestamp reconstruction
+     * 
+     *  This function rebuild the GPS-event timestamp on the base of the last
+     *  reference timestamp and the number of repetition of this reference
+     *  timestamp, assuming a frequency of measure of five hertz.
+     *
+     *  \param  csReference Last reference timestamp
+     *  \param  csRepet     Number of repetition of the reference timestamp
+     *
+     *  \return Returns rebuilded GPS-event timestamp
+     */
+
+    lp_Time_t cs_elphel_gps_timestamp ( lp_Time_t const csReference, unsigned long const csRepet );
+
+    /*! \brief Record header override
+     *  
+     *  This function interprets the eight first bytes of the logs-file record
+     *  buffer to replace the original timestamp by the rebuilded one.
+     * 
+     *  \param csHeader Pointer to the first byte of the record buffer
+     *  \param csTime   Timestamp to write in recrod header
+     */
 
     void cs_elphel_gps_header ( lp_Time_t * const csHeader, lp_Time_t const csTime );
-
-    /*! \brief Directory entity enumeration
-     *  
-     *  Enumerates entity contained in the pointed directory. The function
-     *  detects automatically if an enumeration is under way and returns, one
-     *  by one, the name of the found entities. When enumeration is terminated,
-     *  the function closes itself the directory handle.
-     *
-     *  \param  csDirectory Directory to enumerates
-     *  \param  csName      String that recieve the entity name, appended to the
-     *                      directory path
-     *
-     *  \return Returns code indicating enumeration status
-     */
-
-    int cs_elphel_gps_enum ( char const * const csDirectory, char * const csName );
-
-    /*! \brief Directory entity type detection
-     *
-     *  This function checks if directory entity if of the type file or
-     *  directory according to the parameter.
-     *
-     *  \param  csEntity    Path to the entity
-     *  \param  csType      Type of the entity to check
-     *
-     *  \return Returns CS_TRUE if verification passed, CS_FALSE otherwise
-     */
-
-    int cs_elphel_gps_detect ( char const * const csEntity, int const csType );
-
-    /*! \brief Arguments common handler
-     *  
-     *  This function searches in the argv string array the position of the
-     *  argument defined through ltag/stag and returns the detected index.
-     *  
-     *  \param  argc    Standard main parameter
-     *  \param  argv    Standard main parameter
-     *  \param  ltag    Long-form argument string
-     *  \param  stag    Short-form argument string
-     *
-     *  \return Returns index of parameter in argv
-     */
-
-    int stda ( int argc, char ** argv, char const * const ltag, char const * const stag );
-
-    /*! \brief Parameters common handler
-     *  
-     *  This function interprets the parameter in the desired type and returns
-     *  it through the param variable. The argi variable is typically set using
-     *  stda function. If argi is set to CS_NULL, the function does nothing.
-     *  
-     *  \param argi     Index of the parameter in argv
-     *  \param argv     Standard main parameter
-     *  \param param    Pointer to the variable that recieve the interpreted
-     *                  parameter
-     *  \param type     Type to use for parameter interpretation
-     */
-
-    void stdp ( int argi, char ** argv, void * const param, int const type );
 
 /* 
     Header - C/C++ compatibility
