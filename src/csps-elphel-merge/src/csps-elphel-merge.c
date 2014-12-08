@@ -138,7 +138,7 @@
             sprintf( csExp, "%s/log-container.log-00001", csDst );
 
             /* Display information */
-            fprintf( LC_OUT, "Merge : %s\n", basename( csExp ) );
+            fprintf( LC_OUT, "Merging : %s\n", basename( csExp ) );
 
             /* Create output stream handle */
             if ( ( csOStream = fopen( csExp, "wb" ) ) != NULL ) {
@@ -147,7 +147,7 @@
                 while ( csAppend > 0 ) {
 
                     /* Push infinit time */
-                    csPush = lp_Time_s( CS_INFTY );
+                    csPush = LC_INFTY;
 
                     /* Reset selection */
                     csSelect = csIndex;
