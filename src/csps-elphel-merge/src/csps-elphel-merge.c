@@ -56,19 +56,22 @@
         char csExp[256] = { 0 };
 
         /* Stack size variables */
-        unsigned int csIndex = 0;
+        unsigned long csIndex = 0;
 
         /* Stack decimation variables */
-        signed   int csAppend = 0;
+        signed   long csAppend = 0;
 
         /* Parsing variables */
-        unsigned int csParse = 0;
+        unsigned long csParse = 0;
 
         /* Selection variables */
-        unsigned int csSelect = 0;
+        unsigned long csSelect = 0;
+
+        /* Losses variables */
+        unsigned long csCount = 0;
 
         /* Appending flag variables */
-        unsigned int csFlag = LC_FALSE;
+        unsigned long csFlag = LC_FALSE;
 
         /* Logs-files stack variables */
         cs_Descriptor_t csStack[8192];
@@ -171,13 +174,16 @@
                     }
 
                     /* Display append information */
-                    fprintf( LC_OUT, "    %s\n", basename( csStack[csSelect].dsName ) );
+                    fprintf( LC_OUT, "    %s", basename( csStack[csSelect].dsName ) );
 
                     /* Update selection state */
                     csStack[csSelect].dsFlag = LC_TRUE;
 
                     /* Appending condition flag reset */
                     csFlag = LC_FALSE;
+
+                    /* Reset loss count */
+                    csCount = 0;
 
                     /* Create input stream */
                     if ( ( csIStream = fopen( csStack[csSelect].dsName, "rb" ) ) != NULL ) {
@@ -189,7 +195,7 @@
                             if ( LC_EDM( csBuffer, LC_IMU ) ) {
 
                                 /* Appending condition trigger */
-                                if ( ( lp_timestamp_ge( csLKnown, lp_timestamp( ( lp_Void_t * ) csBuffer ) ) ) == LC_FALSE ) {
+                                if ( ( lp_timestamp_ge( csLKnown, LC_TSR( csBuffer ) ) ) == LC_FALSE ) {
 
                                     /* Set appending condition flag */
                                     csFlag = LC_TRUE;
@@ -205,7 +211,12 @@
                                 fwrite( csBuffer, 1, LC_RECORD, csOStream );
 
                                 /* Memorize last known timestamp */
-                                csLKnown = lp_timestamp( ( lp_Void_t * ) csBuffer );
+                                csLKnown = LC_TSR( csBuffer );
+
+                            } else {
+
+                                /* Update losses count */
+                                csCount ++; 
 
                             }
 
@@ -213,6 +224,9 @@
 
                         /* Close input stream */
                         fclose( csIStream );
+
+                        /* Display append information */
+                        fprintf( LC_OUT, " - %lu event(s) lost\n", csCount );
 
                     } else { fprintf( LC_ERR, "Error : unable to access %s\n", basename( csStack[csSelect].dsName ) ); }
 
@@ -256,7 +270,7 @@
             while ( ( csFirst == 0 ) && ( fread( csBuffer, 1, LC_RECORD, csStream ) == LC_RECORD ) ) {
 
                 /* Event type detection and timestamp assignation */
-                if ( LC_EDM( csBuffer, LC_IMU ) ) csFirst = lp_timestamp( ( lp_Void_t * ) csBuffer );
+                if ( LC_EDM( csBuffer, LC_IMU ) ) csFirst = LC_TSR( csBuffer );
 
             }
 

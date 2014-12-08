@@ -67,7 +67,7 @@
     Header - Preprocessor definitions
  */
 
-    /* Define unix timestamp limites */
+    /* Define unix timestamp limits */
     # define CS_EPOCH   0x0000000000000000
     # define CS_INFTY   0xFFFFFFFFFFFFFFFF
 
@@ -79,7 +79,7 @@
  */
 
     /* Define timestamp reader macro */
-    # define LC_TSR(b)  lp_timestamp( ( lp_Void_t * ) b );
+    # define LC_TSR(b)  lp_timestamp( ( lp_Void_t * ) b )
 
     /* Define timestamp decomposition macro */
     # define LC_TSD(t)  lp_timestamp_sec(t), lp_timestamp_usec(t)

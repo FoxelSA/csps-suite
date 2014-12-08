@@ -158,7 +158,7 @@
                         csOStream = fopen( csSeg, "wb" );
 
                         /* Display decomposition information */
-                        fprintf( LC_OUT, "    %s - %lu event loss(es)\n", basename( csSeg ), csCount );
+                        fprintf( LC_OUT, "    %s - %lu event(s) lost\n", basename( csSeg ), csCount );
 
                     }
 
