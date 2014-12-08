@@ -131,8 +131,8 @@
 
     /*! \brief Software main function
      *  
-     *  The main function enumerates the log-files found in the input directory.
-     *  The log-files are then openned and audited by the specific procedure.
+     *  The main function enumerates the logs-files found in the input directory.
+     *  The logs-files are then openned and audited by the specific procedure.
      *  The audit results are printed using standard output.
      *  
      *  \param  argc Standard main parameter
@@ -146,7 +146,7 @@
     /*! \brief Audit procedure
      *
      *  This function performs an advanced audit of the considered logs-file.
-     *  The audit checks log-file consistency and timestamp ranges by event
+     *  The audit checks logs-file consistency and timestamp ranges by event
      *  types.
      * 
      *  \param csFile Considered logs-file path

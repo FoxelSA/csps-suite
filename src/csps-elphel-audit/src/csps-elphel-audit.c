@@ -104,7 +104,7 @@
 
     void cs_elphel_audit( char const * const csFile, FILE * const csStream ) {
 
-        /* Log-file size variables */
+        /* Logs-file size variables */
         size_t csRead = 0;
         size_t csSize = 0;
 
@@ -137,7 +137,7 @@
         /* Parse file */
         while ( ( csRead = fread( csBuffer, 1, LC_RECORD, csStream ) ) == LC_RECORD ) {
 
-            /* Compute log-file size */
+            /* Compute logs-file size */
             csSize += csRead;
 
             /* Event type detection */
@@ -228,7 +228,7 @@
 
         }
 
-        /* Finalize log-file size computation */
+        /* Finalize logs-file size computation */
         csSize += csRead;
 
         /* Display information */
