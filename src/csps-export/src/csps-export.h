@@ -146,8 +146,10 @@
      *  that are used in interfaces for data representation. Positioning data
      *  are obtained through CSPS queries.
      *  
-     *  \param argc Standard main parameter
-     *  \param argv Standard main parameter
+     *  \param  argc Standard main parameter
+     *  \param  argv Standard main parameter
+     *  
+     *  \return Returns exit code
      */
 
     int main ( int argc, char ** argv );

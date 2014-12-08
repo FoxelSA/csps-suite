@@ -138,15 +138,17 @@
      *  The main function parse the provided logs-file and dumps its content 
      *  according to software parameters.
      *  
-     *  \param argc Standard main parameter
-     *  \param argv Standard main parameter
+     *  \param  argc Standard main parameter
+     *  \param  argv Standard main parameter
+     *  
+     *  \return Returns exit code
      */
 
     int main ( int argc, char ** argv );
 
     /*! \brief Record buffer ASCII display
      *
-     *  This function simply display the content of a record buffer in ASCII
+     *  This function simply displays the content of a record buffer in ASCII
      *  hexadecimal form using software standard output.
      *
      *  \param csRec Pointer to first element of the record buffer

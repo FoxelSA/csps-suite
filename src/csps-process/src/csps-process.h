@@ -98,10 +98,9 @@
 
     # include <stdio.h>
     # include <stdlib.h>
-    # include <string.h>
     # include <libgen.h>
-    # include <dirent.h>
     # include <csps-all.h>
+    # include <common-all.h>
 
 /* 
     Header - Preprocessor definitions
@@ -115,34 +114,6 @@
     "  -t CSPS topology file path\n"                \
     "csps-process - csps-suite\n"                   \
     "Copyright (c) 2013-2014 FOXEL SA\n"
-
-    /* Define standard types */
-    # define CS_NULL            0
-    # define CS_STRING          1
-    # define CS_CHAR            2
-    # define CS_SHORT           3
-    # define CS_INT             4
-    # define CS_LONG            5
-    # define CS_LLONG           6
-    # define CS_UCHAR           7
-    # define CS_USHORT          8
-    # define CS_UINT            9
-    # define CS_ULONG           10
-    # define CS_ULLONG          11
-    # define CS_FLOAT           12
-    # define CS_DOUBLE          13
-
-    /* Define standard output */
-    # define CS_OUT             stdout
-    # define CS_ERR             stderr
-
-    /* Define boolean variables */
-    # define CS_FALSE           LP_FALSE
-    # define CS_TRUE            LP_TRUE
-
-    /* Define directory entity type */
-    # define CS_FILE            0
-    # define CS_DIRECTORY       1
 
 /* 
     Header - Preprocessor macros
@@ -163,56 +134,15 @@
     /*! \brief Software main function
      *  
      *  The main function, after provided path verification, calls the CSPS
-     *  process on the desired structure.
+     *  process on the desired structure using the provided topology file.
      *  
-     *  \param argc Standard main parameter
-     *  \param argv Standard main parameter
+     *  \param  argc Standard main parameter
+     *  \param  argv Standard main parameter
+     *
+     *  \return Returns exit code
      */
 
     int main ( int argc, char ** argv );
-
-    /*! \brief Directory entity type detection
-     *
-     *  This function checks if directory entity if of the type file or
-     *  directory according to the parameter.
-     *
-     *  \param  csEntity    Path to the entity
-     *  \param  csType      Type of the entity to check
-     *
-     *  \return Returns CS_TRUE if verification passed, CS_FALSE otherwise
-     */
-
-    int cs_process_detect ( char const * const csEntity, int const csType );
-
-    /*! \brief Arguments common handler
-     *  
-     *  This function searches in the argv string array the position of the
-     *  argument defined through ltag/stag and returns the detected index.
-     *  
-     *  \param  argc    Standard main parameter
-     *  \param  argv    Standard main parameter
-     *  \param  ltag    Long-form argument string
-     *  \param  stag    Short-form argument string
-     *
-     *  \return Returns index of parameter in argv
-     */
-
-    int stda ( int argc, char ** argv, char const * const ltag, char const * const stag );
-
-    /*! \brief Parameters common handler
-     *  
-     *  This function interprets the parameter in the desired type and returns
-     *  it through the param variable. The argi variable is typically set using
-     *  stda function. If argi is set to CS_NULL, the function does nothing.
-     *  
-     *  \param argi     Index of the parameter in argv
-     *  \param argv     Standard main parameter
-     *  \param param    Pointer to the variable that recieve the interpreted
-     *                  parameter
-     *  \param type     Type to use for parameter interpretation
-     */
-
-    void stdp ( int argi, char ** argv, void * const param, int const type );
 
 /* 
     Header - C/C++ compatibility
