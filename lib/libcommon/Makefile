@@ -65,7 +65,7 @@ else
 endif
 endif
     MAKE_COMPIL:=$(MAKE_CC_BLD)
-else
+endif
 ifeq ($(CONFIG_CODE),cpp)
 ifeq ($(CONFIG_TYPE),libstatic)
     MAKE_LINKER:=$(MAKE_STABLD)
@@ -77,7 +77,6 @@ else
 endif
 endif
     MAKE_COMPIL:=$(MAKE_CPPBLD)
-endif
 endif
     MAKE_OPTION:=$(BUILD_FLAGS) $(addprefix -I./$(MAKE_LIBSWAP), $(addsuffix /src, $(BUILD_SUBMD) ) )
 ifeq ($(CONFIG_CODE),c)

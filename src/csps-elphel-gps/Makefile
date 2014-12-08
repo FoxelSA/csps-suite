@@ -48,21 +48,35 @@ endif
 ifeq ($(CONFIG_TYPE),libstatic)
     MAKE_SUFFIX:=.a
 else
+ifeq ($(CONFIG_TYPE),libcommon)
+    MAKE_SUFFIX:=.a
+else
     MAKE_SUFFIX:=
 endif
+endif
+ifeq ($(CONFIG_CODE),c)
 ifeq ($(CONFIG_TYPE),libstatic)
     MAKE_LINKER:=$(MAKE_STABLD)
-   
 else
-ifeq ($(CONFIG_CODE),c)
+ifeq ($(CONFIG_TYPE),libcommon)
+    MAKE_LINKER:=$(MAKE_STABLD)
+else
     MAKE_LINKER:=$(MAKE_CC_BLD)
+endif
+endif
     MAKE_COMPIL:=$(MAKE_CC_BLD)
-else
+endif
 ifeq ($(CONFIG_CODE),cpp)
+ifeq ($(CONFIG_TYPE),libstatic)
+    MAKE_LINKER:=$(MAKE_STABLD)
+else
+ifeq ($(CONFIG_TYPE),libcommon)
+    MAKE_LINKER:=$(MAKE_STABLD)
+else
     MAKE_LINKER:=$(MAKE_CPPBLD)
+endif
+endif
     MAKE_COMPIL:=$(MAKE_CPPBLD)
-endif
-endif
 endif
     MAKE_OPTION:=$(BUILD_FLAGS) $(addprefix -I./$(MAKE_LIBSWAP), $(addsuffix /src, $(BUILD_SUBMD) ) )
 ifeq ($(CONFIG_CODE),c)
@@ -117,7 +131,11 @@ endif
 ifeq ($(CONFIG_TYPE),libstatic)
 	$(MAKE_LINKER) rcs $(MAKE_BINARY)/$(CONFIG_NAME)$(MAKE_SUFFIX) $^
 else
+ifeq ($(CONFIG_TYPE),libcommon)
+	$(MAKE_LINKER) rcs $(MAKE_BINARY)/$(CONFIG_NAME)$(MAKE_SUFFIX) $^
+else
 	$(MAKE_LINKER) -o $(MAKE_BINARY)/$(CONFIG_NAME)$(MAKE_SUFFIX) $^ $(MAKE_BUILDD)
+endif
 endif
 
     $(MAKE_OBJECT)/%.o:$(MAKE_SOURCE)/%.$(CONFIG_CODE)
