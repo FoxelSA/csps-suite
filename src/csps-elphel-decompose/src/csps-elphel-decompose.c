@@ -50,23 +50,23 @@
     int main ( int argc, char ** argv ) {
 
         /* Structure path variables */
-        char csRaw[256] = { 0 };
-        char csDec[256] = { 0 };
-        char csEnt[256] = { 0 };
-
-        /* Decomposition index variables */
-        long csIndex = 1;
+        char csSrc[256] = { 0 };
+        char csDst[256] = { 0 };
+        char csFil[256] = { 0 };
 
         /* Decompostion condition variables */
         double csInterval = 1.0;
 
+        /* Decomposition index variables */
+        long csIndex = 1;
+
         /* Search in parameters */
-        stdp( stda( argc, argv,  "--raw"       , "-r" ), argv,   csRaw, CS_STRING );
-        stdp( stda( argc, argv,  "--decomposed", "-d" ), argv,   csDec, CS_STRING );
-        stdp( stda( argc, argv,  "--interval"  , "-i" ), argv, & csInterval, CS_DOUBLE );
+        lc_stdp( lc_stda( argc, argv,  "--source"     , "-s" ), argv,   csSrc     , LC_STRING );
+        lc_stdp( lc_stda( argc, argv,  "--destination", "-d" ), argv,   csDst     , LC_STRING );
+        lc_stdp( lc_stda( argc, argv,  "--interval"   , "-i" ), argv, & csInterval, LC_DOUBLE );
 
         /* Execution switch */
-        if ( stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
+        if ( lc_stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
 
             /* Display help summary */
             printf( CS_HELP );
@@ -74,16 +74,16 @@
         } else {
 
             /* Directory entity enumeration */
-            while ( cs_elphel_decompose_enum( csRaw, csEnt ) != CS_FALSE ) {
+            while ( lc_file_enum( csSrc, csFil ) != LC_FALSE ) {
 
                 /* Consider only file entity */
-                if ( cs_elphel_decompose_detect( csEnt, CS_FILE ) == CS_TRUE ) {
+                if ( lc_file_detect( csFil, LC_FILE ) == LC_TRUE ) {
 
                     /* Check log-file tag */
-                    if ( strstr( csEnt, CS_PATH_PATTERN ) != 0 ) {
+                    if ( strstr( csFil, LC_PATTERN ) != 0 ) {
 
                         /* Decomposition process */
-                        csIndex = cs_elphel_decompose_split( csEnt, csDec, csIndex, csInterval );
+                        csIndex = cs_elphel_decompose( csFil, csDst, csIndex, csInterval );
 
                     }
 
@@ -102,19 +102,10 @@
     Source - Logs-file decomposer
 */
 
-    int cs_elphel_decompose_split( char const * const csLog, char const * const csDirectory, int csIndex, double csInterval ) {
+    int cs_elphel_decompose( char const * const csLog, char const * const csDirectory, int csIndex, double csInterval ) {
 
         /* Records buffer variables */
-        unsigned char csRec[CS_RECLEN] = { 0 };
-
-        /* Decomposition segment path variables */
-        char csSeg[256] = { 0 };
-
-        /* Parsing flag variables */
-        int csFlag = CS_FALSE;
-
-        /* Pure split variables */
-        int csPure = CS_TRUE;
+        lp_Byte_t csRec[LC_RECORD] = { 0 };
 
         /* Timestamp variables */
         lp_Time_t csPTime = 0;
@@ -124,8 +115,14 @@
         FILE * csIStream = NULL;
         FILE * csOStream = NULL;
 
+        /* Decomposition segment path variables */
+        char csSeg[256] = { 0 };
+
+        /* Event loss counter variables */
+        unsigned long csCount = 0;
+
         /* Compose initial decomposition segment path */
-        sprintf( csSeg, "%s/log-decomposition.log-%05i", csDirectory, csIndex ++ );
+        sprintf( csSeg, "%s/log-container.log-%05i", csDirectory, csIndex ++ );
 
         /* Create input stream */
         csIStream = fopen( csLog, "rb" );
@@ -137,59 +134,49 @@
         if ( ( csIStream != NULL ) && ( csOStream != NULL ) ) { 
 
             /* Display decomposition information */
-            fprintf( CS_OUT, "Decomposing : %s\n  %s\n", basename( ( char * ) csLog ), basename( csSeg ) );
+            fprintf( LC_OUT, "Decomposing : %s\n    %s\n", basename( ( char * ) csLog ), basename( csSeg ) );
 
             /* Parsing input stream */
-            while ( fread( csRec, 1, CS_RECLEN, csIStream ) == CS_RECLEN ) {
+            while ( fread( csRec, 1, LC_RECORD, csIStream ) == LC_RECORD ) {
 
                 /* Detect IMU events */
-                if ( CS_EVENT( csRec, CS_IMU ) ) {
+                if ( LC_EDM( csRec, LC_IMU ) ) {
 
                     /* Read record timestamp */
-                    csCTime = lp_timestamp( ( lp_Void_t * ) csRec );
+                    csCTime = LC_TSR( csRec );
 
-                    /* Check parsing flag */
-                    if ( csFlag == CS_FALSE ) {
+                    /* Check splitting condition */
+                    if ( ( csPTime != 0 ) && ( lp_timestamp_float( lp_timestamp_diff( csCTime, csPTime ) ) > csInterval ) ) {
 
-                        /* Update parsing flag */
-                        csFlag = CS_TRUE;
+                        /* Update decomposition segment path */
+                        sprintf( csSeg, "%s/log-container.log-%05i", csDirectory, csIndex ++ );
 
-                    } else {
+                        /* Close output stream */
+                        fclose( csOStream );
 
-                        /* Check splitting condition */
-                        if ( lp_timestamp_float( lp_timestamp_diff( csCTime, csPTime ) ) > csInterval ) {
+                        /* Open output stream */
+                        csOStream = fopen( csSeg, "wb" );
 
-                            /* Update decomposition segment path */
-                            sprintf( csSeg, "%s/log-decomposition.log-%05i", csDirectory, csIndex ++ );
-
-                            /* Close output stream */
-                            fclose( csOStream );
-
-                            /* Open output stream */
-                            csOStream = fopen( csSeg, "wb" );
-
-                            /* Display decomposition information */
-                            fprintf( CS_OUT, "  %s (%s)\n", strrchr( csSeg, '/' ) + 1, csPure == CS_TRUE ? "INI" : "IEI" );
-
-                        }
+                        /* Display decomposition information */
+                        fprintf( LC_OUT, "    %s - %lu event loss(es)\n", basename( csSeg ), csCount );
 
                     }
 
                     /* Memorize previous timestamp */
                     csPTime = csCTime;
 
-                    /* Update split purity */
-                    csPure = CS_TRUE;
+                    /* Reset loss count */
+                    csCount = 0;
 
                 } else {
 
-                    /* Update split purity */
-                    csPure = CS_FALSE;
+                    /* Update loss count */
+                    csCount ++;
 
                 }
 
                 /* Write recored in output stream */
-                fwrite( csRec, 1, CS_RECLEN, csOStream );
+                fwrite( csRec, 1, LC_RECORD, csOStream );
 
             }
 
@@ -198,174 +185,10 @@
             fclose( csIStream );
 
         /* Display message */
-        } else { fprintf( CS_ERR, "Error : unable to access %s or/and %s\n", basename( ( char * ) csLog ), basename( csSeg ) ); }
+        } else { fprintf( LC_ERR, "Error : unable to access %s or/and %s\n", basename( ( char * ) csLog ), basename( csSeg ) ); }
 
         /* Return decomposition index */
         return( csIndex );
-
-    }
-
-/*
-    Source - Directory entity enumeration
- */
-
-    int cs_elphel_decompose_enum( char const * const csDirectory, char * const csName ) {
-
-        /* Directory variables */
-        static DIR           * csDirect = NULL;
-        static struct dirent * csEntity = NULL;
-
-        /* Verify enumeration mode */
-        if ( csDirect == NULL ) {
-
-            /* Create directory handle */
-            csDirect = opendir( csDirectory );
-
-            /* Recusive initialization */
-            return( cs_elphel_decompose_enum( csDirectory, csName ) );
-
-        } else {
-
-            /* Read directory entity */
-            csEntity = readdir( csDirect );
-
-            /* Check enumeration end */
-            if ( csEntity == NULL ) {
-
-                /* Delete directory handle */
-                closedir( csDirect );
-
-                /* Reset directory pointer */
-                csDirect = NULL;
-
-                /* Return negative enumeration */
-                return( CS_FALSE );
-
-            } else {
-
-                /* Compose directory and entity path */
-                sprintf( csName, "%s/%s", csDirectory, csEntity->d_name );
-
-                /* Return positive enumeration */
-                return( CS_TRUE );
-
-            }
-
-        }
-
-    }
-
-/*
-    Source - Directory entity type detection
-*/
-
-    int cs_elphel_decompose_detect( char const * const csEntity, int const csType ) {
-
-        /* Check type of entity to verify */
-        if ( csType == CS_FILE ) {
-
-            /* File openning verification */
-            FILE * csCheck = fopen( csEntity, "r" );
-
-            /* Check verification stream */
-            if ( csCheck != NULL ) {
-
-                /* Close stream */
-                fclose( csCheck );
-
-                /* Return positive answer */
-                return( CS_TRUE );
-
-            } else {
-
-                /* Return negative answer */
-                return( CS_FALSE );
-
-            }
-
-        } else if ( csType == CS_DIRECTORY ) {
-
-            /* Directory handle verification */
-            DIR * csCheck = opendir( csEntity );
-
-            /* Check verification handle */
-            if ( csCheck != NULL ) {
-
-                /* Delete handle */
-                closedir( csCheck );
-
-                /* Return positive answer */
-                return( CS_TRUE );
-
-            } else {
-
-                /* Return negative answer */
-                return( CS_FALSE );
-            }
-
-        } else {
-
-            /* Return negative answer */
-            return( CS_FALSE );
-
-        }
-
-    }
-
-/*
-    Source - Arguments common handler
- */
-
-    int stda( int argc, char ** argv, char const * const ltag, char const * const stag ) {
-
-        /* Search for argument */
-        while ( ( -- argc ) > 0 ) {
-
-            /* Search for tag matching */
-            if ( ( strcmp( argv[ argc ], ltag ) == 0 ) || ( strcmp( argv[ argc ], stag ) == 0 ) ) {
-
-                /* Return pointer to argument parameter */
-                return( argc + 1 );
-
-            }
-
-        /* Argument not found */
-        } return( CS_NULL );
-
-    }
-
-/*
-    Source - Parameters common handler
- */
-
-    void stdp( int argi, char ** argv, void * const param, int const type ) {
-
-        /* Index consistency */
-        if ( argi == CS_NULL ) return;
-
-        /* Select type */
-        switch ( type ) {
-
-            /* Specific reading operation - Integers */
-            case ( CS_CHAR   ) : { * ( signed char        * ) param = atoi ( ( const char * ) argv[argi] ); } break;
-            case ( CS_SHORT  ) : { * ( signed short       * ) param = atoi ( ( const char * ) argv[argi] ); } break;
-            case ( CS_INT    ) : { * ( signed int         * ) param = atoi ( ( const char * ) argv[argi] ); } break;
-            case ( CS_LONG   ) : { * ( signed long        * ) param = atol ( ( const char * ) argv[argi] ); } break;
-            case ( CS_LLONG  ) : { * ( signed long long   * ) param = atoll( ( const char * ) argv[argi] ); } break;
-            case ( CS_UCHAR  ) : { * ( unsigned char      * ) param = atol ( ( const char * ) argv[argi] ); } break;
-            case ( CS_USHORT ) : { * ( unsigned short     * ) param = atol ( ( const char * ) argv[argi] ); } break;
-            case ( CS_UINT   ) : { * ( unsigned int       * ) param = atol ( ( const char * ) argv[argi] ); } break;
-            case ( CS_ULONG  ) : { * ( unsigned long      * ) param = atoll( ( const char * ) argv[argi] ); } break;
-            case ( CS_ULLONG ) : { * ( unsigned long long * ) param = atoll( ( const char * ) argv[argi] ); } break;
-
-            /* Specific reading operation - Floating point */
-            case ( CS_FLOAT  ) : { * ( float              * ) param = atof ( ( const char * ) argv[argi] ); } break;
-            case ( CS_DOUBLE ) : { * ( double             * ) param = atof ( ( const char * ) argv[argi] ); } break;
-
-            /* Specific reading operation - String */
-            case ( CS_STRING ) : { strcpy( ( char * ) param, ( const char * ) argv[argi] );  } break;
-
-        };
 
     }
 

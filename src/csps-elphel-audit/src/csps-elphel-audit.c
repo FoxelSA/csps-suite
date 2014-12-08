@@ -232,7 +232,7 @@
         csSize += csRead;
 
         /* Display information */
-        fprintf( LC_OUT, "csps-suite - csps-elphel-cat\nAuditing file %s\n", basename( ( char * ) csFile ) );
+        fprintf( LC_OUT, "Auditing file %s\n", basename( ( char * ) csFile ) );
 
         /* Display information - general */
         fprintf( LC_OUT, "    General information summary\n" );
