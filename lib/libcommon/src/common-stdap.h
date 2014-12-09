@@ -68,20 +68,20 @@
  */
 
     /* Define standard types */
-    # define LC_NULL            0
-    # define LC_STRING          1
-    # define LC_CHAR            2
-    # define LC_SHORT           3
-    # define LC_INT             4
-    # define LC_LONG            5
-    # define LC_LLONG           6
-    # define LC_UCHAR           7
-    # define LC_USHORT          8
-    # define LC_UINT            9
-    # define LC_ULONG           10
-    # define LC_ULLONG          11
-    # define LC_FLOAT           12
-    # define LC_DOUBLE          13
+    # define LC_NULL    0
+    # define LC_STRING  1
+    # define LC_CHAR    2
+    # define LC_SHORT   3
+    # define LC_INT     4
+    # define LC_LONG    5
+    # define LC_LLONG   6
+    # define LC_UCHAR   7
+    # define LC_USHORT  8
+    # define LC_UINT    9
+    # define LC_ULONG   10
+    # define LC_ULLONG  11
+    # define LC_FLOAT   12
+    # define LC_DOUBLE  13
 
 /* 
     Header - Preprocessor macros
