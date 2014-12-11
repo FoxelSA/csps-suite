@@ -232,12 +232,12 @@
      *  frustum.
      *  
      *  The main function fills the output file, as waited by OpenMVG, specifying
-     *  which sensor image have a common view on the base of their frustum.
+     *  which sensor image have a common view.
      *  
      *  \param  argc Standard main parameter
      *  \param  argv Standard main parameter
      *
-     *  \return Code returned to system
+     *  \return Exit code
      */
 
     int main ( int argc, char ** argv );
@@ -352,5 +352,4 @@
  */
 
     # endif
-
 
