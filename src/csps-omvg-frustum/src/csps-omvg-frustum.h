@@ -117,10 +117,10 @@
     "  -r OpenMVG output pairs file\n"                   \
     "  -c Camera MAC address\n"                          \
     "  -g GPS CSPS-tag\n"                                \
-    "  -m GPS CSPS-module\n"                             \
+    "  -n GPS CSPS-module\n"                             \
     "  -i IMU CSPS-tag\n"                                \
-    "  -k IMU CSPS-module\n"                             \
-    "  -n Frustum near plane\n"                          \
+    "  -s IMU CSPS-module\n"                             \
+    "  -e Frustum near plane\n"                          \
     "  -f Frustum far plane\n"                           \
     "  -d Timestamp delay on seconds\n\n"                \
     "csps-omvg-frustum - csps-suite\n"                   \

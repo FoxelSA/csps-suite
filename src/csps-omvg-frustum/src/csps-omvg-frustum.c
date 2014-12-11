@@ -88,11 +88,11 @@
         lc_stdp( lc_stda( argc, argv, "--list"      , "-l" ), argv,   csList  , LC_STRING );
         lc_stdp( lc_stda( argc, argv, "--pairs"     , "-r" ), argv,   csPair  , LC_STRING );
         lc_stdp( lc_stda( argc, argv, "--camera"    , "-c" ), argv,   csCamera, LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--gps-mod"   , "-n" ), argv,   csGPSm  , LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--imu-mod"   , "-s" ), argv,   csIMUm  , LC_STRING );
         lc_stdp( lc_stda( argc, argv, "--gps-tag"   , "-g" ), argv,   csGPSd  , LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--gps-mod"   , "-m" ), argv,   csGPSm  , LC_STRING );
         lc_stdp( lc_stda( argc, argv, "--imu-tag"   , "-i" ), argv,   csIMUd  , LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--imu-mod"   , "-k" ), argv,   csIMUm  , LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--plane-near", "-n" ), argv, & csNPlane, LC_DOUBLE );
+        lc_stdp( lc_stda( argc, argv, "--plane-near", "-e" ), argv, & csNPlane, LC_DOUBLE );
         lc_stdp( lc_stda( argc, argv, "--plane-far" , "-f" ), argv, & csFPlane, LC_DOUBLE );
         lc_stdp( lc_stda( argc, argv, "--delay"     , "-d" ), argv, & csDelay , LC_ULONG  );
 
