@@ -53,6 +53,7 @@
         char csPath[256] = { 0 };
         char csList[256] = { 0 };
         char csPair[256] = { 0 };
+        char csMntp[256] = "/data/";
 
         /* Stream pointer variables */
         char csGPSd[256] = { 0 };
@@ -84,21 +85,25 @@
         /* Stack variables */
         cs_List_t * csStack = NULL;
 
+        /* Calibration data descriptor */
+        lf_Descriptor_t lfDesc;
+
         /* Output stream variables */
         FILE * csStream = NULL;
 
         /* Search in parameters */
-        lc_stdp( lc_stda( argc, argv, "--path"      , "-p" ), argv,   csPath  , LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--list"      , "-l" ), argv,   csList  , LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--pairs"     , "-r" ), argv,   csPair  , LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--camera"    , "-c" ), argv,   csCamera, LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--gps-mod"   , "-n" ), argv,   csGPSm  , LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--imu-mod"   , "-s" ), argv,   csIMUm  , LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--gps-tag"   , "-g" ), argv,   csGPSd  , LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--imu-tag"   , "-i" ), argv,   csIMUd  , LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--plane-near", "-e" ), argv, & csNear  , LC_DOUBLE );
-        lc_stdp( lc_stda( argc, argv, "--plane-far" , "-f" ), argv, & csFar   , LC_DOUBLE );
-        lc_stdp( lc_stda( argc, argv, "--delay"     , "-d" ), argv, & csDelay , LC_ULONG  );
+        lc_stdp( lc_stda( argc, argv, "--path"       , "-p" ), argv,   csPath  , LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--list"       , "-l" ), argv,   csList  , LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--pairs"      , "-r" ), argv,   csPair  , LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--mount-point", "-m" ), argv,   csMntp  , LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--camera"     , "-c" ), argv,   csCamera, LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--gps-mod"    , "-n" ), argv,   csGPSm  , LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--imu-mod"    , "-s" ), argv,   csIMUm  , LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--gps-tag"    , "-g" ), argv,   csGPSd  , LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--imu-tag"    , "-i" ), argv,   csIMUd  , LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--plane-near" , "-e" ), argv, & csNear  , LC_DOUBLE );
+        lc_stdp( lc_stda( argc, argv, "--plane-far"  , "-f" ), argv, & csFar   , LC_DOUBLE );
+        lc_stdp( lc_stda( argc, argv, "--delay"      , "-d" ), argv, & csDelay , LC_ULONG  );
 
         /* Execution switch */
         if ( lc_stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
@@ -108,123 +113,129 @@
 
         } else {
 
-            /* Import OpenMVG list */
-            if ( ( csSize = cs_omvg_frusmtum_list( csList, & csStack, csDelay ) ) != 0 ) {
+            /* Create calibration data descriptor */
+            if ( lf_parse( ( lf_Char_t * ) csCamera, ( lf_Char_t * ) csMntp, & lfDesc ) == LF_TRUE ) {
 
-                /* Allocate pair buffer memory */
-                if ( ( csBuffer = ( unsigned long * ) malloc( csSize * sizeof( unsigned long ) ) ) != NULL ) {
+                /* Import OpenMVG list */
+                if ( ( csSize = cs_omvg_frusmtum_list( csList, & csStack, csDelay ) ) != 0 ) {
 
-                    /* Create output stream handle */
-                    if ( ( csStream = fopen( csPair, "w" ) ) != NULL ) {
+                    /* Allocate pair buffer memory */
+                    if ( ( csBuffer = ( unsigned long * ) malloc( csSize * sizeof( unsigned long ) ) ) != NULL ) {
 
-                        /* CSPS query structures */
-                        lp_Query_Position_t    csQpositA;
-                        lp_Query_Position_t    csQpositB;
-                        lp_Query_Orientation_t csQorienA;
-                        lp_Query_Orientation_t csQorienB;
+                        /* Create output stream handle */
+                        if ( ( csStream = fopen( csPair, "w" ) ) != NULL ) {
 
-                        /* First level composition loop */
-                        for ( csaLoop = 0; csaLoop < csSize; csaLoop ++ ) {
+                            /* CSPS query structures */
+                            lp_Query_Position_t    csQpositA;
+                            lp_Query_Position_t    csQpositB;
+                            lp_Query_Orientation_t csQorienA;
+                            lp_Query_Orientation_t csQorienB;
 
-                            /* CSPS query - Positions */
-                            csQpositA = lp_query_position_by_timestamp( csPath, LP_DEVICE_TYPE_GPS, csGPSd, csGPSm, csStack[csaLoop].lsTime );
-
-                            /* CSPS query - Orientations */
-                            csQorienA = lp_query_orientation_by_timestamp( csPath, LP_DEVICE_TYPE_IMU, csIMUd, csIMUm, csStack[csaLoop].lsTime );
-
-                            /* Second level composition loop */
-                            for ( csbLoop = csaLoop + 1; csbLoop < csSize; csbLoop ++ ) {
+                            /* First level composition loop */
+                            for ( csaLoop = 0; csaLoop < csSize; csaLoop ++ ) {
 
                                 /* CSPS query - Positions */
-                                csQpositB = lp_query_position_by_timestamp( csPath, LP_DEVICE_TYPE_GPS, csGPSd, csGPSm, csStack[csbLoop].lsTime );
+                                csQpositA = lp_query_position_by_timestamp( csPath, LP_DEVICE_TYPE_GPS, csGPSd, csGPSm, csStack[csaLoop].lsTime );
 
                                 /* CSPS query - Orientations */
-                                csQorienB = lp_query_orientation_by_timestamp( csPath, LP_DEVICE_TYPE_IMU, csIMUd, csIMUm, csStack[csbLoop].lsTime );
+                                csQorienA = lp_query_orientation_by_timestamp( csPath, LP_DEVICE_TYPE_IMU, csIMUd, csIMUm, csStack[csaLoop].lsTime );
 
-                                /* Check query status */
-                                if ( 
+                                /* Second level composition loop */
+                                for ( csbLoop = csaLoop + 1; csbLoop < csSize; csbLoop ++ ) {
 
-                                    ( csQpositA.qrStatus == LP_TRUE ) && 
-                                    ( csQpositB.qrStatus == LP_TRUE ) && 
-                                    ( csQorienA.qrStatus == LP_TRUE ) && 
-                                    ( csQorienB.qrStatus == LP_TRUE ) 
+                                    /* CSPS query - Positions */
+                                    csQpositB = lp_query_position_by_timestamp( csPath, LP_DEVICE_TYPE_GPS, csGPSd, csGPSm, csStack[csbLoop].lsTime );
 
-                                ) {
+                                    /* CSPS query - Orientations */
+                                    csQorienB = lp_query_orientation_by_timestamp( csPath, LP_DEVICE_TYPE_IMU, csIMUd, csIMUm, csStack[csbLoop].lsTime );
 
-                                    /* Frustums variables */
-                                    cs_Frustum_t csFrustA, csFrustB;
+                                    /* Check query status */
+                                    if ( 
 
-                                    /* Compute corrected positions - Local flat earth model */
-                                    csQpositB.qrLongitude = ( csQpositB.qrLongitude - csQpositA.qrLongitude ) * ( ( ( 6367514.5 + csQpositA.qrAltitude ) * LF_PI / 180.0 ) );
-                                    csQpositB.qrLatitude  = ( csQpositB.qrLatitude  - csQpositA.qrLatitude  ) * ( ( ( 6367514.5 + csQpositA.qrAltitude ) * LF_PI / 180.0 ) );
-                                    csQpositB.qrAltitude  = ( csQpositB.qrAltitude  - csQpositA.qrAltitude  );
+                                        ( csQpositA.qrStatus == LP_TRUE ) && 
+                                        ( csQpositB.qrStatus == LP_TRUE ) && 
+                                        ( csQorienA.qrStatus == LP_TRUE ) && 
+                                        ( csQorienB.qrStatus == LP_TRUE ) 
 
-                                    /* Compute frustum of first camera */
-                                    cs_omvg_frustum_eyesis4pi( 
+                                    ) {
 
-                                        csCamera, csStack[csaLoop].lsChannel,
-                                        csQorienA.qrfxx, csQorienA.qrfxy, csQorienA.qrfxz,
-                                        csQorienA.qrfyx, csQorienA.qrfyy, csQorienA.qrfyz,
-                                        csQorienA.qrfzx, csQorienA.qrfzy, csQorienA.qrfzz,
-                                        0.0, 0.0, 0.0,
-                                        csNear, csFar, & csFrustA
+                                        /* Frustums variables */
+                                        cs_Frustum_t csFrustA, csFrustB;
 
-                                    );
+                                        /* Compute corrected positions - Local flat earth model */
+                                        csQpositB.qrLongitude = ( csQpositB.qrLongitude - csQpositA.qrLongitude ) * ( ( ( 6367514.5 + csQpositA.qrAltitude ) * LF_PI / 180.0 ) );
+                                        csQpositB.qrLatitude  = ( csQpositB.qrLatitude  - csQpositA.qrLatitude  ) * ( ( ( 6367514.5 + csQpositA.qrAltitude ) * LF_PI / 180.0 ) );
+                                        csQpositB.qrAltitude  = ( csQpositB.qrAltitude  - csQpositA.qrAltitude  );
 
-                                    /* Compute frustum of second camera */
-                                    cs_omvg_frustum_eyesis4pi( 
+                                        /* Compute frustum of first camera */
+                                        cs_omvg_frustum_eyesis4pi( 
 
-                                        csCamera, csStack[csbLoop].lsChannel,
-                                        csQorienB.qrfxx, csQorienB.qrfxy, csQorienB.qrfxz,
-                                        csQorienB.qrfyx, csQorienB.qrfyy, csQorienB.qrfyz,
-                                        csQorienB.qrfzx, csQorienB.qrfzy, csQorienB.qrfzz,
-                                        csQpositB.qrLongitude, csQpositB.qrLatitude, csQpositB.qrAltitude,
-                                        csNear, csFar, & csFrustB
+                                            csCamera, csStack[csaLoop].lsChannel,
+                                            csQorienA.qrfxx, csQorienA.qrfxy, csQorienA.qrfxz,
+                                            csQorienA.qrfyx, csQorienA.qrfyy, csQorienA.qrfyz,
+                                            csQorienA.qrfzx, csQorienA.qrfzy, csQorienA.qrfzz,
+                                            0.0, 0.0, 0.0,
+                                            csNear, csFar, & csFrustA, & lfDesc
 
-                                    );
+                                        );
 
-                                    /* Frustum intersection detection */
-                                    if ( cs_omvg_frustum_intersection( & csFrustA, & csFrustB ) == LC_TRUE ) csBuffer[csAccum++] = csbLoop;
+                                        /* Compute frustum of second camera */
+                                        cs_omvg_frustum_eyesis4pi( 
 
-                                /* Display message */
-                                } else { fprintf( LC_ERR, "Warning : unable to query position/orientation with couple (%lu,%lu)\n", csaLoop, csbLoop ); }
+                                            csCamera, csStack[csbLoop].lsChannel,
+                                            csQorienB.qrfxx, csQorienB.qrfxy, csQorienB.qrfxz,
+                                            csQorienB.qrfyx, csQorienB.qrfyy, csQorienB.qrfyz,
+                                            csQorienB.qrfzx, csQorienB.qrfzy, csQorienB.qrfzz,
+                                            csQpositB.qrLongitude, csQpositB.qrLatitude, csQpositB.qrAltitude,
+                                            csNear, csFar, & csFrustB, & lfDesc
+
+                                        );
+
+                                        /* Frustum intersection detection */
+                                        if ( cs_omvg_frustum_intersection( & csFrustA, & csFrustB ) == LC_TRUE ) csBuffer[csAccum++] = csbLoop;
+
+                                    /* Display message */
+                                    } else { fprintf( LC_ERR, "Warning : unable to query position/orientation with couple (%lu,%lu)\n", csaLoop, csbLoop ); }
+
+                                }
+
+                                /* Check pair buffer state */
+                                if ( csAccum != 0 ) {
+
+                                    /* Export reference image index */
+                                    fprintf( csStream, "%lu ", csaLoop );
+
+                                    /* Export pair buffer content */
+                                    for ( csbLoop = 0; csbLoop < csAccum; csbLoop ++ ) fprintf( csStream, "%lu ", csBuffer[csbLoop] );
+
+                                    /* Send eol to output stream */
+                                    fprintf( csStream, "\n" );
+
+                                    /* Reset pair buffer */
+                                    csAccum = 0;
+
+                                }
 
                             }
 
-                            /* Check pair buffer state */
-                            if ( csAccum != 0 ) {
+                        /* Display message */
+                        } else { fprintf( LC_ERR, "Error : unable to open output file\n" ); }
 
-                                /* Export reference image index */
-                                fprintf( csStream, "%lu ", csaLoop );
-
-                                /* Export pair buffer content */
-                                for ( csbLoop = 0; csbLoop < csAccum; csbLoop ++ ) fprintf( csStream, "%lu ", csBuffer[csbLoop] );
-
-                                /* Send eol to output stream */
-                                fprintf( csStream, "\n" );
-
-                                /* Reset pair buffer */
-                                csAccum = 0;
-
-                            }
-
-                        }
+                        /* Unallocate pair buffer memory */
+                        free( csBuffer );
 
                     /* Display message */
-                    } else { fprintf( LC_ERR, "Error : unable to open output file\n" ); }
+                    } else { fprintf( LC_ERR, "Error : unable to allocate pair buffer memory\n" ); }
 
-                    /* Unallocate pair buffer memory */
-                    free( csBuffer );
+                    /* Unallocate stack */
+                    cs_omvg_frusmtum_list( "", & csStack, 0 );
 
                 /* Display message */
-                } else { fprintf( LC_ERR, "Error : unable to allocate pair buffer memory\n" ); }
-
-                /* Unallocate stack */
-                cs_omvg_frusmtum_list( "", & csStack, 0 );
+                } else { fprintf( LC_ERR, "Error : unable to read OpenMVG list\n" ); }
 
             /* Display message */
-            } else { fprintf( LC_ERR, "Error : unable to read OpenMVG list\n" ); }
-            
+            } else { fprintf( LC_ERR, "Error : unable to create calibration data descriptor\n" ); }
+
         }
 
         /* Return to system */
@@ -299,23 +310,24 @@
 
     void cs_omvg_frustum_eyesis4pi(
 
-        char         const * const csCamera, 
-        int          const         csChannel, 
-        double       const         csEFxx,
-        double       const         csEFxy,
-        double       const         csEFxz,
-        double       const         csEFyx,
-        double       const         csEFyy,
-        double       const         csEFyz,
-        double       const         csEFzx,
-        double       const         csEFzy,
-        double       const         csEFzz,
-        double       const         csEFpx,
-        double       const         csEFpy,
-        double       const         csEFpz,
-        double       const         csNear,
-        double       const         csFar,
-        cs_Frustum_t       * const csFrustum
+        char            const * const csCamera, 
+        int             const         csChannel, 
+        double          const         csEFxx,
+        double          const         csEFxy,
+        double          const         csEFxz,
+        double          const         csEFyx,
+        double          const         csEFyy,
+        double          const         csEFyz,
+        double          const         csEFzx,
+        double          const         csEFzy,
+        double          const         csEFzz,
+        double          const         csEFpx,
+        double          const         csEFpy,
+        double          const         csEFpz,
+        double          const         csNear,
+        double          const         csFar,
+        cs_Frustum_t          * const csFrustum,
+        lf_Descriptor_t const * const lfDesc
 
     ) {
 
@@ -323,17 +335,17 @@
         double csEyesisframe[3] = { 0.0, 0.0, 0.0 };
 
         /* Eyesis4pi device calibration variables */
-        double csAzimuth   = - lf_query_sensor( csCamera, LF_EYESIS4PI_AZIMUTH   , csChannel, NULL );
-        double csHeading   = - lf_query_sensor( csCamera, LF_EYESIS4PI_HEADING   , csChannel, NULL );
-        double csElevation = - lf_query_sensor( csCamera, LF_EYESIS4PI_ELEVATION , csChannel, NULL );
-        double csRoll      = - lf_query_sensor( csCamera, LF_EYESIS4PI_ROLL      , csChannel, NULL );
-        double csRadius    = + lf_query_sensor( csCamera, LF_EYESIS4PI_RADIUS    , csChannel, NULL );
-        double csHeight    = + lf_query_sensor( csCamera, LF_EYESIS4PI_HEIGHT    , csChannel, NULL );
-        double csPupil     = - lf_query_sensor( csCamera, LF_EYESIS4PI_PUPFORWARD, csChannel, NULL );        
-        double csPixel     = + lf_query_sensor( csCamera, LF_EYESIS4PI_PIXELSIZE , csChannel, NULL );
-        double csFocal     = + lf_query_sensor( csCamera, LF_EYESIS4PI_FOCAL     , csChannel, NULL );
-        double csSenWidth  = + lf_query_sensor( csCamera, LF_EYESIS4PI_SENWIDTH  , csChannel, NULL );
-        double csSenHeight = + lf_query_sensor( csCamera, LF_EYESIS4PI_SENHEIGHT , csChannel, NULL );
+        double csAzimuth   = - lf_query_azimuth              ( csChannel, lfDesc );
+        double csHeading   = - lf_query_heading              ( csChannel, lfDesc );
+        double csElevation = - lf_query_elevation            ( csChannel, lfDesc );
+        double csRoll      = - lf_query_roll                 ( csChannel, lfDesc );
+        double csRadius    = + lf_query_radius               ( csChannel, lfDesc );
+        double csHeight    = + lf_query_height               ( csChannel, lfDesc );
+        double csPupil     = - lf_query_entrancePupilForward ( csChannel, lfDesc );        
+        double csPixel     = + lf_query_pixelSize            ( csChannel, lfDesc );
+        double csFocal     = + lf_query_focalLength          ( csChannel, lfDesc );
+        double csSenWidth  = + lf_query_pixelCorrectionWidth ( csChannel, lfDesc );
+        double csSenHeight = + lf_query_pixelCorrectionHeight( csChannel, lfDesc );
 
         /* Compute corrected azimuth angle */
         csAzimuth = csAzimuth + csHeading + ( LF_PI / 2.0 );
