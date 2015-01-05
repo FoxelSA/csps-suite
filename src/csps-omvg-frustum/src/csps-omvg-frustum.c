@@ -67,15 +67,15 @@
         double csNPlane =  1.0;
         double csFPlane = 30.0;
 
+        /* Timestamp delay variables */
+        long csDelay = 0;
+
         /* Size variables */
         unsigned long csSize = 0;
 
         /* Pair composition variables */
         unsigned long csLoopA = 0;
         unsigned long csLoopB = 0;
-
-        /* Timestamp delay variables */
-        unsigned long csDelay = 0;
 
         /* Stack variables */
         cs_List_t * csStack = NULL;
@@ -214,9 +214,9 @@
 
     unsigned long cs_omvg_frusmtum_list ( 
 
-        char const          * const csList, 
-        cs_List_t           **      csStack, 
-        unsigned long const         csDelay 
+        char      const *  const csList, 
+        cs_List_t       **       csStack, 
+        long      const          csDelay 
 
     ) {
 

@@ -262,9 +262,9 @@
      
     unsigned long cs_omvg_frusmtum_list ( 
 
-        char const          * const csList, 
-        cs_List_t           **      csStack, 
-        unsigned long const         csDelay 
+        char      const *  const csList, 
+        cs_List_t       **       csStack, 
+        long      const          csDelay 
 
     );
 
