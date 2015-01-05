@@ -3,4 +3,4 @@
 	url = https://github.com/FoxelSA/libcsps.git
 [submodule "lib/libfastcal"]
 	path = lib/libfastcal
-    url = https://github.com/niam-foxel/libfastcal.git
+	url = https://github.com/FoxelSA/libfastcal.git

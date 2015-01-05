@@ -115,6 +115,7 @@
     "  -p CSPS-processed structure path\n"               \
     "  -l OpenMVG input list file\n"                     \
     "  -r OpenMVG output pairs file\n"                   \
+    "  -m Standard directory structure mount point\n"    \
     "  -c Camera MAC address\n"                          \
     "  -g GPS CSPS-tag\n"                                \
     "  -n GPS CSPS-module\n"                             \
@@ -298,23 +299,24 @@
 
     void cs_omvg_frustum_eyesis4pi(
 
-        char         const * const csCamera, 
-        int          const         csChannel, 
-        double       const         csEFxx,
-        double       const         csEFxy,
-        double       const         csEFxz,
-        double       const         csEFyx,
-        double       const         csEFyy,
-        double       const         csEFyz,
-        double       const         csEFzx,
-        double       const         csEFzy,
-        double       const         csEFzz,
-        double       const         csEFpx,
-        double       const         csEFpy,
-        double       const         csEFpz,
-        double       const         csNear,
-        double       const         csFar,
-        cs_Frustum_t       * const csFrustum
+        char            const * const csCamera, 
+        int             const         csChannel, 
+        double          const         csEFxx,
+        double          const         csEFxy,
+        double          const         csEFxz,
+        double          const         csEFyx,
+        double          const         csEFyy,
+        double          const         csEFyz,
+        double          const         csEFzx,
+        double          const         csEFzy,
+        double          const         csEFzz,
+        double          const         csEFpx,
+        double          const         csEFpy,
+        double          const         csEFpz,
+        double          const         csNear,
+        double          const         csFar,
+        cs_Frustum_t          * const csFrustum,
+        lf_Descriptor_t const * const lfDesc
 
     );
 
