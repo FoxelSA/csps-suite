@@ -126,36 +126,36 @@
                         if ( ( csStream = fopen( csPair, "w" ) ) != NULL ) {
 
                             /* CSPS query structures */
-                            lp_Query_Position_t    csQpositA;
-                            lp_Query_Position_t    csQpositB;
-                            lp_Query_Orientation_t csQorienA;
-                            lp_Query_Orientation_t csQorienB;
+                            lp_Query_Position_t    csaQposit;
+                            lp_Query_Position_t    csbQposit;
+                            lp_Query_Orientation_t csaQorien;
+                            lp_Query_Orientation_t csbQorien;
 
                             /* First level composition loop */
                             for ( csaLoop = 0; csaLoop < csSize; csaLoop ++ ) {
 
                                 /* CSPS query - Positions */
-                                csQpositA = lp_query_position_by_timestamp( csPath, LP_DEVICE_TYPE_GPS, csGPSd, csGPSm, csStack[csaLoop].lsTime );
+                                csaQposit = lp_query_position_by_timestamp( csPath, LP_DEVICE_TYPE_GPS, csGPSd, csGPSm, csStack[csaLoop].lsTime );
 
                                 /* CSPS query - Orientations */
-                                csQorienA = lp_query_orientation_by_timestamp( csPath, LP_DEVICE_TYPE_IMU, csIMUd, csIMUm, csStack[csaLoop].lsTime );
+                                csaQorien = lp_query_orientation_by_timestamp( csPath, LP_DEVICE_TYPE_IMU, csIMUd, csIMUm, csStack[csaLoop].lsTime );
 
                                 /* Second level composition loop */
                                 for ( csbLoop = csaLoop + 1; csbLoop < csSize; csbLoop ++ ) {
 
                                     /* CSPS query - Positions */
-                                    csQpositB = lp_query_position_by_timestamp( csPath, LP_DEVICE_TYPE_GPS, csGPSd, csGPSm, csStack[csbLoop].lsTime );
+                                    csbQposit = lp_query_position_by_timestamp( csPath, LP_DEVICE_TYPE_GPS, csGPSd, csGPSm, csStack[csbLoop].lsTime );
 
                                     /* CSPS query - Orientations */
-                                    csQorienB = lp_query_orientation_by_timestamp( csPath, LP_DEVICE_TYPE_IMU, csIMUd, csIMUm, csStack[csbLoop].lsTime );
+                                    csbQorien = lp_query_orientation_by_timestamp( csPath, LP_DEVICE_TYPE_IMU, csIMUd, csIMUm, csStack[csbLoop].lsTime );
 
                                     /* Check query status */
                                     if ( 
 
-                                        ( csQpositA.qrStatus == LP_TRUE ) && 
-                                        ( csQpositB.qrStatus == LP_TRUE ) && 
-                                        ( csQorienA.qrStatus == LP_TRUE ) && 
-                                        ( csQorienB.qrStatus == LP_TRUE ) 
+                                        ( csaQposit.qrStatus == LP_TRUE ) && 
+                                        ( csbQposit.qrStatus == LP_TRUE ) && 
+                                        ( csaQorien.qrStatus == LP_TRUE ) && 
+                                        ( csbQorien.qrStatus == LP_TRUE ) 
 
                                     ) {
 
@@ -163,17 +163,17 @@
                                         cs_Frustum_t csFrustA, csFrustB;
 
                                         /* Compute corrected positions - Local flat earth model */
-                                        csQpositB.qrLongitude = ( csQpositB.qrLongitude - csQpositA.qrLongitude ) * ( ( ( 6367514.5 + csQpositA.qrAltitude ) * LF_PI / 180.0 ) );
-                                        csQpositB.qrLatitude  = ( csQpositB.qrLatitude  - csQpositA.qrLatitude  ) * ( ( ( 6367514.5 + csQpositA.qrAltitude ) * LF_PI / 180.0 ) );
-                                        csQpositB.qrAltitude  = ( csQpositB.qrAltitude  - csQpositA.qrAltitude  );
+                                        csbQposit.qrLongitude = ( csbQposit.qrLongitude - csaQposit.qrLongitude ) * ( ( ( 6367514.5 + csaQposit.qrAltitude ) * LF_PI / 180.0 ) );
+                                        csbQposit.qrLatitude  = ( csbQposit.qrLatitude  - csaQposit.qrLatitude  ) * ( ( ( 6367514.5 + csaQposit.qrAltitude ) * LF_PI / 180.0 ) );
+                                        csbQposit.qrAltitude  = ( csbQposit.qrAltitude  - csaQposit.qrAltitude  );
 
                                         /* Compute frustum of first camera */
                                         cs_omvg_frustum_eyesis4pi( 
 
                                             csCamera, csStack[csaLoop].lsChannel,
-                                            csQorienA.qrfxx, csQorienA.qrfxy, csQorienA.qrfxz,
-                                            csQorienA.qrfyx, csQorienA.qrfyy, csQorienA.qrfyz,
-                                            csQorienA.qrfzx, csQorienA.qrfzy, csQorienA.qrfzz,
+                                            csaQorien.qrfxx, csaQorien.qrfxy, csaQorien.qrfxz,
+                                            csaQorien.qrfyx, csaQorien.qrfyy, csaQorien.qrfyz,
+                                            csaQorien.qrfzx, csaQorien.qrfzy, csaQorien.qrfzz,
                                             0.0, 0.0, 0.0,
                                             csNear, csFar, & csFrustA, & lfDesc
 
@@ -183,10 +183,10 @@
                                         cs_omvg_frustum_eyesis4pi( 
 
                                             csCamera, csStack[csbLoop].lsChannel,
-                                            csQorienB.qrfxx, csQorienB.qrfxy, csQorienB.qrfxz,
-                                            csQorienB.qrfyx, csQorienB.qrfyy, csQorienB.qrfyz,
-                                            csQorienB.qrfzx, csQorienB.qrfzy, csQorienB.qrfzz,
-                                            csQpositB.qrLongitude, csQpositB.qrLatitude, csQpositB.qrAltitude,
+                                            csbQorien.qrfxx, csbQorien.qrfxy, csbQorien.qrfxz,
+                                            csbQorien.qrfyx, csbQorien.qrfyy, csbQorien.qrfyz,
+                                            csbQorien.qrfzx, csbQorien.qrfzy, csbQorien.qrfzz,
+                                            csbQposit.qrLongitude, csbQposit.qrLatitude, csbQposit.qrAltitude,
                                             csNear, csFar, & csFrustB, & lfDesc
 
                                         );

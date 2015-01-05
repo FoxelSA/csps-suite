@@ -115,6 +115,7 @@
     "  -p CSPS-processed structure path\n"               \
     "  -l OpenMVG input list file\n"                     \
     "  -r OpenMVG output pairs file\n"                   \
+    "  -m Standard directory structure mount point\n"    \
     "  -c Camera MAC address\n"                          \
     "  -g GPS CSPS-tag\n"                                \
     "  -n GPS CSPS-module\n"                             \
