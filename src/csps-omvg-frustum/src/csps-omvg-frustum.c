@@ -126,28 +126,36 @@
                         if ( ( csStream = fopen( csPair, "w" ) ) != NULL ) {
 
                             /* CSPS query structures */
-                            lp_Query_Position_t    csaQposit;
-                            lp_Query_Position_t    csbQposit;
+                            lp_Geopos_t csaQposit;
+                            lp_Geopos_t csbQposit;
                             lp_Query_Orientation_t csaQorien;
                             lp_Query_Orientation_t csbQorien;
+
+                            /* Create queries descriptors */
+                            csaQposit = lp_query_position_read( csPath, LP_DEVICE_TYPE_GPS, csGPSd, csGPSm );
+                            csbQposit = lp_query_position_read( csPath, LP_DEVICE_TYPE_GPS, csGPSd, csGPSm );
+
+                            /* Create queries descriptors */
+                            csaQorien = lp_query_orientation_create( csPath, LP_DEVICE_TYPE_IMU, csIMUd, csIMUm );
+                            csbQorien = lp_query_orientation_create( csPath, LP_DEVICE_TYPE_IMU, csIMUd, csIMUm );
 
                             /* First level composition loop */
                             for ( csaLoop = 0; csaLoop < csSize; csaLoop ++ ) {
 
                                 /* CSPS query - Positions */
-                                csaQposit = lp_query_position_by_timestamp( csPath, LP_DEVICE_TYPE_GPS, csGPSd, csGPSm, csStack[csaLoop].lsTime );
+                                lp_query_position( & csaQposit, csStack[csaLoop].lsTime );
 
                                 /* CSPS query - Orientations */
-                                csaQorien = lp_query_orientation_by_timestamp( csPath, LP_DEVICE_TYPE_IMU, csIMUd, csIMUm, csStack[csaLoop].lsTime );
+                                lp_query_orientation( csStack[csaLoop].lsTime, & csaQorien );
 
                                 /* Second level composition loop */
                                 for ( csbLoop = csaLoop + 1; csbLoop < csSize; csbLoop ++ ) {
 
                                     /* CSPS query - Positions */
-                                    csbQposit = lp_query_position_by_timestamp( csPath, LP_DEVICE_TYPE_GPS, csGPSd, csGPSm, csStack[csbLoop].lsTime );
+                                    lp_query_position( & csbQposit, csStack[csbLoop].lsTime );
 
                                     /* CSPS query - Orientations */
-                                    csbQorien = lp_query_orientation_by_timestamp( csPath, LP_DEVICE_TYPE_IMU, csIMUd, csIMUm, csStack[csbLoop].lsTime );
+                                    lp_query_orientation( csStack[csbLoop].lsTime, & csbQorien );
 
                                     /* Check query status */
                                     if ( 
@@ -217,6 +225,14 @@
                                 }
 
                             }
+
+                            /* Delete queries descriptors */
+                            lp_query_position_delete( & csaQposit );
+                            lp_query_position_delete( & csbQposit );
+
+                            /* Delete queries descriptors */
+                            lp_query_orientation_delete( & csaQorien );
+                            lp_query_orientation_delete( & csbQorien );
 
                         /* Display message */
                         } else { fprintf( LC_ERR, "Error : unable to open output file\n" ); }
