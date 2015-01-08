@@ -106,10 +106,15 @@
             FILE * csStream = NULL;
 
             /* Query variables */
-            lp_Query_Position_t csPosition = { LC_FALSE, 0.0, 0.0, 0.0 };
+            lp_Geopos_t csPosition;
 
             /* Create stream */
-            if ( ( csStream = fopen( csFile, "w" ) ) != NULL ) {
+            if ( ( csStream = fopen( csFile, "w" ) ) == NULL ) {
+
+                /* Display message */
+                fprintf( LC_ERR, "Error : unable to access %s\n", basename( csFile ) ); return( EXIT_FAILURE );
+
+            } else {
 
                 /* Display message */
                 fprintf( LC_OUT, "Creating %s JSON file ...\n", basename( csFile ) );
@@ -121,19 +126,14 @@
                 csCAMtag = lp_stream_read( csPath, LP_DEVICE_TYPE_CAM, csCAMd, csCAMm, LP_STREAM_CPN_TAG, sizeof( lp_Time_t ) * csSize );
                 csCAMsyn = lp_stream_read( csPath, LP_DEVICE_TYPE_CAM, csCAMd, csCAMm, LP_STREAM_CPN_SYN, sizeof( lp_Time_t ) * csSize );
 
+                /* Create queries descriptors */
+                csPosition = lp_query_position_read( csPath, LP_DEVICE_TYPE_GPS, csGPSd, csGPSm );
+
                 /* Search for initial position (for signal missing on boundaries) */
                 while ( ( csParse < csSize ) && ( csPosition.qrStatus == LC_FALSE ) ) {
 
                     /* Query timestamp position */
-                    csPosition = lp_query_position_by_timestamp( 
-
-                        csPath, 
-                        LP_DEVICE_TYPE_GPS, 
-                        csGPSd, 
-                        csGPSm, 
-                        csCAMsyn[csParse]
-
-                    );
+                    lp_query_position( & csPosition, csCAMsyn[csParse] );
 
                     /* Update search index */
                     csParse ++;
@@ -163,15 +163,7 @@
                     if ( csParse > csIndex ) {
 
                         /* Query position */
-                        csPosition = lp_query_position_by_timestamp( 
-
-                            csPath, 
-                            LP_DEVICE_TYPE_GPS, 
-                            csGPSd, 
-                            csGPSm, 
-                            csCAMsyn[csParse]
-
-                        );
+                        lp_query_position( & csPosition, csCAMsyn[csParse] );
 
                         /* Check query status */
                         if ( csPosition.qrStatus == LC_TRUE ) {
@@ -218,12 +210,17 @@
                 /* Terminate JSON */
                 fprintf( csStream, "]\n}\n" );
 
+                /* Delete queries descriptors */
+                lp_query_position_delete( & csPosition );
+
                 /* Unallocate stream memory */
                 csCAMtag = lp_stream_delete( csCAMtag );
                 csCAMsyn = lp_stream_delete( csCAMsyn );
 
-            /* Display message */
-            } else { fprintf( LC_ERR, "Error : unable to access %s\n", basename( csFile ) ); return( EXIT_FAILURE ); }
+                /* Close output stream */
+                fclose( csStream );
+
+            }
 
         }
 

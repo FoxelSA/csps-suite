@@ -145,9 +145,9 @@
         /* Stream memory variables */
         lp_Time_t * csCAMsyn = NULL;
 
-        /* Query interface structures variables */
-        lp_Query_Position_t    csQPos;
-        lp_Query_Orientation_t csQOri;
+        /* CSPS query variables */
+        lp_Geopos_t csQPos;
+        lp_Orient_t csQOri;
 
         /* Stream variables */
         FILE * csStream = NULL;
@@ -194,6 +194,10 @@
             /* Close check stream */
             fclose( csStream );
 
+            /* Create queries descriptors */
+            csQPos = lp_query_position_read   ( csPath.ptRoot, LP_DEVICE_TYPE_GPS, csPath.ptGPSd, csPath.ptGPSm );
+            csQOri = lp_query_orientation_read( csPath.ptRoot, LP_DEVICE_TYPE_IMU, csPath.ptIMUd, csPath.ptIMUm );
+
             /* Ask stream size */
             csSize = lp_stream_size( csPath.ptRoot, LP_DEVICE_TYPE_CAM, csPath.ptCAMd, csPath.ptCAMm );
 
@@ -212,11 +216,9 @@
                     /* Loop on camera records */
                     for ( csParse = 0; csParse < csSize; csParse ++ ) {
 
-                        /* Query position by timestamp */
-                        csQPos = lp_query_position_by_timestamp( csPath.ptRoot, LP_DEVICE_TYPE_GPS, csPath.ptGPSd, csPath.ptGPSm, csCAMsyn[csParse] );
-
-                        /* Query orientation by timestamp */
-                        csQOri = lp_query_orientation_by_timestamp( csPath.ptRoot, LP_DEVICE_TYPE_IMU, csPath.ptIMUd, csPath.ptIMUm, csCAMsyn[csParse] );
+                        /* Query position and orientation by timestamp */
+                        lp_query_position   ( & csQPos, csCAMsyn[csParse] );
+                        lp_query_orientation( & csQOri, csCAMsyn[csParse] );
 
                         /* Check query results */
                         if ( ( csQPos.qrStatus == LP_TRUE ) && ( csQOri.qrStatus == LP_TRUE ) ) {
@@ -384,6 +386,10 @@
 
             /* Declare display list end */
             } glEndList();
+
+            /* Delete queries descriptors */
+            lp_query_position_delete   ( & csQPos );
+            lp_query_orientation_delete( & csQOri );
 
             /* Unallocate stream memory */
             csCAMsyn = lp_stream_delete( csCAMsyn );
