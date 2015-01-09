@@ -52,7 +52,7 @@
      *  validation according to manufacturers standards. It comes with a main 
      *  software that is responsible of CSPS processing, using libcsps, of the
      *  camera logs-files and also offers software for CSPS processing results
-     *  visualization.
+     *  visualization and exportation.
      *
      *  \section Documentation
      *
@@ -141,10 +141,10 @@
 
     /*! \brief Software main function
      *  
-     *  The main function is dedicated to JSON file generation that stores
+     *  The main function is responsible of JSON file generation that stores
      *  basic informations, such as camera record timestamps and geopositions,
      *  that are used in interfaces for data representation. Positioning data
-     *  are obtained through CSPS queries.
+     *  are obtained through CSPS query interface.
      *  
      *  \param  argc Standard main parameter
      *  \param  argv Standard main parameter
