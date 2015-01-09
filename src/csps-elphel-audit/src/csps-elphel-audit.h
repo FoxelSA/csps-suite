@@ -52,7 +52,7 @@
      *  validation according to manufacturers standards. It comes with a main 
      *  software that is responsible of CSPS processing, using libcsps, of the
      *  camera logs-files and also offers software for CSPS processing results
-     *  visualization.
+     *  visualization and exportation
      *
      *  \section Documentation
      *
@@ -132,8 +132,8 @@
     /*! \brief Software main function
      *  
      *  The main function enumerates the logs-files found in the input directory.
-     *  The logs-files are then openned and audited by the specific procedure.
-     *  The audit results are printed using standard output.
+     *  The logs-files are then openned and audited by a specific function. The
+     *  audit results are printed using standard output.
      *  
      *  \param  argc Standard main parameter
      *  \param  argv Standard main parameter
@@ -146,11 +146,11 @@
     /*! \brief Audit procedure
      *
      *  This function performs an advanced audit of the considered logs-file.
-     *  The audit checks logs-file consistency and timestamp ranges by event
+     *  The audit checks logs-file consistency and timestamp ranges by events
      *  types.
      * 
-     *  \param csFile   Path to the logs-file
-     *  \param csStream Stream to the logs-file
+     *  \param csFile   Path to logs-file to audit
+     *  \param csStream Handle to openned logs-file
      */
 
     void cs_elphel_audit ( char const * const csFile, FILE * const csStream );
