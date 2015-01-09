@@ -52,7 +52,7 @@
      *  validation according to manufacturers standards. It comes with a main 
      *  software that is responsible of CSPS processing, using libcsps, of the
      *  camera logs-files and also offers software for CSPS processing results
-     *  visualization.
+     *  visualization and exportation.
      *
      *  \section Documentation
      *
