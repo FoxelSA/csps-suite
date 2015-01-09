@@ -371,7 +371,7 @@
         double          const         csNear,
         double          const         csFar,
         cs_Frustum_t          * const csFrustum,
-        lf_Descriptor_t const * const lfDesc
+        lf_Descriptor_t const * const csDesc
 
     ) {
 
@@ -379,17 +379,17 @@
         double csEyesisframe[3] = { 0.0, 0.0, 0.0 };
 
         /* Eyesis4pi device calibration variables */
-        double csAzimuth   = - lf_query_azimuth              ( csChannel, lfDesc );
-        double csHeading   = - lf_query_heading              ( csChannel, lfDesc );
-        double csElevation = - lf_query_elevation            ( csChannel, lfDesc );
-        double csRoll      = - lf_query_roll                 ( csChannel, lfDesc );
-        double csRadius    = + lf_query_radius               ( csChannel, lfDesc );
-        double csHeight    = + lf_query_height               ( csChannel, lfDesc );
-        double csPupil     = - lf_query_entrancePupilForward ( csChannel, lfDesc );        
-        double csPixel     = + lf_query_pixelSize            ( csChannel, lfDesc );
-        double csFocal     = + lf_query_focalLength          ( csChannel, lfDesc );
-        double csSenWidth  = + lf_query_pixelCorrectionWidth ( csChannel, lfDesc );
-        double csSenHeight = + lf_query_pixelCorrectionHeight( csChannel, lfDesc );
+        double csAzimuth   = - lf_query_azimuth              ( csChannel, csDesc );
+        double csHeading   = - lf_query_heading              ( csChannel, csDesc );
+        double csElevation = - lf_query_elevation            ( csChannel, csDesc );
+        double csRoll      = - lf_query_roll                 ( csChannel, csDesc );
+        double csRadius    = + lf_query_radius               ( csChannel, csDesc );
+        double csHeight    = + lf_query_height               ( csChannel, csDesc );
+        double csPupil     = - lf_query_entrancePupilForward ( csChannel, csDesc );        
+        double csPixel     = + lf_query_pixelSize            ( csChannel, csDesc );
+        double csFocal     = + lf_query_focalLength          ( csChannel, csDesc );
+        double csSenWidth  = + lf_query_pixelCorrectionWidth ( csChannel, csDesc );
+        double csSenHeight = + lf_query_pixelCorrectionHeight( csChannel, csDesc );
 
         /* Compute corrected azimuth angle */
         csAzimuth = csAzimuth + csHeading + ( LF_PI / 2.0 );

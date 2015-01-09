@@ -51,13 +51,13 @@
      *  a serie of softwares used for camera logs-files preparation and 
      *  validation according to manufacturers standards. It comes with a main 
      *  software that is responsible of CSPS processing, using libcsps, of the
-     *  camera logs-files and also offers software for CSPS processing results
+     *  camera logs-files and also offers softwares for CSPS processing results
      *  visualization and exportation.
      *
      *  \section Documentation
      *
      *  A detailed documentation can be generated through doxygen. A more general
-     *  documentation can be consulted at https://github.com/niam-foxel/csps-suite/wiki.
+     *  documentation can be consulted at https://github.com/FoxelSA/csps-suite/wiki.
      *
      *  \section Copyright
      * 
@@ -125,7 +125,7 @@
     "  -f Frustum far plane\n"                           \
     "  -d Timestamp delay on seconds\n\n"                \
     "csps-omvg-frustum - csps-suite\n"                   \
-    "Copyright (c) 2013-2014 FOXEL SA\n"
+    "Copyright (c) 2013-2015 FOXEL SA\n"
 
 /* 
     Header - Preprocessor macros
@@ -295,6 +295,7 @@
      *  \param csNear       Frustum near plane
      *  \param csFar        Frustum far plane
      *  \param csFrustum    Returned frustum definition
+     *  \param csDesc       Calibration data descriptor
      */
 
     void cs_omvg_frustum_eyesis4pi(
@@ -316,7 +317,7 @@
         double          const         csNear,
         double          const         csFar,
         cs_Frustum_t          * const csFrustum,
-        lf_Descriptor_t const * const lfDesc
+        lf_Descriptor_t const * const csDesc
 
     );
 
