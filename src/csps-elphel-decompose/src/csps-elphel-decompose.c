@@ -102,7 +102,14 @@
     Source - Logs-file decomposer
 */
 
-    int cs_elphel_decompose( char const * const csLog, char const * const csDirectory, int csIndex, double csInterval ) {
+    int cs_elphel_decompose( 
+
+        char   const * const csLog, 
+        char   const * const csDirectory, 
+        int                csIndex, 
+        double const       csInterval 
+
+    ) {
 
         /* Records buffer variables */
         lp_Byte_t csRec[LC_RECORD] = { 0 };

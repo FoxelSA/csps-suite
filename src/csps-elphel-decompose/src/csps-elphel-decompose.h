@@ -52,7 +52,7 @@
      *  validation according to manufacturers standards. It comes with a main 
      *  software that is responsible of CSPS processing, using libcsps, of the
      *  camera logs-files and also offers software for CSPS processing results
-     *  visualization.
+     *  visualization and exportation
      *
      *  \section Documentation
      *
@@ -150,20 +150,27 @@
 
     /*! \brief Logs-file decomposer
      * 
-     *  This function opens the input logs-file and test if a too wide interval
+     *  This function opens the input logs-file and tests if a too wide interval
      *  appears between the successive IMU-events timestamps. It transfers the
      *  content of the input logs-file in separated output files according to
-     *  the detected too wide intervals
+     *  the detected intervals.
      *
      *  \param  csLog       Input logs-file path
      *  \param  csDirectory Output directory
      *  \param  csIndex     Current index of the decomposition
      *  \param  csInterval  Maximum admited time gap between IMU-events
      *
-     *  \return Returns the corrected decomposition index
+     *  \return Returns corrected decomposition index
      */
 
-    int cs_elphel_decompose ( char const * const csLog, char const * const csDirectory, int csIndex, double csInterval );
+    int cs_elphel_decompose ( 
+
+        char   const * const csLog, 
+        char   const * const csDirectory, 
+        int                csIndex, 
+        double const       csInterval 
+
+    );
 
 /* 
     Header - C/C++ compatibility
