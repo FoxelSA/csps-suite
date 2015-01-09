@@ -52,7 +52,7 @@
      *  validation according to manufacturers standards. It comes with a main 
      *  software that is responsible of CSPS processing, using libcsps, of the
      *  camera logs-files and also offers software for CSPS processing results
-     *  visualization.
+     *  visualization and exportation.
      *
      *  \section Documentation
      *
@@ -111,7 +111,7 @@
     # define CS_HELP "Usage summary :\n"                       \
     "  csps-elphel-validate [Arguments] [Parameters] ...\n"    \
     "Short arguments and parameters summary :\n"               \
-    "  -s Directory containing recomposed logs-files\n"        \
+    "  -s Directory containing source logs-files\n"            \
     "  -d Directory where validated logs-files are exported\n" \
     "  -m Minimum size, in bytes, for logs-file validation\n"  \
     "csps-elphel-validate - csps-suite\n"                      \
@@ -136,8 +136,8 @@
     /*! \brief Software main function
      *  
      *  The main function considers logs-files from the source directory and
-     *  proceed to a validation based on the size. Validated file are copied in
-     *  the destination directory.
+     *  proceed to a validation based on their size. Validated file are copied
+     *  in the destination directory.
      *  
      *  \param  argc Standard main parameter
      *  \param  argv Standard main parameter
