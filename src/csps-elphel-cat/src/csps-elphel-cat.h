@@ -52,7 +52,7 @@
      *  validation according to manufacturers standards. It comes with a main 
      *  software that is responsible of CSPS processing, using libcsps, of the
      *  camera logs-files and also offers software for CSPS processing results
-     *  visualization.
+     *  visualization and exportation.
      *
      *  \section Documentation
      *
@@ -151,7 +151,7 @@
      *  This function simply displays the content of a record buffer in ASCII
      *  hexadecimal form using software standard output.
      *
-     *  \param csBuffer Pointer to first element of the record buffer
+     *  \param csBuffer Pointer to first byte of record buffer
      */
 
     void csps_elphel_cat_record ( lp_Byte_t * csBuffer );
