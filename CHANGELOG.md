@@ -1,5 +1,5 @@
 ## Changelog
 
-### Beta 0.1 (master)
+### Release 0.1 (January 9, 2015)
 
 - `Added` : Initial release
