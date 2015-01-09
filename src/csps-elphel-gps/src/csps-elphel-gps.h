@@ -52,7 +52,7 @@
      *  validation according to manufacturers standards. It comes with a main 
      *  software that is responsible of CSPS processing, using libcsps, of the
      *  camera logs-files and also offers software for CSPS processing results
-     *  visualization.
+     *  visualization and exportation.
      *
      *  \section Documentation
      *
@@ -160,10 +160,10 @@
      *  NMEA sentence completion and on the timestamp of the GPS-events. It also
      *  rebuild the timestamps of the GPS-events after validation of the block.
      *
-     *  \param  csIStream Input logs-file handle
-     *  \param  csOStream Output logs-file handle
+     *  \param  csIStream Openned input logs-file handle
+     *  \param  csOStream Openned output logs-file handle
      *
-     *  \return Returns the number of discarded GPS events
+     *  \return Returns the number of discarded GPS-events
      */
 
     unsigned long cs_elphel_gps_process ( FILE * const csIStream, FILE * const csOStream );
@@ -178,7 +178,7 @@
      *  a given GPS measure, each NMEA type appears only one. The block of
      *  sentence can then be discarded otherwise.
      * 
-     *  \param  csBlock Pointer to the first element of the array
+     *  \param  csBlock Pointer to first element of the array
      *
      *  \return Returns true if each sentence type appears only once, false
      *          otherwise
@@ -205,7 +205,7 @@
      *  This function interprets the eight first bytes of the logs-file record
      *  buffer to replace the original timestamp by the rebuilded one.
      * 
-     *  \param csHeader Pointer to the first byte of the record buffer
+     *  \param csHeader Pointer to first byte of record buffer
      *  \param csTime   Timestamp to write in recrod header
      */
 
