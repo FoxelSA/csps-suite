@@ -52,7 +52,7 @@
      *  validation according to manufacturers standards. It comes with a main 
      *  software that is responsible of CSPS processing, using libcsps, of the
      *  camera logs-files and also offers software for CSPS processing results
-     *  visualization.
+     *  visualization and exportation.
      *
      *  \section Documentation
      *
@@ -131,7 +131,7 @@
     /*! \struct cs_Descriptor_struct
      *  \brief Logs-file descriptor
      *
-     *  This structure stores the necessary information to perform logs-files
+     *  This structure stores the necessary informations to perform logs-files
      *  merging.
      *
      *  \var cs_Descriptor_struct::dsName
@@ -157,7 +157,8 @@
     /*! \brief Software main function
      *  
      *  The main function lists the log-files present in the input directory and
-     *  merge them together in a single log-file in their chronologic order.
+     *  merge them together in a single log-file in their chronologic order. By
+     *  this merge procedure, logs-files overlapping is removed.
      *  
      *  \param argc Standard main parameter
      *  \param argv Standard main parameter
