@@ -52,7 +52,7 @@
      *  validation according to manufacturers standards. It comes with a main 
      *  software that is responsible of CSPS processing, using libcsps, of the
      *  camera logs-files and also offers software for CSPS processing results
-     *  visualization.
+     *  visualization and exportation.
      *
      *  \section Documentation
      *
@@ -142,8 +142,8 @@
     /*! \struct cs_List_struct
      *  \brief OpenMVG list file memory structure
      *
-     *  This structure is designed to store the needed information coming from
-     *  provided by the OpenMVG list file.
+     *  This structure is designed to store the needed informations coming from
+     *  the list file provided by OpenMVG.
      *
      *  \var cs_List_struct::lsChannel
      *  Camera sensor channel number
@@ -238,7 +238,7 @@
      *  \param  argc Standard main parameter
      *  \param  argv Standard main parameter
      *
-     *  \return Exit code
+     *  \return Returns exit code
      */
 
     int main ( int argc, char ** argv );
@@ -246,7 +246,7 @@
     /*! \brief OpenMVG list importation
      * 
      *  This function is responsible of informations importation from OpenMVG
-     *  list file that are needed for frustum intersection computation. Those
+     *  list file that are needed for frustum intersection detection. Those
      *  informations are the camera sensor image capture timestamp and the
      *  camera sensor channel.
      *
@@ -254,8 +254,8 @@
      *  function. Note that, for performance purpose, the actual size, in memory,
      *  of the stack can be greater than the returned size.
      *
-     *  \param  csList   Path to the OpenMVG list file
-     *  \param  csStack  Pointer to the information stack base pointer
+     *  \param  csList   Path to OpenMVG list file
+     *  \param  csStack  Pointer to informations stack
      *  \param  csDelay  Delay to add to timestamp second part
      *
      *  \return Returns the size of the created stack
@@ -276,7 +276,7 @@
      *  place the frustum according to the camera.
      *
      *  Moreover, the function takes a rotation matrix and a position vector in
-     *  order to compute the frustum in earth frame.
+     *  order to compute the frustum in earth-frame.
      *  
      *  \param csCamera     Camera MAC address
      *  \param csChannel    Camera sensor index
