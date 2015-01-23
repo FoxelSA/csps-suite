@@ -206,8 +206,18 @@
 
                     } else {
 
-                        /* GPS mesure description */
-                        fprintf( csStream, "\"gps\":\"valid\",\n" );
+                        /* Weak measure detection */
+                        if ( csGeopos->qrWeak == LP_TRUE ) {
+
+                            /* GPS mesure description */
+                            fprintf( csStream, "\"gps\":\"weak\",\n" );
+
+                        } else {
+
+                            /* GPS mesure description */
+                            fprintf( csStream, "\"gps\":\"valid\",\n" );
+
+                        }
 
                     }
 
