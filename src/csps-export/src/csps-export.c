@@ -127,22 +127,17 @@
 
     ) {
 
-        /* Position variables */
-        lp_Real_t csGPSlon = 0.0;
-        lp_Real_t csGPSlat = 0.0;
-        lp_Real_t csGPSalt = 0.0;
-
         /* Camera stream size variables */
         lp_Size_t csSize  = 0;
 
         /* Parsing variables */
         lp_Size_t csParse = 0;
 
+        /* Index memory variables */
+        lp_Size_t csGuess = 0;
+
         /* Position guess variables */
         lp_Size_t csFlag  = 0;
-
-        /* Index memory variables */
-        lp_Size_t csIndex = 0;
 
         /* Stream variables */
         FILE * csStream = NULL;
@@ -159,29 +154,13 @@
             csSize = lp_query_trigger_size( csTrigger );
 
             /* Search for initial position (for signal missing on boundaries) */
-            while ( ( csParse < csSize ) && ( lp_query_position_status( csGeopos ) == LC_FALSE ) ) {
+            while ( ( csGuess < csSize ) && ( lp_query_position_status( csGeopos ) == LC_FALSE ) ) {
 
                 /* Query trigger by index */
-                lp_query_trigger_byindex( csTrigger, csParse );
+                lp_query_trigger_byindex( csTrigger, csGuess ++ );
 
                 /* Query timestamp position */
                 lp_query_position( csGeopos, csTrigger->qrSynch );
-
-                /* Update search index */
-                csParse ++;
-
-            }
-
-            /* Memorize initial position index */
-            csIndex = csParse - 1;
-
-            /* Check position avialability */
-            if ( csParse < csSize ) {
-
-                /* Assign initial position */
-                csGPSlon = csGeopos->qrLongitude;
-                csGPSlat = csGeopos->qrLatitude;
-                csGPSalt = csGeopos->qrAltitude;
 
             }
 
@@ -195,28 +174,18 @@
                 lp_query_trigger_byindex( csTrigger, csParse );
 
                 /* Verify missing position condition */
-                if ( csParse > csIndex ) {
+                if ( csParse >= csGuess ) {
 
                     /* Query position */
                     lp_query_position( csGeopos, csTrigger->qrSynch );
 
-                    /* Check query status */
-                    if ( lp_query_position_status( csGeopos ) == LC_TRUE ) {
+                    /* Update guess flag */
+                    csFlag = ( lp_query_position_status( csGeopos ) == LC_TRUE ) ? 1 : 0;
 
-                        /* Assign new position */
-                        csGPSlon = csGeopos->qrLongitude;
-                        csGPSlat = csGeopos->qrLatitude;
-                        csGPSalt = csGeopos->qrAltitude;
+                } else {
 
-                        /* Update guess flag */
-                        csFlag = 1;
-
-                    } else {
-
-                        /* Update guess flag */
-                        csFlag = 0;
-
-                    }
+                    /* Update guess flag */
+                    csFlag = 0;
 
                 }
 
@@ -229,9 +198,9 @@
                 fprintf( csStream, "\"folder\":null,\n" );
 
                 /* Export JSON - positions */
-                fprintf( csStream, "\"lng\":%.8f,\n", csGPSlon );
-                fprintf( csStream, "\"lat\":%.8f,\n", csGPSlat );
-                fprintf( csStream, "\"alt\":%.8f,\n", csGPSalt );
+                fprintf( csStream, "\"lng\":%.8f,\n", csGeopos->qrLongitude );
+                fprintf( csStream, "\"lat\":%.8f,\n", csGeopos->qrLatitude );
+                fprintf( csStream, "\"alt\":%.8f,\n", csGeopos->qrAltitude );
 
                 /* Export JSON - timestamps */
                 fprintf( csStream, "\"sec\":%" lp_Time_p ",\n", lp_timestamp_sec ( csTrigger->qrMaster ) );

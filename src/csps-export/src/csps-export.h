@@ -117,9 +117,8 @@
     "  -m Camera CSPS-module switch\n"             \
     "  -g GPS CSPS-tag\n"                          \
     "  -n GPS CSPS-module switch\n"                \
-    "  -l Manual specifier for longitude\n"        \
-    "  -t Manual specifier for latitude\n"         \
-    "  -a Manual specifier for altitude\n"         \
+    "  -i IMU CSPS-tag\n"                          \
+    "  -s IMU CSPS-module switch\n"                \
     "csps-export - csps-suite\n"                   \
     "Copyright (c) 2013-2015 FOXEL SA\n"
 
