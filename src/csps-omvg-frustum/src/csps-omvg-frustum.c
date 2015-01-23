@@ -153,12 +153,12 @@
                             cs_Frustum_t csFrustA, csFrustB;
 
                             /* Create queries descriptors */
-                            csaQposit = lp_query_position_read( csPath, LP_DEVICE_TYPE_GPS, csGPSd, csGPSm );
-                            csbQposit = lp_query_position_read( csPath, LP_DEVICE_TYPE_GPS, csGPSd, csGPSm );
+                            csaQposit = lp_query_position_create( csPath, csGPSd, csGPSm );
+                            csbQposit = lp_query_position_create( csPath, csGPSd, csGPSm );
 
                             /* Create queries descriptors */
-                            csaQorien = lp_query_orientation_read( csPath, LP_DEVICE_TYPE_IMU, csIMUd, csIMUm );
-                            csbQorien = lp_query_orientation_read( csPath, LP_DEVICE_TYPE_IMU, csIMUd, csIMUm );
+                            csaQorien = lp_query_orientation_create( csPath, csIMUd, csIMUm );
+                            csbQorien = lp_query_orientation_create( csPath, csIMUd, csIMUm );
 
                             /* First level composition loop */
                             for ( csaLoop = 0; csaLoop < csSize; csaLoop ++ ) {
