@@ -56,22 +56,23 @@
         char csCAMm[256] = { 0 };
         char csGPSd[256] = { 0 };
         char csGPSm[256] = { 0 };
+        char csIMUd[256] = { 0 };
+        char csIMUm[256] = { 0 };
 
-        /* Default GPS position */
-        double csLongitude = 0.0;
-        double csLatitude  = 0.0;
-        double csAltitude  = 0.0;
+        /* Query variables */
+        lp_Trigger_t csTrigger;
+        lp_Geopos_t  csGeopos;
+        lp_Orient_t  csOrient;
 
         /* Search in parameters */
-        lc_stdp( lc_stda( argc, argv, "--path"     ,"-p" ), argv,   csPath     , LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--export"   ,"-e" ), argv,   csFile     , LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--cam-tag"  ,"-c" ), argv,   csCAMd     , LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--cam-mod"  ,"-m" ), argv,   csCAMm     , LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--gps-tag"  ,"-g" ), argv,   csGPSd     , LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--gps-mod"  ,"-n" ), argv,   csGPSm     , LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--longitude","-l" ), argv, & csLongitude, LC_DOUBLE );
-        lc_stdp( lc_stda( argc, argv, "--latitude" ,"-t" ), argv, & csLatitude , LC_DOUBLE );
-        lc_stdp( lc_stda( argc, argv, "--altitude" ,"-a" ), argv, & csAltitude , LC_DOUBLE );
+        lc_stdp( lc_stda( argc, argv, "--path"     ,"-p" ), argv, csPath, LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--export"   ,"-e" ), argv, csFile, LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--cam-tag"  ,"-c" ), argv, csCAMd, LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--cam-mod"  ,"-m" ), argv, csCAMm, LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--gps-tag"  ,"-g" ), argv, csGPSd, LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--gps-mod"  ,"-n" ), argv, csGPSm, LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--imu-tag"  ,"-i" ), argv, csIMUd, LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--imu-mod"  ,"-s" ), argv, csIMUm, LC_STRING );
 
         /* Execution switch */
         if ( lc_stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
@@ -81,148 +82,184 @@
 
         } else {
 
-            /* Camera stream size variables */
-            lp_Size_t csSize  = 0;
+            /* Create queries descriptors */
+            csTrigger = lp_query_trigger_create    ( csPath, csCAMd, csCAMm );
+            csGeopos  = lp_query_position_create   ( csPath, csGPSd, csGPSm );
+            csOrient  = lp_query_orientation_create( csPath, csIMUd, csIMUm );
 
-            /* Parsing variables */
-            lp_Size_t csParse = 0;
-
-            /* Position guess variables */
-            lp_Size_t csFlag  = 0;
-
-            /* Index memory variables */
-            lp_Size_t csIndex = 0;
-
-            /* Position variables */
-            lp_Real_t csGPSlon = csLongitude;
-            lp_Real_t csGPSlat = csLatitude;
-            lp_Real_t csGPSalt = csAltitude;
-
-            /* Stream variables */
-            FILE * csStream = NULL;
-
-            /* Query variables */
-            lp_Geopos_t  csPosition;
-            lp_Trigger_t csTrigger;
-
-            /* Create stream */
-            if ( ( csStream = fopen( csFile, "w" ) ) == NULL ) {
+            /* Check previous file existence */
+            if ( lc_file_detect( csFile, LC_FILE ) == LC_TRUE ) {
 
                 /* Display message */
-                fprintf( LC_ERR, "Error : unable to access %s\n", basename( csFile ) ); return( EXIT_FAILURE );
+                fprintf( LC_OUT, "Updating %s JSON file ...\n", basename( csFile ) );
+
+                /* JSON update */
+                cs_export_update( & csTrigger, & csGeopos, & csOrient, csFile );
 
             } else {
 
                 /* Display message */
                 fprintf( LC_OUT, "Creating %s JSON file ...\n", basename( csFile ) );
 
-                /* Create queries descriptors */
-                csTrigger  = lp_query_trigger_create ( csPath, csCAMd, csCAMm );
-                csPosition = lp_query_position_create( csPath, csGPSd, csGPSm );
-
-                /* Obtain trigger count */
-                csSize = lp_query_trigger_size( & csTrigger );
-
-                /* Search for initial position (for signal missing on boundaries) */
-                while ( ( csParse < csSize ) && ( csPosition.qrStatus == LC_FALSE ) ) {
-
-                    /* Query trigger by index */
-                    lp_query_trigger_byindex( & csTrigger, csParse );
-
-                    /* Query timestamp position */
-                    lp_query_position( & csPosition, csTrigger.qrSynch );
-
-                    /* Update search index */
-                    csParse ++;
-
-                }
-
-                /* Memorize initial position index */
-                csIndex = csParse - 1;
-
-                /* Check position avialability */
-                if ( csParse < csSize ) {
-
-                    /* Assign initial position */
-                    csGPSlon = csPosition.qrLongitude;
-                    csGPSlat = csPosition.qrLatitude;
-                    csGPSalt = csPosition.qrAltitude;
-
-                }
-
-                /* Initialize JSON */
-                fprintf( csStream, "{\n\"gps\":%s,\n\"split\":false,\n\"preview\":null,\n\"pose\":[\n", ( csParse < csSize ) ? "true" : "false" );
-                
-                /* Exportation loop */
-                for ( csParse = 0; csParse < csSize; csParse ++ ) {
-
-                    /* Query trigger by index */
-                    lp_query_trigger_byindex( & csTrigger, csParse );
-
-                    /* Verify missing position condition */
-                    if ( csParse > csIndex ) {
-
-                        /* Query position */
-                        lp_query_position( & csPosition, csTrigger.qrSynch );
-
-                        /* Check query status */
-                        if ( csPosition.qrStatus == LC_TRUE ) {
-
-                            /* Assign new position */
-                            csGPSlon = csPosition.qrLongitude;
-                            csGPSlat = csPosition.qrLatitude;
-                            csGPSalt = csPosition.qrAltitude;
-
-                            /* Update guess flag */
-                            csFlag = 1;
-
-                        } else {
-
-                            /* Update guess flag */
-                            csFlag = 0;
-
-                        }
-
-                    }
-
-                    /* Export JSON - format */
-                    fprintf( csStream, "{\n" );
-
-                    /* Export JSON - capture flags */
-                    fprintf( csStream, "\"guess\":%s,\n", ( csFlag == 0 ) ? "true" : "false" );
-                    fprintf( csStream, "\"status\":\"unknown\",\n" );
-                    fprintf( csStream, "\"folder\":null,\n" );
-
-                    /* Export JSON - positions */
-                    fprintf( csStream, "\"lng\":%.8f,\n", csGPSlon );
-                    fprintf( csStream, "\"lat\":%.8f,\n", csGPSlat );
-                    fprintf( csStream, "\"alt\":%.8f,\n", csGPSalt );
-
-                    /* Export JSON - timestamps */
-                    fprintf( csStream, "\"sec\":%" lp_Time_p ",\n", lp_timestamp_sec ( csTrigger.qrMaster ) );
-                    fprintf( csStream, "\"usc\":%" lp_Time_p " \n", lp_timestamp_usec( csTrigger.qrMaster ) );
-
-                    /* Export JSON - format */
-                    fprintf( csStream, "}%s\n", ( csParse < ( csSize - 1 ) ) ? "," : "" );
-
-                }
-
-                /* Terminate JSON */
-                fprintf( csStream, "]\n}\n" );
-
-                /* Delete queries descriptors */
-                lp_query_trigger_delete ( & csTrigger  );
-                lp_query_position_delete( & csPosition );
-
-                /* Close output stream */
-                fclose( csStream );
+                /* JSON exportation */
+                cs_export_create( & csTrigger, & csGeopos, & csOrient, csFile );
 
             }
+
+            /* Delete queries descriptors */
+            lp_query_trigger_delete    ( & csTrigger );
+            lp_query_position_delete   ( & csGeopos  );
+            lp_query_orientation_delete( & csOrient  );
 
         }
 
         /* Return to system */
         return( EXIT_SUCCESS );
+
+    }
+
+    void cs_export_create( 
+
+        lp_Trigger_t  * const csTrigger, 
+        lp_Geopos_t   * const csGeopos, 
+        lp_Orient_t   * const csOrient,
+        char          * const csFile
+
+    ) {
+
+        /* Position variables */
+        lp_Real_t csGPSlon = 0.0;
+        lp_Real_t csGPSlat = 0.0;
+        lp_Real_t csGPSalt = 0.0;
+
+        /* Camera stream size variables */
+        lp_Size_t csSize  = 0;
+
+        /* Parsing variables */
+        lp_Size_t csParse = 0;
+
+        /* Position guess variables */
+        lp_Size_t csFlag  = 0;
+
+        /* Index memory variables */
+        lp_Size_t csIndex = 0;
+
+        /* Stream variables */
+        FILE * csStream = NULL;
+
+        /* Create stream */
+        if ( ( csStream = fopen( csFile, "w" ) ) == NULL ) {
+
+            /* Display message */
+            fprintf( LC_ERR, "Error : unable to access %s\n", basename( csFile ) );
+
+        } else {
+
+            /* Trigger count query */
+            csSize = lp_query_trigger_size( csTrigger );
+
+            /* Search for initial position (for signal missing on boundaries) */
+            while ( ( csParse < csSize ) && ( lp_query_position_status( csGeopos ) == LC_FALSE ) ) {
+
+                /* Query trigger by index */
+                lp_query_trigger_byindex( csTrigger, csParse );
+
+                /* Query timestamp position */
+                lp_query_position( csGeopos, csTrigger->qrSynch );
+
+                /* Update search index */
+                csParse ++;
+
+            }
+
+            /* Memorize initial position index */
+            csIndex = csParse - 1;
+
+            /* Check position avialability */
+            if ( csParse < csSize ) {
+
+                /* Assign initial position */
+                csGPSlon = csGeopos->qrLongitude;
+                csGPSlat = csGeopos->qrLatitude;
+                csGPSalt = csGeopos->qrAltitude;
+
+            }
+
+            /* Initialize JSON */
+            fprintf( csStream, "{\n\"gps\":%s,\n\"split\":false,\n\"preview\":null,\n\"pose\":[\n", ( csParse < csSize ) ? "true" : "false" );
+            
+            /* Exportation loop */
+            for ( csParse = 0; csParse < csSize; csParse ++ ) {
+
+                /* Query trigger by index */
+                lp_query_trigger_byindex( csTrigger, csParse );
+
+                /* Verify missing position condition */
+                if ( csParse > csIndex ) {
+
+                    /* Query position */
+                    lp_query_position( csGeopos, csTrigger->qrSynch );
+
+                    /* Check query status */
+                    if ( lp_query_position_status( csGeopos ) == LC_TRUE ) {
+
+                        /* Assign new position */
+                        csGPSlon = csGeopos->qrLongitude;
+                        csGPSlat = csGeopos->qrLatitude;
+                        csGPSalt = csGeopos->qrAltitude;
+
+                        /* Update guess flag */
+                        csFlag = 1;
+
+                    } else {
+
+                        /* Update guess flag */
+                        csFlag = 0;
+
+                    }
+
+                }
+
+                /* Export JSON - format */
+                fprintf( csStream, "{\n" );
+
+                /* Export JSON - capture flags */
+                fprintf( csStream, "\"guess\":%s,\n", ( csFlag == 0 ) ? "true" : "false" );
+                fprintf( csStream, "\"status\":\"unknown\",\n" );
+                fprintf( csStream, "\"folder\":null,\n" );
+
+                /* Export JSON - positions */
+                fprintf( csStream, "\"lng\":%.8f,\n", csGPSlon );
+                fprintf( csStream, "\"lat\":%.8f,\n", csGPSlat );
+                fprintf( csStream, "\"alt\":%.8f,\n", csGPSalt );
+
+                /* Export JSON - timestamps */
+                fprintf( csStream, "\"sec\":%" lp_Time_p ",\n", lp_timestamp_sec ( csTrigger->qrMaster ) );
+                fprintf( csStream, "\"usc\":%" lp_Time_p " \n", lp_timestamp_usec( csTrigger->qrMaster ) );
+
+                /* Export JSON - format */
+                fprintf( csStream, "}%s\n", ( csParse < ( csSize - 1 ) ) ? "," : "" );
+
+            }
+
+            /* Terminate JSON */
+            fprintf( csStream, "]\n}\n" );
+
+            /* Close output stream */
+            fclose( csStream );
+
+        }
+
+    }
+
+    void cs_export_update(
+
+        lp_Trigger_t  * const csTrigger, 
+        lp_Geopos_t   * const csGeopos, 
+        lp_Orient_t   * const csOrient,
+        char          * const csFile
+
+    ) {
 
     }
 

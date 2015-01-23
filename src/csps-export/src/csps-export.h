@@ -154,6 +154,24 @@
 
     int main ( int argc, char ** argv );
 
+    void cs_export_create( 
+
+        lp_Trigger_t  * const csTrigger, 
+        lp_Geopos_t   * const csGeopos, 
+        lp_Orient_t   * const csOrient,
+        char          * const csFile
+
+    );
+
+    void cs_export_update(
+
+        lp_Trigger_t  * const csTrigger, 
+        lp_Geopos_t   * const csGeopos, 
+        lp_Orient_t   * const csOrient,
+        char          * const csFile
+
+    );
+
 /* 
     Header - C/C++ compatibility
  */
