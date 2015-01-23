@@ -120,14 +120,14 @@
                 fprintf( LC_OUT, "Creating %s JSON file ...\n", basename( csFile ) );
 
                 /* Ask stream size */
-                csSize = lp_stream_size( csPath, LP_DEVICE_TYPE_CAM, csCAMd, csCAMm );
+                csSize = lp_stream_size( csPath, csCAMd, csCAMm );
 
                 /* allocate stream memory */
-                csCAMtag = lp_stream_read( csPath, LP_DEVICE_TYPE_CAM, csCAMd, csCAMm, LP_STREAM_CPN_TAG, sizeof( lp_Time_t ) * csSize );
-                csCAMsyn = lp_stream_read( csPath, LP_DEVICE_TYPE_CAM, csCAMd, csCAMm, LP_STREAM_CPN_SYN, sizeof( lp_Time_t ) * csSize );
+                csCAMtag = lp_stream_read( csPath, csCAMd, csCAMm, LP_STREAM_CPN_TAG, sizeof( lp_Time_t ) * csSize );
+                csCAMsyn = lp_stream_read( csPath, csCAMd, csCAMm, LP_STREAM_CPN_SYN, sizeof( lp_Time_t ) * csSize );
 
                 /* Create queries descriptors */
-                csPosition = lp_query_position_read( csPath, LP_DEVICE_TYPE_GPS, csGPSd, csGPSm );
+                csPosition = lp_query_position_create( csPath, csGPSd, csGPSm );
 
                 /* Search for initial position (for signal missing on boundaries) */
                 while ( ( csParse < csSize ) && ( csPosition.qrStatus == LC_FALSE ) ) {
