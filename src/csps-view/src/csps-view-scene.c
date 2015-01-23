@@ -186,7 +186,7 @@
         double csMinAlt = 1e100, csMaxAlt = -1e100;
 
         /* Build camera stream path */
-        lp_path_stream( csPath.ptRoot, LP_DEVICE_TYPE_CAM, csPath.ptCAMd, csPath.ptCAMm, LP_STREAM_CPN_SYN, csFile );
+        lp_path_stream( csPath.ptRoot, csPath.ptCAMd, csPath.ptCAMm, LP_STREAM_CPN_SYN, csFile );
 
         /* Check if file exists */
         if ( ( csStream = fopen( csFile, "rb" ) ) != NULL ) { 
@@ -195,14 +195,14 @@
             fclose( csStream );
 
             /* Create queries descriptors */
-            csQPos = lp_query_position_read   ( csPath.ptRoot, LP_DEVICE_TYPE_GPS, csPath.ptGPSd, csPath.ptGPSm );
-            csQOri = lp_query_orientation_read( csPath.ptRoot, LP_DEVICE_TYPE_IMU, csPath.ptIMUd, csPath.ptIMUm );
+            csQPos = lp_query_position_create   ( csPath.ptRoot, csPath.ptGPSd, csPath.ptGPSm );
+            csQOri = lp_query_orientation_create( csPath.ptRoot, csPath.ptIMUd, csPath.ptIMUm );
 
             /* Ask stream size */
-            csSize = lp_stream_size( csPath.ptRoot, LP_DEVICE_TYPE_CAM, csPath.ptCAMd, csPath.ptCAMm );
+            csSize = lp_stream_size( csPath.ptRoot, csPath.ptCAMd, csPath.ptCAMm );
 
             /* Read stream */
-            csCAMsyn = lp_stream_read( csPath.ptRoot, LP_DEVICE_TYPE_CAM, csPath.ptCAMd, csPath.ptCAMm, LP_STREAM_CPN_SYN, sizeof( lp_Time_t ) * csSize );
+            csCAMsyn = lp_stream_read( csPath.ptRoot, csPath.ptCAMd, csPath.ptCAMm, LP_STREAM_CPN_SYN, sizeof( lp_Time_t ) * csSize );
 
             /* Declare display list begining */
             glNewList( csTag, GL_COMPILE ); {
