@@ -58,11 +58,13 @@
         char csGPSm[256] = { 0 };
         char csIMUd[256] = { 0 };
         char csIMUm[256] = { 0 };
+        char csSTLm[256] = { 0 };
 
         /* Query variables */
         lp_Trigger_t csTrigger;
         lp_Geopos_t  csGeopos;
         lp_Orient_t  csOrient;
+        lp_Still_t   csStill;
 
         /* Search in parameters */
         lc_stdp( lc_stda( argc, argv, "--path"     ,"-p" ), argv, csPath, LC_STRING );
@@ -73,6 +75,7 @@
         lc_stdp( lc_stda( argc, argv, "--gps-mod"  ,"-n" ), argv, csGPSm, LC_STRING );
         lc_stdp( lc_stda( argc, argv, "--imu-tag"  ,"-i" ), argv, csIMUd, LC_STRING );
         lc_stdp( lc_stda( argc, argv, "--imu-mod"  ,"-s" ), argv, csIMUm, LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--stl-mod"  ,"-t" ), argv, csSTLm, LC_STRING );
 
         /* Execution switch */
         if ( lc_stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
@@ -86,6 +89,7 @@
             csTrigger = lp_query_trigger_create    ( csPath, csCAMd, csCAMm );
             csGeopos  = lp_query_position_create   ( csPath, csGPSd, csGPSm );
             csOrient  = lp_query_orientation_create( csPath, csIMUd, csIMUm );
+            csStill   = lp_query_still_create      ( csPath, csIMUd, csSTLm );
 
             /* Check previous file existence */
             if ( lc_file_detect( csFile, LC_FILE ) == LC_TRUE ) {
@@ -94,7 +98,7 @@
                 fprintf( LC_OUT, "Updating %s JSON file ...\n", basename( csFile ) );
 
                 /* JSON update */
-                cs_export_update( & csTrigger, & csGeopos, & csOrient, csFile );
+                cs_export_update( & csTrigger, & csGeopos, & csOrient, & csStill, csFile );
 
             } else {
 
@@ -102,7 +106,7 @@
                 fprintf( LC_OUT, "Creating %s JSON file ...\n", basename( csFile ) );
 
                 /* JSON exportation */
-                cs_export_create( & csTrigger, & csGeopos, & csOrient, csFile );
+                cs_export_create( & csTrigger, & csGeopos, & csOrient, & csStill, csFile );
 
             }
 
@@ -110,6 +114,7 @@
             lp_query_trigger_delete    ( & csTrigger );
             lp_query_position_delete   ( & csGeopos  );
             lp_query_orientation_delete( & csOrient  );
+            lp_query_still_delete      ( & csStill   );
 
         }
 
@@ -123,6 +128,7 @@
         lp_Trigger_t  * const csTrigger, 
         lp_Geopos_t   * const csGeopos, 
         lp_Orient_t   * const csOrient,
+        lp_Still_t    * const csStill,
         char          * const csFile
 
     ) {
@@ -192,6 +198,9 @@
                 /* Query orientation */
                 lp_query_orientation( csOrient, csTrigger->qrSynch );
 
+                /* Query still range detection */
+                lp_query_still( csStill, csTrigger->qrSynch );
+
                 /* Export JSON - format */
                 fprintf( csStream, "{\n" );
 
@@ -229,7 +238,7 @@
                 }
 
                 /* Export JSON - capture description */
-                fprintf( csStream, "\"still\":\"false\",\n" );
+                fprintf( csStream, "\"still\":%s,\n", ( csStill->qrStill == LP_TRUE ) ? "true" : "false" );
                 fprintf( csStream, "\"status\":\"unknown\",\n" );
                 fprintf( csStream, "\"folder\":null,\n" );
 
@@ -275,6 +284,7 @@
         lp_Trigger_t  * const csTrigger, 
         lp_Geopos_t   * const csGeopos, 
         lp_Orient_t   * const csOrient,
+        lp_Still_t    * const csStill,
         char          * const csFile
 
     ) {

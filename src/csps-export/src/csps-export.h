@@ -158,6 +158,7 @@
         lp_Trigger_t  * const csTrigger, 
         lp_Geopos_t   * const csGeopos, 
         lp_Orient_t   * const csOrient,
+        lp_Still_t    * const csStill,
         char          * const csFile
 
     );
@@ -167,6 +168,7 @@
         lp_Trigger_t  * const csTrigger, 
         lp_Geopos_t   * const csGeopos, 
         lp_Orient_t   * const csOrient,
+        lp_Still_t    * const csStill,
         char          * const csFile
 
     );
