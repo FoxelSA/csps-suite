@@ -41,7 +41,7 @@
     Source - Includes
  */
 
-    # include "csps-omvg-frustum.h"
+    # include "csps-frustum.h"
 
 /*
     Source - Software main function
@@ -122,7 +122,7 @@
             } else {
 
                 /* Import OpenMVG list */
-                if ( ( csSize = cs_omvg_frusmtum_list( csList, & csStack, csDelay ) ) == 0 ) {
+                if ( ( csSize = cs_frusmtum_list( csList, & csStack, csDelay ) ) == 0 ) {
 
                     /* Display message */
                     fprintf( LC_ERR, "Error : unable to read OpenMVG list\n" );
@@ -186,7 +186,7 @@
                                             csbQposit.qrAltitude  = ( csbQposit.qrAltitude  - csaQposit.qrAltitude  );
 
                                             /* Compute frustum of first camera */
-                                            cs_omvg_frustum_eyesis4pi( csCamera, csStack[csaLoop].lsChannel,
+                                            cs_frustum_eyesis4pi( csCamera, csStack[csaLoop].lsChannel,
 
                                                 csaQorien.qrfxx, 
                                                 csaQorien.qrfxy,
@@ -206,7 +206,7 @@
                                             & csFrustA, & lfDesc );
 
                                             /* Compute frustum of second camera */
-                                            cs_omvg_frustum_eyesis4pi( csCamera, csStack[csbLoop].lsChannel,
+                                            cs_frustum_eyesis4pi( csCamera, csStack[csbLoop].lsChannel,
 
                                                 csbQorien.qrfxx, 
                                                 csbQorien.qrfxy, 
@@ -226,7 +226,7 @@
                                             & csFrustB, & lfDesc );
 
                                             /* Frustum intersection detection */
-                                            if ( cs_omvg_frustum_intersection( & csFrustA, & csFrustB ) == LC_TRUE ) csBuffer[csAccum++] = csbLoop;
+                                            if ( cs_frustum_intersection( & csFrustA, & csFrustB ) == LC_TRUE ) csBuffer[csAccum++] = csbLoop;
 
                                         /* Display message */
                                         } else { fprintf( LC_ERR, "Warning : unable to query position/orientation with image %lu\n", csbLoop ); }
@@ -274,7 +274,7 @@
                     }
 
                     /* Unallocate stack */
-                    cs_omvg_frusmtum_list( "", & csStack, 0 );
+                    cs_frusmtum_list( "", & csStack, 0 );
 
                 }
 
@@ -291,7 +291,7 @@
     Source - OpenMVG list importation
 */
 
-    unsigned long cs_omvg_frusmtum_list ( 
+    unsigned long cs_frusmtum_list ( 
 
         char      const *  const csList, 
         cs_List_t       **       csStack, 
@@ -352,7 +352,7 @@
     Source - Eyesis4Pi frustum composer
 */
 
-    void cs_omvg_frustum_eyesis4pi(
+    void cs_frustum_eyesis4pi(
 
         char            const * const csCamera, 
         int             const         csChannel, 
@@ -484,7 +484,7 @@
     Source - Frustum intersection detection
  */
 
-    int cs_omvg_frustum_intersection(
+    int cs_frustum_intersection(
 
         cs_Frustum_t const * const csFrus_A,
         cs_Frustum_t const * const csFrus_B

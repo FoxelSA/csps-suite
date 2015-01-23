@@ -36,7 +36,7 @@
  *      Attribution" section of <http://foxel.ch/license>.
  */
 
-    /*! \file   csps-omvg-frustum.h
+    /*! \file   csps-frustum.h
      *  \author Nils Hamel <n.hamel@foxel.ch>
      *   
      *  Software main header
@@ -81,8 +81,8 @@
     Header - Include guard
  */
 
-    # ifndef __CS_OMVG_FRUSTUM__
-    # define __CS_OMVG_FRUSTUM__
+    # ifndef __CS_FRUSTUM__
+    # define __CS_FRUSTUM__
 
 /* 
     Header - C/C++ compatibility
@@ -109,22 +109,22 @@
  */
 
     /* Standard help */
-    # define CS_HELP "Usage summary :\n"                 \
-    "  csps-omvg-frustum [Arguments] [Parameters] ...\n" \
-    "Short arguments and parameters summary :\n"         \
-    "  -p CSPS-processed structure path\n"               \
-    "  -l OpenMVG input list file\n"                     \
-    "  -r OpenMVG output pairs file\n"                   \
-    "  -m Standard directory structure mount point\n"    \
-    "  -c Camera MAC address\n"                          \
-    "  -g GPS CSPS-tag\n"                                \
-    "  -n GPS CSPS-module\n"                             \
-    "  -i IMU CSPS-tag\n"                                \
-    "  -s IMU CSPS-module\n"                             \
-    "  -e Frustum near plane\n"                          \
-    "  -f Frustum far plane\n"                           \
-    "  -d Timestamp delay on seconds\n\n"                \
-    "csps-omvg-frustum - csps-suite\n"                   \
+    # define CS_HELP "Usage summary :\n"              \
+    "  csps-frustum [Arguments] [Parameters] ...\n"   \
+    "Short arguments and parameters summary :\n"      \
+    "  -p CSPS-processed structure path\n"            \
+    "  -l OpenMVG input list file\n"                  \
+    "  -r OpenMVG output pairs file\n"                \
+    "  -m Standard directory structure mount point\n" \
+    "  -c Camera MAC address\n"                       \
+    "  -g GPS CSPS-tag\n"                             \
+    "  -n GPS CSPS-module\n"                          \
+    "  -i IMU CSPS-tag\n"                             \
+    "  -s IMU CSPS-module\n"                          \
+    "  -e Frustum near plane\n"                       \
+    "  -f Frustum far plane\n"                        \
+    "  -d Timestamp delay on seconds\n\n"             \
+    "csps-frustum - csps-suite\n"                     \
     "Copyright (c) 2013-2015 FOXEL SA\n"
 
 /* 
@@ -261,7 +261,7 @@
      *  \return Returns the size of the created stack
      */
      
-    unsigned long cs_omvg_frusmtum_list ( 
+    unsigned long cs_frusmtum_list ( 
 
         char      const *  const csList, 
         cs_List_t       **       csStack, 
@@ -298,7 +298,7 @@
      *  \param csDesc       Calibration data descriptor
      */
 
-    void cs_omvg_frustum_eyesis4pi(
+    void cs_frustum_eyesis4pi(
 
         char            const * const csCamera, 
         int             const         csChannel, 
@@ -335,7 +335,7 @@
      *  \return Returns CS_TRUE on intersection and CS_FALSE otherwise.
      */
 
-    int cs_omvg_frustum_intersection(
+    int cs_frustum_intersection(
 
         cs_Frustum_t const * const csFrus_A,
         cs_Frustum_t const * const csFrus_B
