@@ -98,15 +98,12 @@
             lp_Real_t csGPSlat = csLatitude;
             lp_Real_t csGPSalt = csAltitude;
 
-            /* Camera stream variables */
-            lp_Time_t * csCAMtag = NULL;
-            lp_Time_t * csCAMsyn = NULL;
-
             /* Stream variables */
             FILE * csStream = NULL;
 
             /* Query variables */
-            lp_Geopos_t csPosition;
+            lp_Geopos_t  csPosition;
+            lp_Trigger_t csTrigger;
 
             /* Create stream */
             if ( ( csStream = fopen( csFile, "w" ) ) == NULL ) {
@@ -119,21 +116,21 @@
                 /* Display message */
                 fprintf( LC_OUT, "Creating %s JSON file ...\n", basename( csFile ) );
 
-                /* Ask stream size */
-                csSize = lp_stream_size( csPath, csCAMd, csCAMm );
-
-                /* allocate stream memory */
-                csCAMtag = lp_stream_read( csPath, csCAMd, csCAMm, LP_STREAM_CPN_TAG, sizeof( lp_Time_t ) * csSize );
-                csCAMsyn = lp_stream_read( csPath, csCAMd, csCAMm, LP_STREAM_CPN_SYN, sizeof( lp_Time_t ) * csSize );
-
                 /* Create queries descriptors */
+                csTrigger  = lp_query_trigger_create ( csPath, csCAMd, csCAMm );
                 csPosition = lp_query_position_create( csPath, csGPSd, csGPSm );
+
+                /* Obtain trigger count */
+                csSize = lp_query_trigger_size( & csTrigger );
 
                 /* Search for initial position (for signal missing on boundaries) */
                 while ( ( csParse < csSize ) && ( csPosition.qrStatus == LC_FALSE ) ) {
 
+                    /* Query trigger by index */
+                    lp_query_trigger_byindex( & csTrigger, csParse );
+
                     /* Query timestamp position */
-                    lp_query_position( & csPosition, csCAMsyn[csParse] );
+                    lp_query_position( & csPosition, csTrigger.qrSynch );
 
                     /* Update search index */
                     csParse ++;
@@ -159,11 +156,14 @@
                 /* Exportation loop */
                 for ( csParse = 0; csParse < csSize; csParse ++ ) {
 
+                    /* Query trigger by index */
+                    lp_query_trigger_byindex( & csTrigger, csParse );
+
                     /* Verify missing position condition */
                     if ( csParse > csIndex ) {
 
                         /* Query position */
-                        lp_query_position( & csPosition, csCAMsyn[csParse] );
+                        lp_query_position( & csPosition, csTrigger.qrSynch );
 
                         /* Check query status */
                         if ( csPosition.qrStatus == LC_TRUE ) {
@@ -199,8 +199,8 @@
                     fprintf( csStream, "\"alt\":%.8f,\n", csGPSalt );
 
                     /* Export JSON - timestamps */
-                    fprintf( csStream, "\"sec\":%" lp_Time_p ",\n", lp_timestamp_sec ( csCAMtag[csParse] ) );
-                    fprintf( csStream, "\"usc\":%" lp_Time_p " \n", lp_timestamp_usec( csCAMtag[csParse] ) );
+                    fprintf( csStream, "\"sec\":%" lp_Time_p ",\n", lp_timestamp_sec ( csTrigger.qrMaster ) );
+                    fprintf( csStream, "\"usc\":%" lp_Time_p " \n", lp_timestamp_usec( csTrigger.qrMaster ) );
 
                     /* Export JSON - format */
                     fprintf( csStream, "}%s\n", ( csParse < ( csSize - 1 ) ) ? "," : "" );
@@ -211,11 +211,8 @@
                 fprintf( csStream, "]\n}\n" );
 
                 /* Delete queries descriptors */
+                lp_query_trigger_delete ( & csTrigger  );
                 lp_query_position_delete( & csPosition );
-
-                /* Unallocate stream memory */
-                csCAMtag = lp_stream_delete( csCAMtag );
-                csCAMsyn = lp_stream_delete( csCAMsyn );
 
                 /* Close output stream */
                 fclose( csStream );
