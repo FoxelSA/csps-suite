@@ -164,7 +164,7 @@
 
             }
 
-            /* Initialize JSON */
+            /* Export JSON - header */
             fprintf( csStream, "{\n\"gps\":%s,\n\"split\":false,\n\"preview\":null,\n\"pose\":[\n", ( csParse < csSize ) ? "true" : "false" );
             
             /* Exportation loop */
@@ -189,29 +189,68 @@
 
                 }
 
+                /* Query orientation */
+                lp_query_orientation( csOrient, csTrigger->qrSynch );
+
                 /* Export JSON - format */
                 fprintf( csStream, "{\n" );
 
-                /* Export JSON - capture flags */
-                fprintf( csStream, "\"guess\":%s,\n", ( csFlag == 0 ) ? "true" : "false" );
+                /* Export JSON - GPS mesure */
+                if ( csParse < csSize ) {
+
+                    /* Guessed measure detection */
+                    if ( csFlag == 0 ) {
+
+                        /* GPS mesure description */
+                        fprintf( csStream, "\"gps\":\"repeat\",\n" );
+
+                    } else {
+
+                        /* GPS mesure description */
+                        fprintf( csStream, "\"gps\":\"valid\",\n" );
+
+                    }
+
+                } else {
+
+                    /* GPS mesure description */
+                    fprintf( csStream, "\"gps\":null,\n" );
+
+                }
+
+                /* Export JSON - capture description */
+                fprintf( csStream, "\"still\":\"false\",\n" );
                 fprintf( csStream, "\"status\":\"unknown\",\n" );
                 fprintf( csStream, "\"folder\":null,\n" );
 
-                /* Export JSON - positions */
-                fprintf( csStream, "\"lng\":%.8f,\n", csGeopos->qrLongitude );
-                fprintf( csStream, "\"lat\":%.8f,\n", csGeopos->qrLatitude );
-                fprintf( csStream, "\"alt\":%.8f,\n", csGeopos->qrAltitude );
-
                 /* Export JSON - timestamps */
                 fprintf( csStream, "\"sec\":%" lp_Time_p ",\n", lp_timestamp_sec ( csTrigger->qrMaster ) );
-                fprintf( csStream, "\"usc\":%" lp_Time_p " \n", lp_timestamp_usec( csTrigger->qrMaster ) );
+                fprintf( csStream, "\"usc\":%" lp_Time_p ",\n", lp_timestamp_usec( csTrigger->qrMaster ) );
+
+                /* Export JSON - positions */
+                fprintf( csStream, "\"lng\":%.10f,\n", csGeopos->qrLongitude );
+                fprintf( csStream, "\"lat\":%.10f,\n", csGeopos->qrLatitude );
+                fprintf( csStream, "\"alt\":%.10f,\n", csGeopos->qrAltitude );
+
+                /* Export JSON - orientations */
+                fprintf( csStream, "\"rotation\":{\n" 
+
+                    "\"00\":%+.10f,\n\"10\":%+.10f,\n\"20\":%+.10f,\n"
+                    "\"01\":%+.10f,\n\"11\":%+.10f,\n\"21\":%+.10f,\n"
+                    "\"02\":%+.10f,\n\"12\":%+.10f,\n\"22\":%+.10f \n}\n",
+
+                    csOrient->qrfxx, csOrient->qrfxy, csOrient->qrfxz,
+                    csOrient->qrfyx, csOrient->qrfyy, csOrient->qrfyz,
+                    csOrient->qrfzx, csOrient->qrfzy, csOrient->qrfzz
+
+                );
 
                 /* Export JSON - format */
                 fprintf( csStream, "}%s\n", ( csParse < ( csSize - 1 ) ) ? "," : "" );
 
             }
 
-            /* Terminate JSON */
+            /* Export JSON - tail */
             fprintf( csStream, "]\n}\n" );
 
             /* Close output stream */
