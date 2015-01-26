@@ -177,9 +177,6 @@
 
         } else {
 
-            /* Create pose array object */
-            csPose = json_object_object_get( csJson, "pose" );
-
             /* Trigger count query */
             csSize = lp_query_trigger_size( csTrigger );
 
@@ -193,6 +190,9 @@
                 lp_query_position( csGeopos, csTrigger->qrSynch );
 
             }
+
+            /* Create pose array object */
+            csPose = json_object_object_get( csJson, "pose" );
 
             /* Export format */
             fprintf( csStream, "{\n" );
@@ -331,8 +331,8 @@
         /* Parsing variables */
         static size_t csIndex = 0;
 
-        /* Retrieve array size */
-        size_t csSize = json_object_array_length( csNode );
+        /* Array size variables */
+        size_t csSize = 0;
 
         /* Returned variables */
         struct json_object * csPose = NULL;
@@ -340,26 +340,34 @@
         struct json_object * cstSec = NULL;
         struct json_object * cstUsc = NULL;
 
-        /* Parsing array */
-        while ( ( csIndex < csSize ) && ( csPose == NULL ) ) {
+        /* Check object consistency */
+        if ( csNode != NULL ) {
 
-            /* Create pose node */
-            csTemp = json_object_array_get_idx( csNode, csIndex );
+            /* Retrieve array size */
+            csSize = json_object_array_length( csNode );
 
-            /* Create timestamp node */
-            cstSec = json_object_object_get( csTemp, "sec" );
-            cstUsc = json_object_object_get( csTemp, "usc" );
+            /* Parsing array */
+            while ( ( csIndex < csSize ) && ( csPose == NULL ) ) {
 
-            /* Detect master timestamp equality */
-            if ( lp_timestamp_eq( csMaster, lp_timestamp_compose( json_object_get_int( cstSec ), json_object_get_int( cstUsc ) ) ) == LP_TRUE ) {
+                /* Create pose node */
+                csTemp = json_object_array_get_idx( csNode, csIndex );
 
-                /* Assign found node */
-                csPose = csTemp;
+                /* Create timestamp node */
+                cstSec = json_object_object_get( csTemp, "sec" );
+                cstUsc = json_object_object_get( csTemp, "usc" );
+
+                /* Detect master timestamp equality */
+                if ( lp_timestamp_eq( csMaster, lp_timestamp_compose( json_object_get_int( cstSec ), json_object_get_int( cstUsc ) ) ) == LP_TRUE ) {
+
+                    /* Assign found node */
+                    csPose = csTemp;
+
+                }
+
+                /* Update parse index */
+                csIndex ++;
 
             }
-
-            /* Update parse index */
-            csIndex ++;
 
         }
 
