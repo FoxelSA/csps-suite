@@ -318,6 +318,9 @@
         /* Size variables */
         size_t csSize = 0;
 
+        /* Timestamp variables */
+        lp_Time_t csTime = 0;
+
         /* Object variables */
         cs_Object_t * csPose = NULL;
         cs_Object_t * csTemp = NULL;
@@ -340,13 +343,11 @@
                 cstSec = json_object_object_get( csTemp, "sec" );
                 cstUsc = json_object_object_get( csTemp, "usc" );
 
+                /* Compose imported timestamp */
+                csTime = lp_timestamp_compose( json_object_get_int( cstSec ), json_object_get_int( cstUsc ) );
+
                 /* Detect master timestamp equality */
-                if ( lp_timestamp_eq( csMaster, lp_timestamp_compose( json_object_get_int( cstSec ), json_object_get_int( cstUsc ) ) ) == LP_TRUE ) {
-
-                    /* Assign found node */
-                    csPose = csTemp;
-
-                }
+                if ( lp_timestamp_eq( csMaster, csTime ) == LP_TRUE ) csPose = csTemp;
 
                 /* Update parse index */
                 csIndex ++;

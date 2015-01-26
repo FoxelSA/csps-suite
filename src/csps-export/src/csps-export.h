@@ -148,8 +148,8 @@
      *  
      *  The main function is responsible of JSON file generation that stores
      *  basic informations, such as camera record timestamps and geopositions,
-     *  that are used in interfaces for data representation. Positioning data
-     *  are obtained through CSPS query interface.
+     *  that are used in interfaces for data representation. Data are obtained
+     *  through CSPS queries.
      *  
      *  \param  argc Standard main parameter
      *  \param  argv Standard main parameter
@@ -158,6 +158,12 @@
      */
 
     int main ( int argc, char ** argv );
+
+    /*! \brief
+     * 
+     *
+     *
+     */
 
     void cs_export( 
 
@@ -170,6 +176,12 @@
 
     );
 
+    /*! \brief
+     * 
+     *
+     *
+     */
+
     cs_Object_t * cs_export_json_pose( 
 
         cs_Object_t * const csNode, 
@@ -177,11 +189,31 @@
 
     );
 
+    /*! \brief Field exportation
+     * 
+     *  This function is designed to simplify JSON field exportation when a
+     *  previous version of the JSON file is available. The function considers
+     *  the provided key and checks if a previous field is available in the
+     *  provided JSON object. In this case, the found field value is considered
+     *  for exportation. Otherwise, the provided key is used. In order to force
+     *  the exportation of the provided value, NULL can be sent as JSON object.
+     *
+     *  The function allows also to give the comma character in case the field
+     *  is not the last field of the current JSON object. The comma parameter
+     *  should then points to "," string.
+     *
+     *  \param csKey    Field key
+     *  \param csValue  Field value
+     *  \param csComma  Field end comma
+     *  \param csStream Open exportation file stream
+     *  \param csObject JSON object containing previous field
+     */
+
     void cs_export_field( 
 
         char        const * const csKey,
         char        const * const csValue,
-        char        const * const csComa,
+        char        const * const csComma,
         FILE              * const csStream,
         cs_Object_t       * const csObject
 
