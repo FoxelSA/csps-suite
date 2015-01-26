@@ -148,7 +148,7 @@
                     fprintf( LC_OUT, "Updating %s JSON file ...\n", basename( csFile ) );
 
                     /* JSON exportation */
-                    //cs_export( & csTrigger, & csGeopos, & csOrient, & csStill, csFile, csBuffer );
+                    cs_export( & csTrigger, & csGeopos, & csOrient, & csStill, csFile, csBuffer );
 
                 }
 
@@ -201,6 +201,12 @@
         /* Stream variables */
         FILE * csStream = NULL;
 
+        /* JSON parser variables */
+        struct json_object * csJSON = NULL;
+        struct json_object * csNode = NULL;
+        struct json_object * csPose = NULL;
+        struct json_object * csProp = NULL;
+
         /* Create stream */
         if ( ( csStream = fopen( csFile, "w" ) ) == NULL ) {
 
@@ -208,6 +214,14 @@
             fprintf( LC_ERR, "Error : unable to access %s\n", basename( csFile ) );
 
         } else {
+
+            /* Check for previous content */
+            if ( csPrevious != NULL ) {
+
+                /* Create previous content handle */
+                csJSON = json_tokener_parse( csPrevious );
+
+            }
 
             /* Trigger count query */
             csSize = lp_query_trigger_size( csTrigger );
@@ -223,8 +237,54 @@
 
             }
 
-            /* Export JSON - header */
-            fprintf( csStream, "{\n\"gps\":%s,\n\"split\":false,\n\"preview\":null,\n\"pose\":[\n", ( csParse < csSize ) ? "true" : "false" );
+            /* JSON - header - GPS */
+            fprintf( csStream, "{\n\"gps\":%s,\n", ( csParse < csSize ) ? "true" : "false" );
+
+            /* Check for previous content */
+            if ( csPrevious != NULL ) {
+
+                /* Create split node */
+                csNode = json_object_object_get( csJSON, "split" );
+
+                /* JSON - header - Split */
+                fprintf( csStream, "\"split\":%s,\n", json_object_get_boolean( csNode ) ? "true": "false" );
+
+                /* Create preview node */
+                csNode = json_object_object_get( csJSON, "preview" );
+
+                /* Detect null value */
+                if ( json_object_get_type( csNode ) == json_type_null ) {
+
+                    /* JSON - header - Preview */
+                    fprintf( csStream, "\"preview\":null,\n" );
+
+                } else {
+
+                    /* JSON - header - Preview */
+                    fprintf( csStream, "\"preview\":\"%s\",\n", json_object_get_string( csNode ) );
+
+                }
+
+            } else {
+
+                /* JSON - header - Split */
+                fprintf( csStream, "\"split\":false,\n" );
+
+                /* JSON - header - Preview */
+                fprintf( csStream, "\"preview\":null,\n" );
+
+            }
+
+            /* JSON - poses - array */
+            fprintf( csStream, "\"pose\":[\n" );
+
+            /* Check for previous content */
+            if ( csPrevious != NULL ) {
+
+                /* Create poses array node */
+                csNode = json_object_object_get( csJSON, "pose" );
+
+            }
             
             /* Exportation loop */
             for ( csParse = 0; csParse < csSize; csParse ++ ) {
@@ -254,10 +314,18 @@
                 /* Query still range detection */
                 lp_query_still( csStill, csTrigger->qrSynch );
 
-                /* Export JSON - format */
+                /* Check for previous content */
+                if ( csNode != NULL ) {
+
+                    /* Search for previous pose */
+                    csPose = cs_export_json_pose( csNode, csTrigger->qrMaster );
+
+                }
+
+                /* JSON - poses - pose */
                 fprintf( csStream, "{\n" );
 
-                /* Export JSON - GPS mesure */
+                /* Guessed measure detection */
                 if ( csParse < csSize ) {
 
                     /* Guessed measure detection */
@@ -271,12 +339,12 @@
                         /* Weak measure detection */
                         if ( csGeopos->qrWeak == LP_TRUE ) {
 
-                            /* GPS mesure description */
+                            /* JSON - poses - GPS */
                             fprintf( csStream, "\"gps\":\"weak\",\n" );
 
                         } else {
 
-                            /* GPS mesure description */
+                            /* JSON - poses - GPS */
                             fprintf( csStream, "\"gps\":\"valid\",\n" );
 
                         }
@@ -285,26 +353,59 @@
 
                 } else {
 
-                    /* GPS mesure description */
+                    /* JSON - poses - GPS */
                     fprintf( csStream, "\"gps\":null,\n" );
 
                 }
 
-                /* Export JSON - capture description */
+                /* JSON - poses - still */
                 fprintf( csStream, "\"still\":%s,\n", ( csStill->qrStill == LP_TRUE ) ? "true" : "false" );
-                fprintf( csStream, "\"status\":\"unknown\",\n" );
-                fprintf( csStream, "\"folder\":null,\n" );
 
-                /* Export JSON - timestamps */
+                /* Check for previous content */
+                if ( csPose != NULL ) {
+
+                    /* Create status node */
+                    csProp = json_object_object_get( csPose, "status" );
+
+                    /* JSON - poses - status */
+                    fprintf( csStream, "\"status\":\"%s\",\n", json_object_get_string( csProp ) );                    
+
+                    /* Create folder node */
+                    csProp = json_object_object_get( csPose, "folder" );
+
+                    /* Detect null value */
+                    if ( json_object_get_type( csProp ) == json_type_null ) {
+
+                        /* JSON - poses - folder */
+                        fprintf( csStream, "\"folder\":null,\n" );
+
+                    } else {
+
+                        /* JSON - poses - folder */
+                        fprintf( csStream, "\"folder\":\"%s\",\n", json_object_get_string( csProp ) );
+
+                    }                    
+
+                } else {
+
+                    /* JSON - poses - status */
+                    fprintf( csStream, "\"status\":\"unknown\",\n" );
+
+                    /* JSON - poses - folder */
+                    fprintf( csStream, "\"folder\":null,\n" );
+
+                }
+
+                /* JSON - poses - timestamp */
                 fprintf( csStream, "\"sec\":%" lp_Time_p ",\n", lp_timestamp_sec ( csTrigger->qrMaster ) );
                 fprintf( csStream, "\"usc\":%" lp_Time_p ",\n", lp_timestamp_usec( csTrigger->qrMaster ) );
 
-                /* Export JSON - positions */
+                /* JSON - poses - geoposition */
                 fprintf( csStream, "\"lng\":%.10f,\n", csGeopos->qrLongitude );
                 fprintf( csStream, "\"lat\":%.10f,\n", csGeopos->qrLatitude );
                 fprintf( csStream, "\"alt\":%.10f,\n", csGeopos->qrAltitude );
 
-                /* Export JSON - orientations */
+                /* JSON - poses - orientation */
                 fprintf( csStream, "\"rotation\":[\n" 
 
                     "%.10lf,\n%.10lf,\n%.10lf,\n"
@@ -317,18 +418,68 @@
 
                 );
 
-                /* Export JSON - format */
+                /* JSON - poses - pose */
                 fprintf( csStream, "}%s\n", ( csParse < ( csSize - 1 ) ) ? "," : "" );
 
             }
 
-            /* Export JSON - tail */
+            /* JSON - tail */
             fprintf( csStream, "]\n}\n" );
+
+            /* Delete previous content handle */ 
+            if ( csPrevious != NULL ) json_object_put( csJSON );
 
             /* Close output stream */
             fclose( csStream );
 
         }
 
+    }
+
+    struct json_object * cs_export_json_pose( 
+
+        struct json_object * const csNode, 
+        lp_Time_t            const csMaster 
+
+    ) {
+
+        /* Parsing variables */
+        size_t csIndex = 0;
+
+        /* Retrieve array size */
+        size_t csSize = json_object_array_length( csNode );
+
+        /* Returned variables */
+        struct json_object * csPose = NULL;
+        struct json_object * csTemp = NULL;
+        struct json_object * cstSec = NULL;
+        struct json_object * cstUsc = NULL;
+
+        /* Parsing array */
+        while ( ( csIndex < csSize ) && ( csPose == NULL ) ) {
+
+            /* Create pose node */
+            csTemp = json_object_array_get_idx( csNode, csIndex );
+
+            /* Create timestamp node */
+            cstSec = json_object_object_get( csTemp, "sec" );
+            cstUsc = json_object_object_get( csTemp, "usc" );
+
+            /* Detect master timestamp equality */
+            if ( lp_timestamp_eq( csMaster, lp_timestamp_compose( json_object_get_int( cstSec ), json_object_get_int( cstUsc ) ) ) == LP_TRUE ) {
+
+                /* Assign found node */
+                csPose = csTemp;
+
+            }
+
+            /* Update parse index */
+            csIndex ++;
+
+        }
+
+        /* Return found allocation */
+        return( csPose );
+        
     }
 

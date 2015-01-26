@@ -165,6 +165,13 @@
 
     );
 
+    struct json_object * cs_export_json_pose( 
+
+        struct json_object * const csNode, 
+        lp_Time_t            const csMaster 
+
+    );
+
 /* 
     Header - C/C++ compatibility
  */
