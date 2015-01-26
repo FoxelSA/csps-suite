@@ -102,6 +102,7 @@
     # include <libgen.h>
     # include <csps-all.h>
     # include <common-all.h>
+    # include <json-c/json.h>
 
 /* 
     Header - Preprocessor definitions
@@ -153,23 +154,14 @@
 
     int main ( int argc, char ** argv );
 
-    void cs_export_create( 
+    void cs_export( 
 
         lp_Trigger_t  * const csTrigger, 
         lp_Geopos_t   * const csGeopos, 
         lp_Orient_t   * const csOrient,
         lp_Still_t    * const csStill,
-        char          * const csFile
-
-    );
-
-    void cs_export_update(
-
-        lp_Trigger_t  * const csTrigger, 
-        lp_Geopos_t   * const csGeopos, 
-        lp_Orient_t   * const csOrient,
-        lp_Still_t    * const csStill,
-        char          * const csFile
+        char          * const csFile,
+        char          * const csPrevious
 
     );
 

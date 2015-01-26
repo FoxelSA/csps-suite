@@ -94,11 +94,63 @@
             /* Check previous file existence */
             if ( lc_file_detect( csFile, LC_FILE ) == LC_TRUE ) {
 
-                /* Display message */
-                fprintf( LC_OUT, "Updating %s JSON file ...\n", basename( csFile ) );
+                /* File size variables */
+                size_t csSize = 0;
 
-                /* JSON update */
-                cs_export_update( & csTrigger, & csGeopos, & csOrient, & csStill, csFile );
+                /* Reading buffer variables */
+                char * csBuffer = NULL;
+
+                /* File stream handle variables */
+                FILE * csStream = NULL;
+
+                /* Create input stream */
+                if ( ( csStream = fopen( csFile, "rb" ) ) != NULL ) {
+
+                    /* Offset to end of file */
+                    fseek( csStream, 0L, SEEK_END );
+
+                    /* Retrieve file length */
+                    csSize = ftell( csStream );
+
+                    /* Allocate buffer memory */
+                    if ( ( csBuffer = ( char * ) malloc( sizeof( char ) * csSize ) ) != NULL ) {
+
+                        /* Offset to begining of file */
+                        fseek( csStream, 0L, SEEK_SET );
+
+                        /* Read input stream content */
+                        if ( fread( csBuffer, sizeof( char ), csSize, csStream ) != csSize ) {
+
+                            /* Unallocate buffer memory */
+                            free( csBuffer );
+
+                            /* Invalidate pointer */
+                            csBuffer = NULL;
+
+                        }
+
+                    }
+
+                    /* Close input stream */
+                    fclose( csStream );
+
+                }
+
+                /* Check previous file importation */
+                if ( csBuffer == NULL ) {
+
+                    /* Display message */
+                    fprintf( LC_ERR, "Error : Unable to import %s file content\n", basename( csFile ) );
+
+                } else {
+
+                    /* Display message */
+                    fprintf( LC_OUT, "Updating %s JSON file ...\n", basename( csFile ) );
+
+                    /* JSON exportation */
+                    //cs_export( & csTrigger, & csGeopos, & csOrient, & csStill, csFile, csBuffer );
+
+                }
 
             } else {
 
@@ -106,7 +158,7 @@
                 fprintf( LC_OUT, "Creating %s JSON file ...\n", basename( csFile ) );
 
                 /* JSON exportation */
-                cs_export_create( & csTrigger, & csGeopos, & csOrient, & csStill, csFile );
+                cs_export( & csTrigger, & csGeopos, & csOrient, & csStill, csFile, NULL );
 
             }
 
@@ -123,13 +175,14 @@
 
     }
 
-    void cs_export_create( 
+    void cs_export( 
 
         lp_Trigger_t  * const csTrigger, 
         lp_Geopos_t   * const csGeopos, 
         lp_Orient_t   * const csOrient,
         lp_Still_t    * const csStill,
-        char          * const csFile
+        char          * const csFile,
+        char          * const csPrevious
 
     ) {
 
@@ -252,11 +305,11 @@
                 fprintf( csStream, "\"alt\":%.10f,\n", csGeopos->qrAltitude );
 
                 /* Export JSON - orientations */
-                fprintf( csStream, "\"rotation\":{\n" 
+                fprintf( csStream, "\"rotation\":[\n" 
 
-                    "\"00\":%+.10f,\n\"10\":%+.10f,\n\"20\":%+.10f,\n"
-                    "\"01\":%+.10f,\n\"11\":%+.10f,\n\"21\":%+.10f,\n"
-                    "\"02\":%+.10f,\n\"12\":%+.10f,\n\"22\":%+.10f \n}\n",
+                    "%.10lf,\n%.10lf,\n%.10lf,\n"
+                    "%.10lf,\n%.10lf,\n%.10lf,\n"
+                    "%.10lf,\n%.10lf,\n%.10lf\n]\n",
 
                     csOrient->qrfxx, csOrient->qrfxy, csOrient->qrfxz,
                     csOrient->qrfyx, csOrient->qrfyy, csOrient->qrfyz,
@@ -276,18 +329,6 @@
             fclose( csStream );
 
         }
-
-    }
-
-    void cs_export_update(
-
-        lp_Trigger_t  * const csTrigger, 
-        lp_Geopos_t   * const csGeopos, 
-        lp_Orient_t   * const csOrient,
-        lp_Still_t    * const csStill,
-        char          * const csFile
-
-    ) {
 
     }
 
