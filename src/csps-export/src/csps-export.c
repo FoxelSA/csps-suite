@@ -58,6 +58,7 @@
         char csGPSm[256] = { 0 };
         char csIMUd[256] = { 0 };
         char csIMUm[256] = { 0 };
+        char csSTLd[256] = { 0 };
         char csSTLm[256] = { 0 };
 
         /* Query variables */
@@ -66,19 +67,20 @@
         lp_Orient_t  csOrient;
         lp_Still_t   csStill;
 
-        /* json-c variables */
-        struct json_object * csJson = NULL;
+        /* Object variables */
+        cs_Object_t * csJson = NULL;
 
         /* Search in parameters */
-        lc_stdp( lc_stda( argc, argv, "--path"   ,"-p" ), argv, csPath, LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--export" ,"-e" ), argv, csFile, LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--cam-tag","-c" ), argv, csCAMd, LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--cam-mod","-m" ), argv, csCAMm, LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--gps-tag","-g" ), argv, csGPSd, LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--gps-mod","-n" ), argv, csGPSm, LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--imu-tag","-i" ), argv, csIMUd, LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--imu-mod","-s" ), argv, csIMUm, LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--stl-mod","-t" ), argv, csSTLm, LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--path"     ,"-p" ), argv, csPath, LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--export"   ,"-e" ), argv, csFile, LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--cam-tag"  ,"-c" ), argv, csCAMd, LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--cam-mod"  ,"-m" ), argv, csCAMm, LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--gps-tag"  ,"-g" ), argv, csGPSd, LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--gps-mod"  ,"-n" ), argv, csGPSm, LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--imu-tag"  ,"-i" ), argv, csIMUd, LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--imu-mod"  ,"-s" ), argv, csIMUm, LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--still-tag","-t" ), argv, csSTLd, LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--still-mod","-k" ), argv, csSTLm, LC_STRING );
 
         /* Execution switch */
         if ( lc_stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
@@ -92,12 +94,12 @@
             csTrigger = lp_query_trigger_create    ( csPath, csCAMd, csCAMm );
             csGeopos  = lp_query_position_create   ( csPath, csGPSd, csGPSm );
             csOrient  = lp_query_orientation_create( csPath, csIMUd, csIMUm );
-            csStill   = lp_query_still_create      ( csPath, csIMUd, csSTLm );
+            csStill   = lp_query_still_create      ( csPath, csSTLd, csSTLm );
 
             /* Check previous file existence */
             if ( lc_file_detect( csFile, LC_FILE ) == LC_TRUE ) {
 
-                /* Create JSON handle */
+                /* Create master object */
                 if ( ( csJson = json_object_from_file( csFile ) ) == NULL ) {
 
                     /* Display message */
@@ -108,10 +110,10 @@
                     /* Display message */
                     fprintf( LC_OUT, "Updating %s JSON file ...\n", basename( csFile ) );
 
-                    /* JSON exportation */
+                    /* File exportation */
                     cs_export( & csTrigger, & csGeopos, & csOrient, & csStill, csFile, csJson );
 
-                    /* Delete JSON handle */
+                    /* Delete master object */
                     json_object_put( csJson );
 
                 }
@@ -121,7 +123,7 @@
                 /* Display message */
                 fprintf( LC_OUT, "Creating %s JSON file ...\n", basename( csFile ) );
 
-                /* JSON exportation */
+                /* File exportation */
                 cs_export( & csTrigger, & csGeopos, & csOrient, & csStill, csFile, NULL );
 
             }
@@ -139,14 +141,18 @@
 
     }
 
+/*
+    Source - Exportation function
+ */
+
     void cs_export( 
 
-        lp_Trigger_t       * const csTrigger, 
-        lp_Geopos_t        * const csGeopos, 
-        lp_Orient_t        * const csOrient,
-        lp_Still_t         * const csStill,
-        char               * const csFile,
-        struct json_object * const csJson
+        lp_Trigger_t * const csTrigger, 
+        lp_Geopos_t  * const csGeopos, 
+        lp_Orient_t  * const csOrient,
+        lp_Still_t   * const csStill,
+        char         * const csFile,
+        cs_Object_t  * const csJson
 
     ) {
 
@@ -159,12 +165,12 @@
         /* Index memory variables */
         lp_Size_t csGuess = 0;
 
+        /* Object variables */
+        cs_Object_t * csPose = NULL;
+        cs_Object_t * csUnit = NULL;
+
         /* Stream variables */
         FILE * csStream = NULL;
-
-        /* JSON parser variables */
-        struct json_object * csPose = NULL;
-        struct json_object * csUnit = NULL;
 
         /* Create stream */
         if ( ( csStream = fopen( csFile, "w" ) ) == NULL ) {
@@ -295,24 +301,28 @@
 
     }
 
-    struct json_object * cs_export_json_pose( 
+/*
+    Source - Exportation function
+ */
 
-        struct json_object * const csNode, 
-        lp_Time_t            const csMaster 
+    cs_Object_t * cs_export_json_pose( 
+
+        cs_Object_t * const csNode, 
+        lp_Time_t     const csMaster 
 
     ) {
 
         /* Parsing variables */
         static size_t csIndex = 0;
 
-        /* Array size variables */
+        /* Size variables */
         size_t csSize = 0;
 
-        /* Returned variables */
-        struct json_object * csPose = NULL;
-        struct json_object * csTemp = NULL;
-        struct json_object * cstSec = NULL;
-        struct json_object * cstUsc = NULL;
+        /* Object variables */
+        cs_Object_t * csPose = NULL;
+        cs_Object_t * csTemp = NULL;
+        cs_Object_t * cstSec = NULL;
+        cs_Object_t * cstUsc = NULL;
 
         /* Check object consistency */
         if ( csNode != NULL ) {
@@ -350,13 +360,17 @@
         
     }
 
+/*
+    Source - Field exportation
+ */
+
     void cs_export_field( 
 
-        char               const * const csKey,
-        char               const * const csValue,
-        char               const * const csComa,
-        FILE                     * const csStream,
-        struct json_object       * const csObject
+        char        const * const csKey,
+        char        const * const csValue,
+        char        const * const csComma,
+        FILE              * const csStream,
+        cs_Object_t       * const csObject
 
     ) {
 
@@ -367,7 +381,7 @@
         if ( ( csSubObject = json_object_object_get( csObject, csKey ) ) == NULL ) {
 
             /* Export to stream */
-            fprintf( csStream, "\"%s\":%s%s\n", csKey, csValue, csComa );
+            fprintf( csStream, "\"%s\":%s%s\n", csKey, csValue, csComma );
 
         } else {
 
@@ -375,19 +389,19 @@
             if ( json_object_get_type( csSubObject ) == json_type_null ) {
 
                 /* Export to stream */
-                fprintf( csStream, "\"%s\":null%s\n", csKey, csComa );
+                fprintf( csStream, "\"%s\":null%s\n", csKey, csComma );
 
             } else
             if ( json_object_get_type( csSubObject ) == json_type_string ) {
 
                 /* Export to stream */
-                fprintf( csStream, "\"%s\":\"%s\"%s\n", csKey, json_object_get_string( csSubObject ), csComa );
+                fprintf( csStream, "\"%s\":\"%s\"%s\n", csKey, json_object_get_string( csSubObject ), csComma );
 
             } else
             if ( json_object_get_type( csSubObject ) == json_type_boolean ) {
 
                 /* Export to stream */
-                fprintf( csStream, "\"%s\":%s%s\n", csKey, json_object_get_boolean( csSubObject ) ? "true": "false", csComa );
+                fprintf( csStream, "\"%s\":%s%s\n", csKey, json_object_get_boolean( csSubObject ) ? "true": "false", csComma );
 
             }
 

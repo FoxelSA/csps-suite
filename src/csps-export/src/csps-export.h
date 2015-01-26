@@ -109,18 +109,20 @@
  */
 
     /* Standard help */
-    # define CS_HELP "Usage summary :\n"           \
-    "  csps-export [Arguments] [Parameters] ...\n" \
-    "Short arguments and parameters summary :\n"   \
-    "  -p CSPS-processed structure path\n"         \
-    "  -e JSON exportation file path\n"            \
-    "  -c Camera CSPS-tag\n"                       \
-    "  -m Camera CSPS-module switch\n"             \
-    "  -g GPS CSPS-tag\n"                          \
-    "  -n GPS CSPS-module switch\n"                \
-    "  -i IMU CSPS-tag\n"                          \
-    "  -s IMU CSPS-module switch\n"                \
-    "csps-export - csps-suite\n"                   \
+    # define CS_HELP "Usage summary :\n"               \
+    "  csps-export [Arguments] [Parameters] ...\n"     \
+    "Short arguments and parameters summary :\n"       \
+    "  -p CSPS-processed structure path\n"             \
+    "  -e JSON exportation file path\n"                \
+    "  -c Capture trigger device CSPS-tag\n"           \
+    "  -m Capture trigger device CSPS-module switch\n" \
+    "  -g GPS device CSPS-tag\n"                       \
+    "  -n GPS device CSPS-module switch\n"             \
+    "  -i IMU device CSPS-tag\n"                       \
+    "  -s IMU device CSPS-module switch\n"             \
+    "  -t Still range device CSPS-tag\n"               \
+    "  -k Still range device CSPS-module switch\n"     \
+    "csps-export - csps-suite\n"                       \
     "Copyright (c) 2013-2015 FOXEL SA\n"
 
 /* 
@@ -130,6 +132,9 @@
 /* 
     Header - Typedefs
  */
+
+    /* Define simplified type */
+    typedef struct json_object cs_Object_t;
 
 /* 
     Header - Structures
@@ -156,29 +161,29 @@
 
     void cs_export( 
 
-        lp_Trigger_t       * const csTrigger, 
-        lp_Geopos_t        * const csGeopos, 
-        lp_Orient_t        * const csOrient,
-        lp_Still_t         * const csStill,
-        char               * const csFile,
-        struct json_object * const csJson
+        lp_Trigger_t * const csTrigger, 
+        lp_Geopos_t  * const csGeopos, 
+        lp_Orient_t  * const csOrient,
+        lp_Still_t   * const csStill,
+        char         * const csFile,
+        cs_Object_t  * const csJson
 
     );
 
-    struct json_object * cs_export_json_pose( 
+    cs_Object_t * cs_export_json_pose( 
 
-        struct json_object * const csNode, 
-        lp_Time_t            const csMaster 
+        cs_Object_t * const csNode, 
+        lp_Time_t     const csMaster 
 
     );
 
     void cs_export_field( 
 
-        char               const * const csKey,
-        char               const * const csValue,
-        char               const * const csComa,
-        FILE                     * const csStream,
-        struct json_object       * const csObject
+        char        const * const csKey,
+        char        const * const csValue,
+        char        const * const csComa,
+        FILE              * const csStream,
+        cs_Object_t       * const csObject
 
     );
 
