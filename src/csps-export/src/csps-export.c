@@ -368,31 +368,12 @@
                     csProp = json_object_object_get( csPose, "status" );
 
                     /* JSON - poses - status */
-                    fprintf( csStream, "\"status\":\"%s\",\n", json_object_get_string( csProp ) );                    
-
-                    /* Create folder node */
-                    csProp = json_object_object_get( csPose, "folder" );
-
-                    /* Detect null value */
-                    if ( json_object_get_type( csProp ) == json_type_null ) {
-
-                        /* JSON - poses - folder */
-                        fprintf( csStream, "\"folder\":null,\n" );
-
-                    } else {
-
-                        /* JSON - poses - folder */
-                        fprintf( csStream, "\"folder\":\"%s\",\n", json_object_get_string( csProp ) );
-
-                    }                    
+                    fprintf( csStream, "\"status\":\"%s\",\n", json_object_get_string( csProp ) );                                  
 
                 } else {
 
                     /* JSON - poses - status */
                     fprintf( csStream, "\"status\":\"unknown\",\n" );
-
-                    /* JSON - poses - folder */
-                    fprintf( csStream, "\"folder\":null,\n" );
 
                 }
 
@@ -401,16 +382,16 @@
                 fprintf( csStream, "\"usc\":%" lp_Time_p ",\n", lp_timestamp_usec( csTrigger->qrMaster ) );
 
                 /* JSON - poses - geoposition */
-                fprintf( csStream, "\"lng\":%.10f,\n", csGeopos->qrLongitude );
-                fprintf( csStream, "\"lat\":%.10f,\n", csGeopos->qrLatitude );
-                fprintf( csStream, "\"alt\":%.10f,\n", csGeopos->qrAltitude );
+                fprintf( csStream, "\"lng\":%.12lf,\n", csGeopos->qrLongitude );
+                fprintf( csStream, "\"lat\":%.12lf,\n", csGeopos->qrLatitude );
+                fprintf( csStream, "\"alt\":%.12lf,\n", csGeopos->qrAltitude );
 
                 /* JSON - poses - orientation */
                 fprintf( csStream, "\"rotation\":[\n" 
 
-                    "%.10lf,\n%.10lf,\n%.10lf,\n"
-                    "%.10lf,\n%.10lf,\n%.10lf,\n"
-                    "%.10lf,\n%.10lf,\n%.10lf\n]\n",
+                    "%.12lf,\n%.12lf,\n%.12lf,\n"
+                    "%.12lf,\n%.12lf,\n%.12lf,\n"
+                    "%.12lf,\n%.12lf,\n%.12lf\n]\n",
 
                     csOrient->qrfxx, csOrient->qrfxy, csOrient->qrfxz,
                     csOrient->qrfyx, csOrient->qrfyy, csOrient->qrfyz,
