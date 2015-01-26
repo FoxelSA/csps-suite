@@ -225,7 +225,7 @@
                 lp_query_still( csStill, csTrigger->qrSynch );
 
                 /* Search for previous pose */
-                csUnit = cs_export_json_pose( csPose, csTrigger->qrMaster );
+                csUnit = cs_export_get_pose( csPose, csTrigger->qrMaster );
 
                 /* Export format */
                 fprintf( csStream, "{\n" );
@@ -302,10 +302,10 @@
     }
 
 /*
-    Source - Exportation function
+    Source - JSON array search
  */
 
-    cs_Object_t * cs_export_json_pose( 
+    cs_Object_t * cs_export_get_pose( 
 
         cs_Object_t * const csNode, 
         lp_Time_t     const csMaster 
@@ -376,7 +376,7 @@
     ) {
 
         /* Object variables */
-        struct json_object * csSubObject = NULL;
+        cs_Object_t * csSubObject = NULL;
 
         /* Search for already existing entry */
         if ( ( csSubObject = json_object_object_get( csObject, csKey ) ) == NULL ) {

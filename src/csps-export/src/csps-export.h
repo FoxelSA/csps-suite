@@ -161,7 +161,7 @@
 
     /*! \brief
      * 
-     *
+     *  
      *
      */
 
@@ -176,13 +176,22 @@
 
     );
 
-    /*! \brief
+    /*! \brief JSON array search
      * 
+     *  This function expects a JSON object containing an array of camera pose
+     *  object. It searches and return the JSON object that corresponds to the
+     *  camera pose provided master timestamp.
      *
+     *  As a search is performed, the next search starts at the array index just
+     *  below the last found pose index.
      *
+     *  \param csNode JSON object containing a pose object array
+     *  \param csMaster Master timestamp of searched pose object
+     *
+     *  \return Returns the found JSON object or NULL pointer
      */
 
-    cs_Object_t * cs_export_json_pose( 
+    cs_Object_t * cs_export_get_pose( 
 
         cs_Object_t * const csNode, 
         lp_Time_t     const csMaster 
