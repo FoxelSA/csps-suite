@@ -156,12 +156,12 @@
 
     void cs_export( 
 
-        lp_Trigger_t  * const csTrigger, 
-        lp_Geopos_t   * const csGeopos, 
-        lp_Orient_t   * const csOrient,
-        lp_Still_t    * const csStill,
-        char          * const csFile,
-        char          * const csPrevious
+        lp_Trigger_t       * const csTrigger, 
+        lp_Geopos_t        * const csGeopos, 
+        lp_Orient_t        * const csOrient,
+        lp_Still_t         * const csStill,
+        char               * const csFile,
+        struct json_object * const csJson
 
     );
 
@@ -169,6 +169,16 @@
 
         struct json_object * const csNode, 
         lp_Time_t            const csMaster 
+
+    );
+
+    void cs_export_field( 
+
+        char               const * const csKey,
+        char               const * const csValue,
+        char               const * const csComa,
+        FILE                     * const csStream,
+        struct json_object       * const csObject
 
     );
 
