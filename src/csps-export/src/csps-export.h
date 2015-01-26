@@ -146,10 +146,12 @@
 
     /*! \brief Software main function
      *  
-     *  The main function is responsible of JSON file generation that stores
-     *  basic informations, such as camera record timestamps and geopositions,
-     *  that are used in interfaces for data representation. Data are obtained
-     *  through CSPS queries.
+     *  The main function starts by checking if a previous JSON file was created
+     *  and load its content by creating a JSON main object. The function calls
+     *  then the exportation function that realize JSON exportation.
+     *
+     *  The main function is also responsible of CSPS query structure creation
+     *  and deletion as exportation is done.
      *  
      *  \param  argc Standard main parameter
      *  \param  argv Standard main parameter
@@ -159,10 +161,19 @@
 
     int main ( int argc, char ** argv );
 
-    /*! \brief
+    /*! \brief Exportation function
      * 
-     *  
+     *  This function is responsible for JSON file exportation based on queries
+     *  performed on the CSPS. It is also responsible to import some fields of
+     *  the previous exportation file if available. The function expect already
+     *  created CSPS query structures.
      *
+     *  \param csTrigger CSPS camera trigger query structure
+     *  \param csGeopos  CSPS geoposition query structure
+     *  \param csOrient  CSPS orientation query structure
+     *  \param csStill   CSPS still range query structure
+     *  \param csFile    JSON exportation file
+     *  \param csJson    Previous JSON file main object
      */
 
     void cs_export( 
