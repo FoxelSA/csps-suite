@@ -113,12 +113,12 @@
     "  csps-frustum [Arguments] [Parameters] ...\n"   \
     "Short arguments and parameters summary :\n"      \
     "  -p CSPS-processed directory structure path\n"  \
-    "  -m Standard directory structure mount point\n" \
+    "  -t Standard directory structure mount point\n" \
     "  -l OpenMVG input list\n"                       \
     "  -r OpenMVG output pairs\n"                     \
     "  -a Camera MAC address\n"                       \
-    "  -g Camera trigger device CSPS-tag\n"           \
-    "  -n Camera trigger device CSPS-module\n"        \
+    "  -c Camera trigger device CSPS-tag\n"           \
+    "  -m Camera trigger device CSPS-module\n"        \
     "  -g GPS device CSPS-tag\n"                      \
     "  -n GPS device CSPS-module\n"                   \
     "  -i IMU device CSPS-tag\n"                      \

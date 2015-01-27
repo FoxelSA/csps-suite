@@ -101,9 +101,9 @@
 
         /* Search in parameters */
         lc_stdp( lc_stda( argc, argv, "--path"       , "-p" ), argv,   csPath  , LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--mount-point", "-t" ), argv,   csMount , LC_STRING );
         lc_stdp( lc_stda( argc, argv, "--list"       , "-l" ), argv,   csList  , LC_STRING );
         lc_stdp( lc_stda( argc, argv, "--pairs"      , "-r" ), argv,   csPair  , LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--mount-point", "-t" ), argv,   csMount , LC_STRING );
         lc_stdp( lc_stda( argc, argv, "--camera"     , "-a" ), argv,   csCamera, LC_STRING );
         lc_stdp( lc_stda( argc, argv, "--cam-tag"    , "-c" ), argv,   csCAMd  , LC_STRING );
         lc_stdp( lc_stda( argc, argv, "--cam-mod"    , "-m" ), argv,   csCAMm  , LC_STRING );
