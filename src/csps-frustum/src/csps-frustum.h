@@ -36,7 +36,7 @@
  *      Attribution" section of <http://foxel.ch/license>.
  */
 
-    /*! \file   csps-omvg-frustum.h
+    /*! \file   csps-frustum.h
      *  \author Nils Hamel <n.hamel@foxel.ch>
      *   
      *  Software main header
@@ -81,8 +81,8 @@
     Header - Include guard
  */
 
-    # ifndef __CS_OMVG_FRUSTUM__
-    # define __CS_OMVG_FRUSTUM__
+    # ifndef __CS_FRUSTUM__
+    # define __CS_FRUSTUM__
 
 /* 
     Header - C/C++ compatibility
@@ -109,22 +109,23 @@
  */
 
     /* Standard help */
-    # define CS_HELP "Usage summary :\n"                 \
-    "  csps-omvg-frustum [Arguments] [Parameters] ...\n" \
-    "Short arguments and parameters summary :\n"         \
-    "  -p CSPS-processed structure path\n"               \
-    "  -l OpenMVG input list file\n"                     \
-    "  -r OpenMVG output pairs file\n"                   \
-    "  -m Standard directory structure mount point\n"    \
-    "  -c Camera MAC address\n"                          \
-    "  -g GPS CSPS-tag\n"                                \
-    "  -n GPS CSPS-module\n"                             \
-    "  -i IMU CSPS-tag\n"                                \
-    "  -s IMU CSPS-module\n"                             \
-    "  -e Frustum near plane\n"                          \
-    "  -f Frustum far plane\n"                           \
-    "  -d Timestamp delay on seconds\n\n"                \
-    "csps-omvg-frustum - csps-suite\n"                   \
+    # define CS_HELP "Usage summary :\n"              \
+    "  csps-frustum [Arguments] [Parameters] ...\n"   \
+    "Short arguments and parameters summary :\n"      \
+    "  -p CSPS-processed directory structure path\n"  \
+    "  -t Standard directory structure mount point\n" \
+    "  -l OpenMVG input list\n"                       \
+    "  -r OpenMVG output pairs\n"                     \
+    "  -a Camera MAC address\n"                       \
+    "  -c Camera trigger device CSPS-tag\n"           \
+    "  -m Camera trigger device CSPS-module\n"        \
+    "  -g GPS device CSPS-tag\n"                      \
+    "  -n GPS device CSPS-module\n"                   \
+    "  -i IMU device CSPS-tag\n"                      \
+    "  -s IMU device CSPS-module\n"                   \
+    "  -e Frustum near plane\n"                       \
+    "  -f Frustum far plane\n"                        \
+    "csps-frustum - csps-suite\n"                     \
     "Copyright (c) 2013-2015 FOXEL SA\n"
 
 /* 
@@ -148,7 +149,7 @@
      *  \var cs_List_struct::lsChannel
      *  Camera sensor channel number
      *  \var cs_List_struct::lsTime
-     *  Camera sensor image capture timestamp
+     *  Camera sensor image capture synchronization timestamp
      */
 
     typedef struct cs_List_struct {
@@ -232,8 +233,8 @@
      *  determine which camera sensors have an intersection of their respective
      *  frustum.
      *  
-     *  The main function fills the output file, as waited by OpenMVG, specifying
-     *  which sensor image have a common view.
+     *  The main function fills the pairs file as waited by OpenMVG specifying
+     *  which sensor image have a frustum intersection.
      *  
      *  \param  argc Standard main parameter
      *  \param  argv Standard main parameter
@@ -248,24 +249,25 @@
      *  This function is responsible of informations importation from OpenMVG
      *  list file that are needed for frustum intersection detection. Those
      *  informations are the camera sensor image capture timestamp and the
-     *  camera sensor channel.
+     *  camera sensor channel. It also query the CSPS to retrieve sensor image
+     *  synchronization timestamp.
      *
      *  The information are stored in a stack that is create and filled by this
      *  function. Note that, for performance purpose, the actual size, in memory,
      *  of the stack can be greater than the returned size.
      *
-     *  \param  csList   Path to OpenMVG list file
-     *  \param  csStack  Pointer to informations stack
-     *  \param  csDelay  Delay to add to timestamp second part
+     *  \param  csList    Path to OpenMVG list file
+     *  \param  csStack   Pointer to informations stack
+     *  \param  csTrigger Created CSPS query structure
      *
      *  \return Returns the size of the created stack
      */
      
-    unsigned long cs_omvg_frusmtum_list ( 
+    unsigned long cs_frusmtum_list ( 
 
-        char      const *  const csList, 
-        cs_List_t       **       csStack, 
-        long      const          csDelay 
+        char         const *  const csList, 
+        cs_List_t          **       csStack, 
+        lp_Trigger_t       *  const csTrigger
 
     );
 
@@ -298,7 +300,7 @@
      *  \param csDesc       Calibration data descriptor
      */
 
-    void cs_omvg_frustum_eyesis4pi(
+    void cs_frustum_eyesis4pi(
 
         char            const * const csCamera, 
         int             const         csChannel, 
@@ -329,16 +331,16 @@
      *  The intersection detection method is not an absolute method and 
      *  intersection volume that are below a given size can be missed.
      *
-     *  \param  csFrus_A First frustum definition
-     *  \param  csFrus_B Second frustum definition
+     *  \param  csaFrustum First frustum definition
+     *  \param  csbFrustum Second frustum definition
      *
      *  \return Returns CS_TRUE on intersection and CS_FALSE otherwise.
      */
 
-    int cs_omvg_frustum_intersection(
+    int cs_frustum_intersection(
 
-        cs_Frustum_t const * const csFrus_A,
-        cs_Frustum_t const * const csFrus_B
+        cs_Frustum_t const * const csaFrustum,
+        cs_Frustum_t const * const csbFrustum
 
     );
 

@@ -139,21 +139,10 @@
         /* Parsing variables */
         lp_Size_t csParse = 0;
 
-        /* Stream size variables */
-        lp_Size_t csSize = 0;
-
-        /* Stream memory variables */
-        lp_Time_t * csCAMsyn = NULL;
-
         /* CSPS query variables */
-        lp_Geopos_t csQPos;
-        lp_Orient_t csQOri;
-
-        /* Stream variables */
-        FILE * csStream = NULL;
-
-        /* CSPS stream path variables */
-        char csFile[256] = { 0 }; 
+        lp_Trigger_t csTrigger;
+        lp_Geopos_t  csGeopos;
+        lp_Orient_t  csOrient;
 
         /* Define flags */
         int csMF = 0, csFF = 0, csIF = 0;
@@ -185,220 +174,202 @@
         double csMinLat = 1e100, csMaxLat = -1e100;
         double csMinAlt = 1e100, csMaxAlt = -1e100;
 
-        /* Build camera stream path */
-        lp_path_stream( csPath.ptRoot, LP_DEVICE_TYPE_CAM, csPath.ptCAMd, csPath.ptCAMm, LP_STREAM_CPN_SYN, csFile );
+        /* Create query descriptors */
+        csTrigger = lp_query_trigger_create    ( csPath.ptRoot, csPath.ptCAMd, csPath.ptCAMm );
+        csGeopos  = lp_query_position_create   ( csPath.ptRoot, csPath.ptGPSd, csPath.ptGPSm );
+        csOrient  = lp_query_orientation_create( csPath.ptRoot, csPath.ptIMUd, csPath.ptIMUm );
 
-        /* Check if file exists */
-        if ( ( csStream = fopen( csFile, "rb" ) ) != NULL ) { 
+        /* Declare display list begining */
+        glNewList( csTag, GL_COMPILE ); {
 
-            /* Close check stream */
-            fclose( csStream );
+            /* Update line width */
+            glLineWidth( 2.0 );
 
-            /* Create queries descriptors */
-            csQPos = lp_query_position_read   ( csPath.ptRoot, LP_DEVICE_TYPE_GPS, csPath.ptGPSd, csPath.ptGPSm );
-            csQOri = lp_query_orientation_read( csPath.ptRoot, LP_DEVICE_TYPE_IMU, csPath.ptIMUd, csPath.ptIMUm );
+            /* Begin primitive */
+            glBegin( GL_LINES ); {
 
-            /* Ask stream size */
-            csSize = lp_stream_size( csPath.ptRoot, LP_DEVICE_TYPE_CAM, csPath.ptCAMd, csPath.ptCAMm );
+                /* Loop on camera records */
+                for ( csParse = 0; csParse < lp_query_trigger_size( & csTrigger ); csParse ++ ) {
 
-            /* Read stream */
-            csCAMsyn = lp_stream_read( csPath.ptRoot, LP_DEVICE_TYPE_CAM, csPath.ptCAMd, csPath.ptCAMm, LP_STREAM_CPN_SYN, sizeof( lp_Time_t ) * csSize );
+                    /* Query position and orientation by timestamp */
+                    lp_query_trigger_byindex( & csTrigger, csParse );
+                    lp_query_position( & csGeopos, csTrigger.qrSynch );
+                    lp_query_orientation( & csOrient, csTrigger.qrSynch );
 
-            /* Declare display list begining */
-            glNewList( csTag, GL_COMPILE ); {
+                    /* Check query results */
+                    if ( ( csGeopos.qrStatus == LP_TRUE ) && ( csOrient.qrStatus == LP_TRUE ) ) {
 
-                /* Update line width */
-                glLineWidth( 2.0 );
+                        /* Compute flat meters using equatorial radius */
+                        csGeopos.qrLongitude *= CS_VIEW_SCENE_RAD2METER; 
+                        csGeopos.qrLatitude  *= CS_VIEW_SCENE_RAD2METER;
 
-                /* Begin primitive */
-                glBegin( GL_LINES ); {
+                        /* Save initial position */
+                        if ( csIF == 0 ) {
 
-                    /* Loop on camera records */
-                    for ( csParse = 0; csParse < csSize; csParse ++ ) {
+                            /* Save components */
+                            csIX = + csGeopos.qrLongitude;
+                            csIY = + csGeopos.qrAltitude;
+                            csIZ = + csGeopos.qrLatitude;
 
-                        /* Query position and orientation by timestamp */
-                        lp_query_position   ( & csQPos, csCAMsyn[csParse] );
-                        lp_query_orientation( & csQOri, csCAMsyn[csParse] );
+                        } csIF = 1;
 
-                        /* Check query results */
-                        if ( ( csQPos.qrStatus == LP_TRUE ) && ( csQOri.qrStatus == LP_TRUE ) ) {
+                        /* Compute cartesian coordinates */
+                        csPX = csGeopos.qrLongitude - csIX;
+                        csPY = csGeopos.qrAltitude  - csIY;
+                        csPZ = csGeopos.qrLatitude  - csIZ;
 
-                            /* Compute flat meters using equatorial radius */
-                            csQPos.qrLongitude *= CS_VIEW_SCENE_RAD2METER; 
-                            csQPos.qrLatitude  *= CS_VIEW_SCENE_RAD2METER;
+                        /* Verify previous point memory */
+                        if ( csMF != 0 ) { 
 
-                            /* Save initial position */
-                            if ( csIF == 0 ) {
+                            /* Update color */
+                            glColor3f( 0.92941, 0.69412, 0.0 );
 
-                                /* Save components */
-                                csIX = + csQPos.qrLongitude;
-                                csIY = + csQPos.qrAltitude;
-                                csIZ = + csQPos.qrLatitude;
+                            /* Send position vertex */
+                            glVertex3d( csMX, csMY, csMZ );
+                            glVertex3d( csPX, csPY, csPZ );
 
-                            } csIF = 1;
+                            /* Update color */
+                            glColor3f( 0.94, 0.94, 0.94 );
 
-                            /* Compute cartesian coordinates */
-                            csPX = csQPos.qrLongitude - csIX;
-                            csPY = csQPos.qrAltitude  - csIY;
-                            csPZ = csQPos.qrLatitude  - csIZ;
+                            /* Send position vertex */
+                            glVertex3d( csPX, csPY - CS_VIEW_SCENE_GRAVITY, csPZ );
+                            glVertex3d( csPX, csPY, csPZ );
 
-                            /* Verify previous point memory */
-                            if ( csMF != 0 ) { 
+                            /* Send position vertex */
+                            glVertex3d( csMX, csMY - CS_VIEW_SCENE_GRAVITY, csMZ );
+                            glVertex3d( csPX, csPY - CS_VIEW_SCENE_GRAVITY, csPZ );
 
-                                /* Update color */
-                                glColor3f( 0.92941, 0.69412, 0.0 );
+                        } csMF = 1;
 
-                                /* Send position vertex */
-                                glVertex3d( csMX, csMY, csMZ );
-                                glVertex3d( csPX, csPY, csPZ );
+                        /* Memorize position */
+                        csMX = csPX; csMY = csPY; csMZ = csPZ;
 
-                                /* Update color */
-                                glColor3f( 0.94, 0.94, 0.94 );
+                        /* Compute frame vectors */
+                        csXX = csPX + csOrient.qrfxx * CS_VIEW_SCENE_FRAME; csXY = csPY + csOrient.qrfxz * CS_VIEW_SCENE_FRAME; csXZ = csPZ + csOrient.qrfxy * CS_VIEW_SCENE_FRAME;
+                        csYX = csPX + csOrient.qrfyx * CS_VIEW_SCENE_FRAME; csYY = csPY + csOrient.qrfyz * CS_VIEW_SCENE_FRAME; csYZ = csPZ + csOrient.qrfyy * CS_VIEW_SCENE_FRAME;
+                        csZX = csPX + csOrient.qrfzx * CS_VIEW_SCENE_FRAME; csZY = csPY + csOrient.qrfzz * CS_VIEW_SCENE_FRAME; csZZ = csPZ + csOrient.qrfzy * CS_VIEW_SCENE_FRAME;
 
-                                /* Send position vertex */
-                                glVertex3d( csPX, csPY - CS_VIEW_SCENE_GRAVITY, csPZ );
-                                glVertex3d( csPX, csPY, csPZ );
+                        /* Update color */
+                        glColor3f( 0.70, 0.20, 0.10 );
 
-                                /* Send position vertex */
-                                glVertex3d( csMX, csMY - CS_VIEW_SCENE_GRAVITY, csMZ );
-                                glVertex3d( csPX, csPY - CS_VIEW_SCENE_GRAVITY, csPZ );
+                        /* Display body x-vector */
+                        glVertex3d( csPX, csPY, csPZ ); 
+                        glVertex3d( csXX, csXY, csXZ );
 
-                            } csMF = 1;
+                        /* Update color */
+                        glColor3f( 0.20, 0.50, 0.30 );
 
-                            /* Memorize position */
-                            csMX = csPX; csMY = csPY; csMZ = csPZ;
+                        /* Display body y-vector */
+                        glVertex3d( csPX, csPY, csPZ ); 
+                        glVertex3d( csYX, csYY, csYZ );
 
-                            /* Compute frame vectors */
-                            csXX = csPX + csQOri.qrfxx * CS_VIEW_SCENE_FRAME; csXY = csPY + csQOri.qrfxz * CS_VIEW_SCENE_FRAME; csXZ = csPZ + csQOri.qrfxy * CS_VIEW_SCENE_FRAME;
-                            csYX = csPX + csQOri.qrfyx * CS_VIEW_SCENE_FRAME; csYY = csPY + csQOri.qrfyz * CS_VIEW_SCENE_FRAME; csYZ = csPZ + csQOri.qrfyy * CS_VIEW_SCENE_FRAME;
-                            csZX = csPX + csQOri.qrfzx * CS_VIEW_SCENE_FRAME; csZY = csPY + csQOri.qrfzz * CS_VIEW_SCENE_FRAME; csZZ = csPZ + csQOri.qrfzy * CS_VIEW_SCENE_FRAME;
+                        /* Update color */
+                        glColor3f( 0.20, 0.30, 0.60 );
+
+                        /* Display body z-vector */
+                        glVertex3d( csPX, csPY, csPZ ); 
+                        glVertex3d( csZX, csZY, csZZ );
+
+                        /* Verify previous point memory */
+                        if ( csFF != 0 ) {
 
                             /* Update color */
                             glColor3f( 0.70, 0.20, 0.10 );
 
                             /* Display body x-vector */
-                            glVertex3d( csPX, csPY, csPZ ); 
-                            glVertex3d( csXX, csXY, csXZ );
+                            glVertex3d( csMXX, csMXY, csMXZ );
+                            glVertex3d( csXX , csXY , csXZ  );
 
                             /* Update color */
                             glColor3f( 0.20, 0.50, 0.30 );
 
                             /* Display body y-vector */
-                            glVertex3d( csPX, csPY, csPZ ); 
-                            glVertex3d( csYX, csYY, csYZ );
+                            glVertex3d( csMYX, csMYY, csMYZ );
+                            glVertex3d( csYX , csYY , csYZ  );
 
                             /* Update color */
                             glColor3f( 0.20, 0.30, 0.60 );
 
                             /* Display body z-vector */
-                            glVertex3d( csPX, csPY, csPZ ); 
-                            glVertex3d( csZX, csZY, csZZ );
+                            glVertex3d( csMZX, csMZY, csMZZ );
+                            glVertex3d( csZX , csZY , csZZ  );
 
-                            /* Verify previous point memory */
-                            if ( csFF != 0 ) {
+                        } csFF = 1;
 
-                                /* Update color */
-                                glColor3f( 0.70, 0.20, 0.10 );
+                        /* Memorize frame */
+                        csMXX = csXX; csMXY = csXY; csMXZ = csXZ;
+                        csMYX = csYX; csMYY = csYY; csMYZ = csYZ;
+                        csMZX = csZX; csMZY = csZY; csMZZ = csZZ; 
 
-                                /* Display body x-vector */
-                                glVertex3d( csMXX, csMXY, csMXZ );
-                                glVertex3d( csXX , csXY , csXZ  );
+                        /* Accumulates position */
+                        csLon += csPX;
+                        csAlt += csPY;
+                        csLat += csPZ;
 
-                                /* Update color */
-                                glColor3f( 0.20, 0.50, 0.30 );
+                        /* Update index */
+                        csAcc += 1.0;
 
-                                /* Display body y-vector */
-                                glVertex3d( csMYX, csMYY, csMYZ );
-                                glVertex3d( csYX , csYY , csYZ  );
-
-                                /* Update color */
-                                glColor3f( 0.20, 0.30, 0.60 );
-
-                                /* Display body z-vector */
-                                glVertex3d( csMZX, csMZY, csMZZ );
-                                glVertex3d( csZX , csZY , csZZ  );
-
-                            } csFF = 1;
-
-                            /* Memorize frame */
-                            csMXX = csXX; csMXY = csXY; csMXZ = csXZ;
-                            csMYX = csYX; csMYY = csYY; csMYZ = csYZ;
-                            csMZX = csZX; csMZY = csZY; csMZZ = csZZ; 
-
-                            /* Accumulates position */
-                            csLon += csPX;
-                            csAlt += csPY;
-                            csLat += csPZ;
-
-                            /* Update index */
-                            csAcc += 1.0;
-
-                            /* Compute extremums */
-                            if ( csPX > csMaxLon ) csMaxLon = csPX;
-                            if ( csPX < csMinLon ) csMinLon = csPX;
-                            if ( csPZ > csMaxLat ) csMaxLat = csPZ;
-                            if ( csPZ < csMinLat ) csMinLat = csPZ;
-                            if ( csPY > csMaxAlt ) csMaxAlt = csPY;
-                            if ( csPY < csMinAlt ) csMinAlt = csPY;
-
-                        }
+                        /* Compute extremums */
+                        if ( csPX > csMaxLon ) csMaxLon = csPX;
+                        if ( csPX < csMinLon ) csMinLon = csPX;
+                        if ( csPZ > csMaxLat ) csMaxLat = csPZ;
+                        if ( csPZ < csMinLat ) csMinLat = csPZ;
+                        if ( csPY > csMaxAlt ) csMaxAlt = csPY;
+                        if ( csPY < csMinAlt ) csMinAlt = csPY;
 
                     }
 
-                    /* Update color */
-                    glColor3f( 0.70, 0.20, 0.10 );
+                }
 
-                    /* Draw referential frame - x-vector */
-                    glVertex3f( csMinLon - CS_VIEW_SCENE_BOX, csMinAlt - CS_VIEW_SCENE_BOX, csMinLat - CS_VIEW_SCENE_BOX );
-                    glVertex3f( csMaxLon + CS_VIEW_SCENE_BOX, csMinAlt - CS_VIEW_SCENE_BOX, csMinLat - CS_VIEW_SCENE_BOX );
+                /* Update color */
+                glColor3f( 0.70, 0.20, 0.10 );
 
-                    /* Update color */
-                    glColor3f( 0.20, 0.50, 0.30 );
+                /* Draw referential frame - x-vector */
+                glVertex3f( csMinLon - CS_VIEW_SCENE_BOX, csMinAlt - CS_VIEW_SCENE_BOX, csMinLat - CS_VIEW_SCENE_BOX );
+                glVertex3f( csMaxLon + CS_VIEW_SCENE_BOX, csMinAlt - CS_VIEW_SCENE_BOX, csMinLat - CS_VIEW_SCENE_BOX );
 
-                    /* Draw referential frame - y-vector */
-                    glVertex3f( csMinLon - CS_VIEW_SCENE_BOX, csMinAlt - CS_VIEW_SCENE_BOX, csMinLat - CS_VIEW_SCENE_BOX );
-                    glVertex3f( csMinLon - CS_VIEW_SCENE_BOX, csMinAlt - CS_VIEW_SCENE_BOX, csMaxLat + CS_VIEW_SCENE_BOX );
+                /* Update color */
+                glColor3f( 0.20, 0.50, 0.30 );
 
-                    /* Update color */
-                    glColor3f( 0.20, 0.30, 0.60 );
+                /* Draw referential frame - y-vector */
+                glVertex3f( csMinLon - CS_VIEW_SCENE_BOX, csMinAlt - CS_VIEW_SCENE_BOX, csMinLat - CS_VIEW_SCENE_BOX );
+                glVertex3f( csMinLon - CS_VIEW_SCENE_BOX, csMinAlt - CS_VIEW_SCENE_BOX, csMaxLat + CS_VIEW_SCENE_BOX );
 
-                    /* Draw referential frame - z-vector */
-                    glVertex3f( csMinLon - CS_VIEW_SCENE_BOX, csMinAlt - CS_VIEW_SCENE_BOX, csMinLat - CS_VIEW_SCENE_BOX );
-                    glVertex3f( csMinLon - CS_VIEW_SCENE_BOX, csMaxAlt + CS_VIEW_SCENE_BOX, csMinLat - CS_VIEW_SCENE_BOX );
+                /* Update color */
+                glColor3f( 0.20, 0.30, 0.60 );
 
-                /* End primitive */
-                } glEnd();
+                /* Draw referential frame - z-vector */
+                glVertex3f( csMinLon - CS_VIEW_SCENE_BOX, csMinAlt - CS_VIEW_SCENE_BOX, csMinLat - CS_VIEW_SCENE_BOX );
+                glVertex3f( csMinLon - CS_VIEW_SCENE_BOX, csMaxAlt + CS_VIEW_SCENE_BOX, csMinLat - CS_VIEW_SCENE_BOX );
 
-                /* Begin primitive */
-                glBegin( GL_QUADS );
+            /* End primitive */
+            } glEnd();
 
-                    /* Update color */
-                    glColor3f( 0.90, 0.90, 0.90 );
-                    
-                    /* Send vertex */
-                    glVertex3f( csMinLon - CS_VIEW_SCENE_BOX, csMinAlt - CS_VIEW_SCENE_BOX, csMinLat - CS_VIEW_SCENE_BOX );
-                    glVertex3f( csMaxLon + CS_VIEW_SCENE_BOX, csMinAlt - CS_VIEW_SCENE_BOX, csMinLat - CS_VIEW_SCENE_BOX );
-                    glVertex3f( csMaxLon + CS_VIEW_SCENE_BOX, csMinAlt - CS_VIEW_SCENE_BOX, csMaxLat + CS_VIEW_SCENE_BOX );
-                    glVertex3f( csMinLon - CS_VIEW_SCENE_BOX, csMinAlt - CS_VIEW_SCENE_BOX, csMaxLat + CS_VIEW_SCENE_BOX );
+            /* Begin primitive */
+            glBegin( GL_QUADS );
 
-                /* End primitive */
-                glEnd();
+                /* Update color */
+                glColor3f( 0.90, 0.90, 0.90 );
+                
+                /* Send vertex */
+                glVertex3f( csMinLon - CS_VIEW_SCENE_BOX, csMinAlt - CS_VIEW_SCENE_BOX, csMinLat - CS_VIEW_SCENE_BOX );
+                glVertex3f( csMaxLon + CS_VIEW_SCENE_BOX, csMinAlt - CS_VIEW_SCENE_BOX, csMinLat - CS_VIEW_SCENE_BOX );
+                glVertex3f( csMaxLon + CS_VIEW_SCENE_BOX, csMinAlt - CS_VIEW_SCENE_BOX, csMaxLat + CS_VIEW_SCENE_BOX );
+                glVertex3f( csMinLon - CS_VIEW_SCENE_BOX, csMinAlt - CS_VIEW_SCENE_BOX, csMaxLat + CS_VIEW_SCENE_BOX );
 
-            /* Declare display list end */
-            } glEndList();
+            /* End primitive */
+            glEnd();
 
-            /* Delete queries descriptors */
-            lp_query_position_delete   ( & csQPos );
-            lp_query_orientation_delete( & csQOri );
+        /* Declare display list end */
+        } glEndList();
 
-            /* Unallocate stream memory */
-            csCAMsyn = lp_stream_delete( csCAMsyn );
+        /* Delete queries descriptors */
+        lp_query_trigger_delete    ( & csTrigger );
+        lp_query_position_delete   ( & csGeopos  );
+        lp_query_orientation_delete( & csOrient  );
 
-            /* Reset initial position and assign initial means */
-            cs_view_controls_reset( CS_VIEW_CONTROLS_SET, ( csLon / csAcc ), ( csLat / csAcc ), ( csAlt / csAcc ) );
-
-        /* Display message */
-        } else { fprintf( LC_ERR, "Error : unable to access CSPS stream using %s path\n", basename( csPath.ptRoot ) ); } 
+        /* Reset initial position and assign initial means */
+        cs_view_controls_reset( CS_VIEW_CONTROLS_SET, ( csLon / csAcc ), ( csLat / csAcc ), ( csAlt / csAcc ) );
 
     }
 

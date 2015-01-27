@@ -5,7 +5,7 @@
 #   make - Configuration
 #
 
-    CONFIG_NAME:=csps-omvg-frustum
+    CONFIG_NAME:=csps-frustum
     CONFIG_CODE:=c
     CONFIG_TYPE:=suite
 

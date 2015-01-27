@@ -27,7 +27,7 @@
     MAKE_DOCBLD:=doxygen
 
     BUILD_FLAGS:=-Wall -funsigned-char -O3
-    BUILD_LINKD:=-lm
+    BUILD_LINKD:=-lm -ljson-c
     BUILD_SUBMD:=$(MAKE_LIBRAR)/libcommon $(MAKE_LIBRAR)/libcsps $(MAKE_LIBRAR)/libcsps/lib/libinter $(MAKE_LIBRAR)/libfastcal
 
 #

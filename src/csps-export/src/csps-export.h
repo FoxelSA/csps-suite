@@ -102,6 +102,7 @@
     # include <libgen.h>
     # include <csps-all.h>
     # include <common-all.h>
+    # include <json-c/json.h>
 
 /* 
     Header - Preprocessor definitions
@@ -113,13 +114,14 @@
     "Short arguments and parameters summary :\n"   \
     "  -p CSPS-processed structure path\n"         \
     "  -e JSON exportation file path\n"            \
-    "  -c Camera CSPS-tag\n"                       \
-    "  -m Camera CSPS-module switch\n"             \
-    "  -g GPS CSPS-tag\n"                          \
-    "  -n GPS CSPS-module switch\n"                \
-    "  -l Manual specifier for longitude\n"        \
-    "  -t Manual specifier for latitude\n"         \
-    "  -a Manual specifier for altitude\n"         \
+    "  -c Capture trigger device CSPS-tag\n"       \
+    "  -m Capture trigger device CSPS-module\n"    \
+    "  -g GPS device CSPS-tag\n"                   \
+    "  -n GPS device CSPS-module\n"                \
+    "  -i IMU device CSPS-tag\n"                   \
+    "  -s IMU device CSPS-module\n"                \
+    "  -t Still range device CSPS-tag\n"           \
+    "  -k Still range device CSPS-module\n"        \
     "csps-export - csps-suite\n"                   \
     "Copyright (c) 2013-2015 FOXEL SA\n"
 
@@ -131,6 +133,9 @@
     Header - Typedefs
  */
 
+    /* Type definition simplification */
+    typedef struct json_object cs_Object_t;
+
 /* 
     Header - Structures
  */
@@ -141,10 +146,13 @@
 
     /*! \brief Software main function
      *  
-     *  The main function is responsible of JSON file generation that stores
-     *  basic informations, such as camera record timestamps and geopositions,
-     *  that are used in interfaces for data representation. Positioning data
-     *  are obtained through CSPS query interface.
+     *  The main function starts by checking if a previous JSON file was created
+     *  and load its content. The function then calls the exportation function
+     *  that realize JSON exportation. If a previous JSON file is available, it
+     *  is erased after its content importation.
+     *
+     *  The main function is also responsible of CSPS query structures creation
+     *  and deletion.
      *  
      *  \param  argc Standard main parameter
      *  \param  argv Standard main parameter
@@ -153,6 +161,85 @@
      */
 
     int main ( int argc, char ** argv );
+
+    /*! \brief Exportation function
+     * 
+     *  This function is responsible for JSON file exportation based on queries
+     *  performed on the CSPS. It is also responsible to import some fields of
+     *  the previous exportation file if available. The function expect already
+     *  created CSPS query structures.
+     *
+     *  \param csTrigger CSPS camera trigger query structure
+     *  \param csGeopos  CSPS geoposition query structure
+     *  \param csOrient  CSPS orientation query structure
+     *  \param csStill   CSPS still range query structure
+     *  \param csFile    JSON exportation file
+     *  \param csJson    Previous JSON file main object
+     */
+
+    void cs_export( 
+
+        lp_Trigger_t * const csTrigger, 
+        lp_Geopos_t  * const csGeopos, 
+        lp_Orient_t  * const csOrient,
+        lp_Still_t   * const csStill,
+        char         * const csFile,
+        cs_Object_t  * const csJson
+
+    );
+
+    /*! \brief JSON array search
+     * 
+     *  This function expects a JSON object containing an array of camera pose
+     *  objects. It searches and return the JSON object that corresponds to the
+     *  camera pose defined by the master timestamp.
+     *
+     *  As a search is performed, the next search starts at the array index just
+     *  below the last found one for optimization purpose.
+     *
+     *  \param csArray  JSON object containing a pose objects array
+     *  \param csMaster Master timestamp of searched pose object
+     *
+     *  \return Returns the found JSON object, NULL pointer otherwise
+     */
+
+    cs_Object_t * cs_export_get_pose( 
+
+        cs_Object_t * const csArray, 
+        lp_Time_t     const csMaster 
+
+    );
+
+    /*! \brief Field exportation
+     * 
+     *  This function is designed to simplify JSON field exportation when a
+     *  previous version of the JSON file is available. The function considers
+     *  the provided key and checks if a previous field is available in the
+     *  provided JSON object. In this case, the found field value is considered
+     *  for value exportation. Otherwise, the provided value is used. In order
+     *  to force the exportation of the provided value, NULL can be sent as JSON
+     *  object.
+     *
+     *  The function allows also to give the comma character in case the field
+     *  is not the last field of the currently exported JSON object. The comma
+     *  parameter should then points to "," or "" string.
+     *
+     *  \param csKey    Field key
+     *  \param csValue  Field value
+     *  \param csComma  Field ending comma
+     *  \param csStream Open exportation file stream
+     *  \param csObject JSON object containing previous field
+     */
+
+    void cs_export_field( 
+
+        char        const * const csKey,
+        char        const * const csValue,
+        char        const * const csComma,
+        FILE              * const csStream,
+        cs_Object_t       * const csObject
+
+    );
 
 /* 
     Header - C/C++ compatibility
