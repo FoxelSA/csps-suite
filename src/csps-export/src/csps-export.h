@@ -109,20 +109,20 @@
  */
 
     /* Standard help */
-    # define CS_HELP "Usage summary :\n"               \
-    "  csps-export [Arguments] [Parameters] ...\n"     \
-    "Short arguments and parameters summary :\n"       \
-    "  -p CSPS-processed structure path\n"             \
-    "  -e JSON exportation file path\n"                \
-    "  -c Capture trigger device CSPS-tag\n"           \
-    "  -m Capture trigger device CSPS-module switch\n" \
-    "  -g GPS device CSPS-tag\n"                       \
-    "  -n GPS device CSPS-module switch\n"             \
-    "  -i IMU device CSPS-tag\n"                       \
-    "  -s IMU device CSPS-module switch\n"             \
-    "  -t Still range device CSPS-tag\n"               \
-    "  -k Still range device CSPS-module switch\n"     \
-    "csps-export - csps-suite\n"                       \
+    # define CS_HELP "Usage summary :\n"           \
+    "  csps-export [Arguments] [Parameters] ...\n" \
+    "Short arguments and parameters summary :\n"   \
+    "  -p CSPS-processed structure path\n"         \
+    "  -e JSON exportation file path\n"            \
+    "  -c Capture trigger device CSPS-tag\n"       \
+    "  -m Capture trigger device CSPS-module\n"    \
+    "  -g GPS device CSPS-tag\n"                   \
+    "  -n GPS device CSPS-module\n"                \
+    "  -i IMU device CSPS-tag\n"                   \
+    "  -s IMU device CSPS-module\n"                \
+    "  -t Still range device CSPS-tag\n"           \
+    "  -k Still range device CSPS-module\n"        \
+    "csps-export - csps-suite\n"                   \
     "Copyright (c) 2013-2015 FOXEL SA\n"
 
 /* 
@@ -133,7 +133,7 @@
     Header - Typedefs
  */
 
-    /* Define simplified type */
+    /* Type definition simplification */
     typedef struct json_object cs_Object_t;
 
 /* 
@@ -147,11 +147,12 @@
     /*! \brief Software main function
      *  
      *  The main function starts by checking if a previous JSON file was created
-     *  and load its content by creating a JSON main object. The function calls
-     *  then the exportation function that realize JSON exportation.
+     *  and load its content. The function then calls the exportation function
+     *  that realize JSON exportation. If a previous JSON file is available, it
+     *  is erased after its content importation.
      *
-     *  The main function is also responsible of CSPS query structure creation
-     *  and deletion as exportation is done.
+     *  The main function is also responsible of CSPS query structures creation
+     *  and deletion.
      *  
      *  \param  argc Standard main parameter
      *  \param  argv Standard main parameter
@@ -190,16 +191,16 @@
     /*! \brief JSON array search
      * 
      *  This function expects a JSON object containing an array of camera pose
-     *  object. It searches and return the JSON object that corresponds to the
-     *  camera pose provided master timestamp.
+     *  objects. It searches and return the JSON object that corresponds to the
+     *  camera pose defined by the master timestamp.
      *
      *  As a search is performed, the next search starts at the array index just
-     *  below the last found pose index.
+     *  below the last found one for optimization purpose.
      *
-     *  \param csNode JSON object containing a pose object array
+     *  \param csArray  JSON object containing a pose objects array
      *  \param csMaster Master timestamp of searched pose object
      *
-     *  \return Returns the found JSON object or NULL pointer
+     *  \return Returns the found JSON object, NULL pointer otherwise
      */
 
     cs_Object_t * cs_export_get_pose( 
@@ -215,16 +216,17 @@
      *  previous version of the JSON file is available. The function considers
      *  the provided key and checks if a previous field is available in the
      *  provided JSON object. In this case, the found field value is considered
-     *  for exportation. Otherwise, the provided key is used. In order to force
-     *  the exportation of the provided value, NULL can be sent as JSON object.
+     *  for value exportation. Otherwise, the provided value is used. In order
+     *  to force the exportation of the provided value, NULL can be sent as JSON
+     *  object.
      *
      *  The function allows also to give the comma character in case the field
-     *  is not the last field of the current JSON object. The comma parameter
-     *  should then points to "," string.
+     *  is not the last field of the currently exported JSON object. The comma
+     *  parameter should then points to "," or "" string.
      *
      *  \param csKey    Field key
      *  \param csValue  Field value
-     *  \param csComma  Field end comma
+     *  \param csComma  Field ending comma
      *  \param csStream Open exportation file stream
      *  \param csObject JSON object containing previous field
      */
