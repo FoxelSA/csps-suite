@@ -148,7 +148,7 @@
      *  \var cs_List_struct::lsChannel
      *  Camera sensor channel number
      *  \var cs_List_struct::lsTime
-     *  Camera sensor image capture timestamp
+     *  Camera sensor image capture synchronization timestamp
      */
 
     typedef struct cs_List_struct {
@@ -254,18 +254,18 @@
      *  function. Note that, for performance purpose, the actual size, in memory,
      *  of the stack can be greater than the returned size.
      *
-     *  \param  csList   Path to OpenMVG list file
-     *  \param  csStack  Pointer to informations stack
-     *  \param  csDelay  Delay to add to timestamp second part
+     *  \param  csList    Path to OpenMVG list file
+     *  \param  csStack   Pointer to informations stack
+     *  \param  csTrigger CSPS query structure
      *
      *  \return Returns the size of the created stack
      */
      
     unsigned long cs_frusmtum_list ( 
 
-        char      const *  const csList, 
-        cs_List_t       **       csStack, 
-        long      const          csDelay 
+        char         const *  const csList, 
+        cs_List_t          **       csStack, 
+        lp_Trigger_t       *  const csTrigger
 
     );
 

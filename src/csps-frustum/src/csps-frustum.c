@@ -56,6 +56,8 @@
         char csMntp[256] = "/data/";
 
         /* Stream pointer variables */
+        char csCAMd[256] = { 0 };
+        char csCAMm[256] = { 0 };
         char csGPSd[256] = { 0 };
         char csGPSm[256] = { 0 };
         char csIMUd[256] = { 0 };
@@ -63,9 +65,6 @@
 
         /* Camera designation variables */
         char csCamera[256] = { 0 };
-
-        /* Timestamp delay variables */
-        long csDelay = 0;
 
         /* Sensor size variables */
         double csNear =  1.0;
@@ -85,8 +84,19 @@
         /* Stack variables */
         cs_List_t * csStack = NULL;
 
-        /* Calibration data descriptor */
+        /* CSPS query structures variables */
+        lp_Geopos_t  csaQposit;
+        lp_Geopos_t  csbQposit;
+        lp_Orient_t  csaQorien;
+        lp_Orient_t  csbQorien;
+        lp_Trigger_t csTrigger;
+
+        /* Calibration data descriptor variables */
         lf_Descriptor_t lfDesc;
+
+        /* Frustums variables */
+        cs_Frustum_t csFrustA;
+        cs_Frustum_t csFrustB;
 
         /* Output stream variables */
         FILE * csStream = NULL;
@@ -96,14 +106,15 @@
         lc_stdp( lc_stda( argc, argv, "--list"       , "-l" ), argv,   csList  , LC_STRING );
         lc_stdp( lc_stda( argc, argv, "--pairs"      , "-r" ), argv,   csPair  , LC_STRING );
         lc_stdp( lc_stda( argc, argv, "--mount-point", "-m" ), argv,   csMntp  , LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--camera"     , "-c" ), argv,   csCamera, LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--gps-mod"    , "-n" ), argv,   csGPSm  , LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--imu-mod"    , "-s" ), argv,   csIMUm  , LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--camera"     , "-C" ), argv,   csCamera, LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--cam-tag"    , "-c" ), argv,   csCAMd  , LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--cam-mod"    , "-m" ), argv,   csCAMm  , LC_STRING );
         lc_stdp( lc_stda( argc, argv, "--gps-tag"    , "-g" ), argv,   csGPSd  , LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--gps-mod"    , "-n" ), argv,   csGPSm  , LC_STRING );
         lc_stdp( lc_stda( argc, argv, "--imu-tag"    , "-i" ), argv,   csIMUd  , LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--imu-mod"    , "-s" ), argv,   csIMUm  , LC_STRING );
         lc_stdp( lc_stda( argc, argv, "--plane-near" , "-e" ), argv, & csNear  , LC_DOUBLE );
         lc_stdp( lc_stda( argc, argv, "--plane-far"  , "-f" ), argv, & csFar   , LC_DOUBLE );
-        lc_stdp( lc_stda( argc, argv, "--delay"      , "-d" ), argv, & csDelay , LC_ULONG  );
 
         /* Execution switch */
         if ( lc_stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
@@ -121,8 +132,11 @@
 
             } else {
 
+                /* Create queries descriptor */
+                csTrigger = lp_query_trigger_create( csPath, csCAMd, csCAMm );
+
                 /* Import OpenMVG list */
-                if ( ( csSize = cs_frusmtum_list( csList, & csStack, csDelay ) ) == 0 ) {
+                if ( ( csSize = cs_frusmtum_list( csList, & csStack, & csTrigger ) ) == 0 ) {
 
                     /* Display message */
                     fprintf( LC_ERR, "Error : unable to read OpenMVG list\n" );
@@ -144,13 +158,6 @@
                             fprintf( LC_ERR, "Error : unable to open output file\n" );
 
                         } else {
-
-                            /* CSPS query structures */
-                            lp_Geopos_t csaQposit, csbQposit;
-                            lp_Orient_t csaQorien, csbQorien;
-
-                            /* Frustums variables */
-                            cs_Frustum_t csFrustA, csFrustB;
 
                             /* Create queries descriptors */
                             csaQposit = lp_query_position_create( csPath, csGPSd, csGPSm );
@@ -278,6 +285,9 @@
 
                 }
 
+                /* Delete queries descriptor */
+                lp_query_trigger_delete( & csTrigger );
+
             }
 
         }
@@ -293,9 +303,9 @@
 
     unsigned long cs_frusmtum_list ( 
 
-        char      const *  const csList, 
-        cs_List_t       **       csStack, 
-        long      const          csDelay 
+        char         const *  const csList, 
+        cs_List_t          **       csStack, 
+        lp_Trigger_t       *  const csTrigger
 
     ) {
 
@@ -308,8 +318,7 @@
 
         /* Timestamp composition variables */
         lp_Time_t csSec = 0;
-        lp_Time_t csMic = 0;
-
+        lp_Time_t csUse = 0;
         /* List handle variables */
         FILE * csStream = NULL;
 
@@ -323,10 +332,26 @@
             while ( fgets( csBuffer, sizeof( csBuffer ), csStream ) > 0 ) {
 
                 /* Decompose image name */
-                sscanf( csBuffer, "%" lp_Time_i "_%" lp_Time_i "-%lu", & csSec, & csMic, & ( ( ( * csStack ) + csSize )->lsChannel ) );
+                sscanf( csBuffer, "%" lp_Time_i "_%" lp_Time_i "-%lu", & csSec, & csUse, & ( ( ( * csStack ) + csSize )->lsChannel ) );
 
-                /* Compose timestamp */
-                ( ( * csStack ) + csSize )->lsTime = lp_timestamp_compose( csSec + csDelay, csMic );
+                /* Query synchronization timestamp */
+                lp_query_trigger_bymaster( csTrigger, lp_timestamp_compose( csSec, csUse ) );
+
+                /* Check query status */
+                if ( lp_query_trigger_status( csTrigger ) == LP_FALSE ) {
+
+                    /* Display message */
+                    fprintf( LC_ERR, "Warning : unable to query synchronization timestamp for image %lu\n", csSize );
+
+                    /* Compose timestamp */
+                    ( ( * csStack ) + csSize )->lsTime = lp_timestamp_compose( csSec, csUse );
+
+                } else {
+
+                    /* Compose timestamp */
+                    ( ( * csStack ) + csSize )->lsTime = csTrigger->qrSynch;
+
+                }
 
                 /* Stack memory management */
                 if ( ( ++ csSize ) >= csVirt ) ( * csStack ) = ( cs_List_t * ) realloc( ( * csStack ), ( csVirt += 1024 ) * sizeof( cs_List_t ) );
