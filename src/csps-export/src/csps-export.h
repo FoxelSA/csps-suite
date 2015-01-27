@@ -204,7 +204,7 @@
 
     cs_Object_t * cs_export_get_pose( 
 
-        cs_Object_t * const csNode, 
+        cs_Object_t * const csArray, 
         lp_Time_t     const csMaster 
 
     );

@@ -166,8 +166,8 @@
         lp_Size_t csGuess = 0;
 
         /* Object variables */
-        cs_Object_t * csPose = NULL;
-        cs_Object_t * csUnit = NULL;
+        cs_Object_t * csArray = NULL;
+        cs_Object_t * csPose  = NULL;
 
         /* Stream variables */
         FILE * csStream = NULL;
@@ -195,7 +195,7 @@
             }
 
             /* Create pose array object */
-            csPose = json_object_object_get( csJson, "pose" );
+            csArray = json_object_object_get( csJson, "pose" );
 
             /* Export format */
             fprintf( csStream, "{\n" );
@@ -225,7 +225,7 @@
                 lp_query_still( csStill, csTrigger->qrSynch );
 
                 /* Search for previous pose */
-                csUnit = cs_export_get_pose( csPose, csTrigger->qrMaster );
+                csPose = cs_export_get_pose( csArray, csTrigger->qrMaster );
 
                 /* Export format */
                 fprintf( csStream, "{\n" );
@@ -255,7 +255,7 @@
 
                 /* Export to stream */
                 cs_export_field( "still", ( csStill->qrStill == LP_TRUE ) ? "true" : "false", ",", csStream, NULL );
-                cs_export_field( "status", "\"unknown\"", ",", csStream, csUnit );
+                cs_export_field( "status", "\"unknown\"", ",", csStream, csPose );
 
                 /* Export to stream */
                 fprintf( csStream, "\"sec\":%" lp_Time_p ",\n", lp_timestamp_sec ( csTrigger->qrMaster ) );
@@ -307,7 +307,7 @@
 
     cs_Object_t * cs_export_get_pose( 
 
-        cs_Object_t * const csNode, 
+        cs_Object_t * const csArray, 
         lp_Time_t     const csMaster 
 
     ) {
@@ -323,31 +323,29 @@
 
         /* Object variables */
         cs_Object_t * csPose = NULL;
-        cs_Object_t * csTemp = NULL;
-        cs_Object_t * cstSec = NULL;
-        cs_Object_t * cstUsc = NULL;
 
         /* Check object consistency */
-        if ( csNode != NULL ) {
+        if ( csArray != NULL ) {
 
             /* Retrieve array size */
-            csSize = json_object_array_length( csNode );
+            csSize = json_object_array_length( csArray );
 
             /* Parsing array */
             while ( ( csIndex < csSize ) && ( csPose == NULL ) ) {
 
                 /* Create pose node */
-                csTemp = json_object_array_get_idx( csNode, csIndex );
+                csPose = json_object_array_get_idx( csArray, csIndex );
 
-                /* Create timestamp node */
-                cstSec = json_object_object_get( csTemp, "sec" );
-                cstUsc = json_object_object_get( csTemp, "usc" );
+                /* Compose pose timestamp */
+                csTime = lp_timestamp_compose( 
 
-                /* Compose imported timestamp */
-                csTime = lp_timestamp_compose( json_object_get_int( cstSec ), json_object_get_int( cstUsc ) );
+                    json_object_get_int( json_object_object_get( csPose, "sec" ) ), 
+                    json_object_get_int( json_object_object_get( csPose, "usc" ) ) 
+
+                );
 
                 /* Detect master timestamp equality */
-                if ( lp_timestamp_eq( csMaster, csTime ) == LP_TRUE ) csPose = csTemp;
+                if ( lp_timestamp_eq( csMaster, csTime ) == LP_FALSE ) csPose = NULL;
 
                 /* Update parse index */
                 csIndex ++;
