@@ -50,10 +50,11 @@
     int main ( int argc, char ** argv ) {
 
         /* Structure path variables */
-        char csPath[256] = { 0 };
-        char csList[256] = { 0 };
-        char csPair[256] = { 0 };
-        char csMntp[256] = "/data/";
+        char csPath  [256] = { 0 };
+        char csList  [256] = { 0 };
+        char csPair  [256] = { 0 };
+        char csMount [256] = "/data/";
+        char csCamera[256] = { 0 };
 
         /* Stream pointer variables */
         char csCAMd[256] = { 0 };
@@ -63,58 +64,55 @@
         char csIMUd[256] = { 0 };
         char csIMUm[256] = { 0 };
 
-        /* Camera designation variables */
-        char csCamera[256] = { 0 };
-
         /* Sensor size variables */
         double csNear =  1.0;
         double csFar  = 30.0;
-
-        /* Size variables */
-        unsigned long csSize  = 0;
-        unsigned long csAccum = 0;
 
         /* Pair composition variables */
         unsigned long csaLoop = 0;
         unsigned long csbLoop = 0;
 
+        /* Size variables */
+        unsigned long csSize  = 0;
+        unsigned long csAccum = 0;
+
         /* Pair storage buffer */
         unsigned long * csBuffer = NULL;
+
+        /* Stream variables */
+        FILE * csStream = NULL;
 
         /* Stack variables */
         cs_List_t * csStack = NULL;
 
         /* CSPS query structures variables */
-        lp_Geopos_t  csaQposit;
-        lp_Geopos_t  csbQposit;
-        lp_Orient_t  csaQorien;
-        lp_Orient_t  csbQorien;
+        lp_Geopos_t  csaGeopos;
+        lp_Geopos_t  csbGeopos;
+        lp_Orient_t  csaOrient;
+        lp_Orient_t  csbOrient;
         lp_Trigger_t csTrigger;
+
+        /* Frustums variables */
+        cs_Frustum_t csaFrustum;
+        cs_Frustum_t csbFrustum;
 
         /* Calibration data descriptor variables */
         lf_Descriptor_t lfDesc;
-
-        /* Frustums variables */
-        cs_Frustum_t csFrustA;
-        cs_Frustum_t csFrustB;
-
-        /* Output stream variables */
-        FILE * csStream = NULL;
 
         /* Search in parameters */
         lc_stdp( lc_stda( argc, argv, "--path"       , "-p" ), argv,   csPath  , LC_STRING );
         lc_stdp( lc_stda( argc, argv, "--list"       , "-l" ), argv,   csList  , LC_STRING );
         lc_stdp( lc_stda( argc, argv, "--pairs"      , "-r" ), argv,   csPair  , LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--mount-point", "-m" ), argv,   csMntp  , LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--camera"     , "-C" ), argv,   csCamera, LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--mount-point", "-t" ), argv,   csMount , LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--camera"     , "-a" ), argv,   csCamera, LC_STRING );
         lc_stdp( lc_stda( argc, argv, "--cam-tag"    , "-c" ), argv,   csCAMd  , LC_STRING );
         lc_stdp( lc_stda( argc, argv, "--cam-mod"    , "-m" ), argv,   csCAMm  , LC_STRING );
         lc_stdp( lc_stda( argc, argv, "--gps-tag"    , "-g" ), argv,   csGPSd  , LC_STRING );
         lc_stdp( lc_stda( argc, argv, "--gps-mod"    , "-n" ), argv,   csGPSm  , LC_STRING );
         lc_stdp( lc_stda( argc, argv, "--imu-tag"    , "-i" ), argv,   csIMUd  , LC_STRING );
         lc_stdp( lc_stda( argc, argv, "--imu-mod"    , "-s" ), argv,   csIMUm  , LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--plane-near" , "-e" ), argv, & csNear  , LC_DOUBLE );
-        lc_stdp( lc_stda( argc, argv, "--plane-far"  , "-f" ), argv, & csFar   , LC_DOUBLE );
+        lc_stdp( lc_stda( argc, argv, "--near-plane" , "-e" ), argv, & csNear  , LC_DOUBLE );
+        lc_stdp( lc_stda( argc, argv, "--far-plane"  , "-f" ), argv, & csFar   , LC_DOUBLE );
 
         /* Execution switch */
         if ( lc_stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
@@ -125,15 +123,19 @@
         } else {
 
             /* Create calibration data descriptor */
-            if ( lf_parse( ( lf_Char_t * ) csCamera, ( lf_Char_t * ) csMntp, & lfDesc ) == LF_FALSE ) {
+            if ( lf_parse( ( lf_Char_t * ) csCamera, ( lf_Char_t * ) csMount, & lfDesc ) == LF_FALSE ) {
 
                 /* Display message */
                 fprintf( LC_ERR, "Error : unable to create calibration data descriptor\n" );
 
             } else {
 
-                /* Create queries descriptor */
-                csTrigger = lp_query_trigger_create( csPath, csCAMd, csCAMm );
+                /* Create queries descriptors */
+                csTrigger = lp_query_trigger_create    ( csPath, csCAMd, csCAMm );
+                csaGeopos = lp_query_position_create   ( csPath, csGPSd, csGPSm );
+                csbGeopos = lp_query_position_create   ( csPath, csGPSd, csGPSm );
+                csaOrient = lp_query_orientation_create( csPath, csIMUd, csIMUm );
+                csbOrient = lp_query_orientation_create( csPath, csIMUd, csIMUm );
 
                 /* Import OpenMVG list */
                 if ( ( csSize = cs_frusmtum_list( csList, & csStack, & csTrigger ) ) == 0 ) {
@@ -159,81 +161,73 @@
 
                         } else {
 
-                            /* Create queries descriptors */
-                            csaQposit = lp_query_position_create( csPath, csGPSd, csGPSm );
-                            csbQposit = lp_query_position_create( csPath, csGPSd, csGPSm );
-
-                            /* Create queries descriptors */
-                            csaQorien = lp_query_orientation_create( csPath, csIMUd, csIMUm );
-                            csbQorien = lp_query_orientation_create( csPath, csIMUd, csIMUm );
-
                             /* First level composition loop */
                             for ( csaLoop = 0; csaLoop < csSize; csaLoop ++ ) {
 
                                 /* CSPS query - Positions & orientation */
-                                lp_query_position   ( & csaQposit, csStack[csaLoop].lsTime );
-                                lp_query_orientation( & csaQorien, csStack[csaLoop].lsTime );
+                                lp_query_position   ( & csaGeopos, csStack[csaLoop].lsTime );
+                                lp_query_orientation( & csaOrient, csStack[csaLoop].lsTime );
 
                                 /* Check query status */
-                                if ( ( csaQposit.qrStatus == LP_TRUE ) && ( csaQorien.qrStatus == LP_TRUE ) ) {
+                                if ( ( csaGeopos.qrStatus == LP_TRUE ) && ( csaOrient.qrStatus == LP_TRUE ) ) {
 
                                     /* Second level composition loop */
                                     for ( csbLoop = csaLoop + 1; csbLoop < csSize; csbLoop ++ ) {
 
                                         /* CSPS query - Positions and orientation */
-                                        lp_query_position   ( & csbQposit, csStack[csbLoop].lsTime );
-                                        lp_query_orientation( & csbQorien, csStack[csbLoop].lsTime );
+                                        lp_query_position   ( & csbGeopos, csStack[csbLoop].lsTime );
+                                        lp_query_orientation( & csbOrient, csStack[csbLoop].lsTime );
 
                                         /* Check query status */
-                                        if ( ( csbQposit.qrStatus == LP_TRUE ) && ( csbQorien.qrStatus == LP_TRUE ) ) {
+                                        if ( ( csbGeopos.qrStatus == LP_TRUE ) && ( csbOrient.qrStatus == LP_TRUE ) ) {
 
                                             /* Compute corrected positions - Local flat earth model */
-                                            csbQposit.qrLongitude = ( csbQposit.qrLongitude - csaQposit.qrLongitude ) * ( ( ( 6367514.5 + csaQposit.qrAltitude ) * LF_PI / 180.0 ) );
-                                            csbQposit.qrLatitude  = ( csbQposit.qrLatitude  - csaQposit.qrLatitude  ) * ( ( ( 6367514.5 + csaQposit.qrAltitude ) * LF_PI / 180.0 ) );
-                                            csbQposit.qrAltitude  = ( csbQposit.qrAltitude  - csaQposit.qrAltitude  );
+                                            csbGeopos.qrLongitude = ( csbGeopos.qrLongitude - csaGeopos.qrLongitude ) * ( ( ( 6367514.5 + csaGeopos.qrAltitude ) * LF_PI / 180.0 ) );
+                                            csbGeopos.qrLatitude  = ( csbGeopos.qrLatitude  - csaGeopos.qrLatitude  ) * ( ( ( 6367514.5 + csaGeopos.qrAltitude ) * LF_PI / 180.0 ) );
+                                            csbGeopos.qrAltitude  = ( csbGeopos.qrAltitude  - csaGeopos.qrAltitude  );
 
                                             /* Compute frustum of first camera */
                                             cs_frustum_eyesis4pi( csCamera, csStack[csaLoop].lsChannel,
 
-                                                csaQorien.qrfxx, 
-                                                csaQorien.qrfxy,
-                                                csaQorien.qrfxz,
-                                                csaQorien.qrfyx, 
-                                                csaQorien.qrfyy,
-                                                csaQorien.qrfyz,
-                                                csaQorien.qrfzx,
-                                                csaQorien.qrfzy,
-                                                csaQorien.qrfzz,
+                                                csaOrient.qrfxx, 
+                                                csaOrient.qrfxy,
+                                                csaOrient.qrfxz,
+                                                csaOrient.qrfyx, 
+                                                csaOrient.qrfyy,
+                                                csaOrient.qrfyz,
+                                                csaOrient.qrfzx,
+                                                csaOrient.qrfzy,
+                                                csaOrient.qrfzz,
                                                 0.0, 
                                                 0.0, 
                                                 0.0,
                                                 csNear, 
                                                 csFar, 
                                                 
-                                            & csFrustA, & lfDesc );
+                                            & csaFrustum, & lfDesc );
 
                                             /* Compute frustum of second camera */
                                             cs_frustum_eyesis4pi( csCamera, csStack[csbLoop].lsChannel,
 
-                                                csbQorien.qrfxx, 
-                                                csbQorien.qrfxy, 
-                                                csbQorien.qrfxz,
-                                                csbQorien.qrfyx, 
-                                                csbQorien.qrfyy, 
-                                                csbQorien.qrfyz,
-                                                csbQorien.qrfzx, 
-                                                csbQorien.qrfzy, 
-                                                csbQorien.qrfzz,
-                                                csbQposit.qrLongitude, 
-                                                csbQposit.qrLatitude, 
-                                                csbQposit.qrAltitude,
+                                                csbOrient.qrfxx, 
+                                                csbOrient.qrfxy, 
+                                                csbOrient.qrfxz,
+                                                csbOrient.qrfyx, 
+                                                csbOrient.qrfyy, 
+                                                csbOrient.qrfyz,
+                                                csbOrient.qrfzx, 
+                                                csbOrient.qrfzy, 
+                                                csbOrient.qrfzz,
+                                                csbGeopos.qrLongitude, 
+                                                csbGeopos.qrLatitude, 
+                                                csbGeopos.qrAltitude,
                                                 csNear, 
                                                 csFar, 
 
-                                            & csFrustB, & lfDesc );
+                                            & csbFrustum, & lfDesc );
 
                                             /* Frustum intersection detection */
-                                            if ( cs_frustum_intersection( & csFrustA, & csFrustB ) == LC_TRUE ) csBuffer[csAccum++] = csbLoop;
+                                            if ( cs_frustum_intersection( & csaFrustum, & csbFrustum ) == LC_TRUE ) csBuffer[csAccum++] = csbLoop;
 
                                         /* Display message */
                                         } else { fprintf( LC_ERR, "Warning : unable to query position/orientation with image %lu\n", csbLoop ); }
@@ -262,14 +256,6 @@
 
                             }
 
-                            /* Delete queries descriptors */
-                            lp_query_position_delete( & csaQposit );
-                            lp_query_position_delete( & csbQposit );
-
-                            /* Delete queries descriptors */
-                            lp_query_orientation_delete( & csaQorien );
-                            lp_query_orientation_delete( & csbQorien );
-
                             /* Close output stream */
                             fclose( csStream );
 
@@ -281,12 +267,16 @@
                     }
 
                     /* Unallocate stack */
-                    cs_frusmtum_list( "", & csStack, 0 );
+                    cs_frusmtum_list( "", & csStack, NULL );
 
                 }
 
                 /* Delete queries descriptor */
-                lp_query_trigger_delete( & csTrigger );
+                lp_query_trigger_delete    ( & csTrigger );
+                lp_query_position_delete   ( & csaGeopos );
+                lp_query_position_delete   ( & csbGeopos );
+                lp_query_orientation_delete( & csaOrient );
+                lp_query_orientation_delete( & csbOrient );
 
             }
 
@@ -348,7 +338,7 @@
 
                 } else {
 
-                    /* Compose timestamp */
+                    /* Retrieve timestamp */
                     ( ( * csStack ) + csSize )->lsTime = csTrigger->qrSynch;
 
                 }
@@ -511,13 +501,19 @@
 
     int cs_frustum_intersection(
 
-        cs_Frustum_t const * const csFrus_A,
-        cs_Frustum_t const * const csFrus_B
+        cs_Frustum_t const * const csaFrustum,
+        cs_Frustum_t const * const csbFrustum
 
     ) {
 
-        /* Frustum segment index variables */
-        static int csEdge[12][2] = { { 1, 0 }, { 2, 1 }, { 3, 2 }, { 0, 3 }, { 5, 4 }, { 6, 5 }, { 7, 6 }, { 4, 7 }, { 4, 0 }, { 5, 1 }, { 6, 2 }, { 7, 3 } };
+        /* Frustum segment variables */
+        int csEdge[12][2] = { 
+
+            { 1, 0 }, { 2, 1 }, { 3, 2 }, { 0, 3 },
+            { 5, 4 }, { 6, 5 }, { 7, 6 }, { 4, 7 },
+            { 4, 0 }, { 5, 1 }, { 6, 2 }, { 7, 3 } 
+
+        };
 
         /* Secondary loop variables */
         int csParse = 0;
@@ -547,20 +543,20 @@
             for ( csParse = 0; csParse < 12; csParse ++ ) {
 
                 /* Compute edge point in first frustum origin centered frame */
-                csInterX = csPtn * ( csFrus_B->fsSX[csEdge[csParse][0]] - csFrus_B->fsSX[csEdge[csParse][1]] ) + csFrus_B->fsSX[csEdge[csParse][1]] - csFrus_A->fsOrg[0];
-                csInterY = csPtn * ( csFrus_B->fsSY[csEdge[csParse][0]] - csFrus_B->fsSY[csEdge[csParse][1]] ) + csFrus_B->fsSY[csEdge[csParse][1]] - csFrus_A->fsOrg[1];
-                csInterZ = csPtn * ( csFrus_B->fsSZ[csEdge[csParse][0]] - csFrus_B->fsSZ[csEdge[csParse][1]] ) + csFrus_B->fsSZ[csEdge[csParse][1]] - csFrus_A->fsOrg[2];
+                csInterX = csPtn * ( csbFrustum->fsSX[csEdge[csParse][0]] - csbFrustum->fsSX[csEdge[csParse][1]] ) + csbFrustum->fsSX[csEdge[csParse][1]] - csaFrustum->fsOrg[0];
+                csInterY = csPtn * ( csbFrustum->fsSY[csEdge[csParse][0]] - csbFrustum->fsSY[csEdge[csParse][1]] ) + csbFrustum->fsSY[csEdge[csParse][1]] - csaFrustum->fsOrg[1];
+                csInterZ = csPtn * ( csbFrustum->fsSZ[csEdge[csParse][0]] - csbFrustum->fsSZ[csEdge[csParse][1]] ) + csbFrustum->fsSZ[csEdge[csParse][1]] - csaFrustum->fsOrg[2];
 
                 /* Compute edge point coordinate in frist frustum nadir/left/top basis */
-                csCompX = csFrus_A->fsNad[0] * csInterX + csFrus_A->fsNad[1] * csInterY + csFrus_A->fsNad[2] * csInterZ;
-                csCompY = csFrus_A->fsLef[0] * csInterX + csFrus_A->fsLef[1] * csInterY + csFrus_A->fsLef[2] * csInterZ;
-                csCompZ = csFrus_A->fsTop[0] * csInterX + csFrus_A->fsTop[1] * csInterY + csFrus_A->fsTop[2] * csInterZ;
+                csCompX = csaFrustum->fsNad[0] * csInterX + csaFrustum->fsNad[1] * csInterY + csaFrustum->fsNad[2] * csInterZ;
+                csCompY = csaFrustum->fsLef[0] * csInterX + csaFrustum->fsLef[1] * csInterY + csaFrustum->fsLef[2] * csInterZ;
+                csCompZ = csaFrustum->fsTop[0] * csInterX + csaFrustum->fsTop[1] * csInterY + csaFrustum->fsTop[2] * csInterZ;
 
                 /* Verify intersection condition - principal direction */
-                if ( ( csCompX >= csFrus_A->fsNear ) && ( csCompX <= csFrus_A->fsFar ) ) {
+                if ( ( csCompX >= csaFrustum->fsNear ) && ( csCompX <= csaFrustum->fsFar ) ) {
 
                     /* Verify intersection condition - secondary plane */
-                    if ( ( fabs( csCompY ) <= ( csCompX * csFrus_A->fsLefApp ) ) && ( fabs( csCompZ ) <= ( csCompX * csFrus_A->fsTopApp ) ) ) {
+                    if ( ( fabs( csCompY ) <= ( csCompX * csaFrustum->fsLefApp ) ) && ( fabs( csCompZ ) <= ( csCompX * csaFrustum->fsTopApp ) ) ) {
 
                         /* Trigger intersection condition */
                         csResult = LC_TRUE;

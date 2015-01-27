@@ -337,8 +337,8 @@
 
     int cs_frustum_intersection(
 
-        cs_Frustum_t const * const csFrus_A,
-        cs_Frustum_t const * const csFrus_B
+        cs_Frustum_t const * const csaFrustum,
+        cs_Frustum_t const * const csbFrustum
 
     );
 
