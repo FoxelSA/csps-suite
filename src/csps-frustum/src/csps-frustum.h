@@ -112,18 +112,19 @@
     # define CS_HELP "Usage summary :\n"              \
     "  csps-frustum [Arguments] [Parameters] ...\n"   \
     "Short arguments and parameters summary :\n"      \
-    "  -p CSPS-processed structure path\n"            \
-    "  -l OpenMVG input list file\n"                  \
-    "  -r OpenMVG output pairs file\n"                \
+    "  -p CSPS-processed directory structure path\n"  \
     "  -m Standard directory structure mount point\n" \
-    "  -c Camera MAC address\n"                       \
-    "  -g GPS CSPS-tag\n"                             \
-    "  -n GPS CSPS-module\n"                          \
-    "  -i IMU CSPS-tag\n"                             \
-    "  -s IMU CSPS-module\n"                          \
+    "  -l OpenMVG input list\n"                       \
+    "  -r OpenMVG output pairs\n"                     \
+    "  -a Camera MAC address\n"                       \
+    "  -g Camera trigger device CSPS-tag\n"           \
+    "  -n Camera trigger device CSPS-module\n"        \
+    "  -g GPS device CSPS-tag\n"                      \
+    "  -n GPS device CSPS-module\n"                   \
+    "  -i IMU device CSPS-tag\n"                      \
+    "  -s IMU device CSPS-module\n"                   \
     "  -e Frustum near plane\n"                       \
     "  -f Frustum far plane\n"                        \
-    "  -d Timestamp delay on seconds\n\n"             \
     "csps-frustum - csps-suite\n"                     \
     "Copyright (c) 2013-2015 FOXEL SA\n"
 
