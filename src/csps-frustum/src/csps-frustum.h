@@ -232,8 +232,8 @@
      *  determine which camera sensors have an intersection of their respective
      *  frustum.
      *  
-     *  The main function fills the output file, as waited by OpenMVG, specifying
-     *  which sensor image have a common view.
+     *  The main function fills the pairs file as waited by OpenMVG specifying
+     *  which sensor image have a frustum intersection.
      *  
      *  \param  argc Standard main parameter
      *  \param  argv Standard main parameter
@@ -248,7 +248,8 @@
      *  This function is responsible of informations importation from OpenMVG
      *  list file that are needed for frustum intersection detection. Those
      *  informations are the camera sensor image capture timestamp and the
-     *  camera sensor channel.
+     *  camera sensor channel. It also query the CSPS to retrieve sensor image
+     *  synchronization timestamp.
      *
      *  The information are stored in a stack that is create and filled by this
      *  function. Note that, for performance purpose, the actual size, in memory,
@@ -256,7 +257,7 @@
      *
      *  \param  csList    Path to OpenMVG list file
      *  \param  csStack   Pointer to informations stack
-     *  \param  csTrigger CSPS query structure
+     *  \param  csTrigger Created CSPS query structure
      *
      *  \return Returns the size of the created stack
      */
@@ -329,8 +330,8 @@
      *  The intersection detection method is not an absolute method and 
      *  intersection volume that are below a given size can be missed.
      *
-     *  \param  csFrus_A First frustum definition
-     *  \param  csFrus_B Second frustum definition
+     *  \param  csaFrustum First frustum definition
+     *  \param  csbFrustum Second frustum definition
      *
      *  \return Returns CS_TRUE on intersection and CS_FALSE otherwise.
      */

@@ -169,7 +169,12 @@
                                 lp_query_orientation( & csaOrient, csStack[csaLoop].lsTime );
 
                                 /* Check query status */
-                                if ( ( csaGeopos.qrStatus == LP_TRUE ) && ( csaOrient.qrStatus == LP_TRUE ) ) {
+                                if ( ( lp_query_position_status( & csaGeopos ) == LP_FALSE ) || ( lp_query_orientation_status( & csaOrient ) == LP_FALSE ) ) {
+
+                                    /* Display message */
+                                    fprintf( LC_ERR, "Warning : unable to query position/orientation with image %lu\n", csaLoop );
+
+                                } else {
 
                                     /* Second level composition loop */
                                     for ( csbLoop = csaLoop + 1; csbLoop < csSize; csbLoop ++ ) {
@@ -179,7 +184,12 @@
                                         lp_query_orientation( & csbOrient, csStack[csbLoop].lsTime );
 
                                         /* Check query status */
-                                        if ( ( csbGeopos.qrStatus == LP_TRUE ) && ( csbOrient.qrStatus == LP_TRUE ) ) {
+                                        if ( ( lp_query_position_status( & csbGeopos ) == LP_FALSE ) || ( lp_query_orientation_status( & csbOrient ) == LP_FALSE ) ) {
+
+                                            /* Display message */
+                                            fprintf( LC_ERR, "Warning : unable to query position/orientation with image %lu\n", csbLoop );
+
+                                        } else {
 
                                             /* Compute corrected positions - Local flat earth model */
                                             csbGeopos.qrLongitude = ( csbGeopos.qrLongitude - csaGeopos.qrLongitude ) * ( ( ( 6367514.5 + csaGeopos.qrAltitude ) * LF_PI / 180.0 ) );
@@ -229,8 +239,7 @@
                                             /* Frustum intersection detection */
                                             if ( cs_frustum_intersection( & csaFrustum, & csbFrustum ) == LC_TRUE ) csBuffer[csAccum++] = csbLoop;
 
-                                        /* Display message */
-                                        } else { fprintf( LC_ERR, "Warning : unable to query position/orientation with image %lu\n", csbLoop ); }
+                                        }
 
                                     }
 
@@ -251,8 +260,7 @@
 
                                     }
 
-                                /* Display message */
-                                } else { fprintf( LC_ERR, "Warning : unable to query position/orientation with image %lu\n", csaLoop ); }
+                                }
 
                             }
 
