@@ -56,16 +56,28 @@
         char csoPly[256] = { 0 };
 
         /* Stream pointer variables */
+        char csCAMd[256] = { 0 };
+        char csCAMm[256] = { 0 };
         char csGPSd[256] = { 0 };
         char csGPSm[256] = { 0 };
 
+        /* Delay variables */
+        long csDelay = 0;
+
+        /* Curve variables */
+        cs_Curve_t csMVG = { 0, 0, NULL };
+        cs_Curve_t csGPS = { 0, 0, NULL };;
+
         /* Search in parameters */
-        lc_stdp( lc_stda( argc, argv, "--path"      , "-p" ), argv, csPath, LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--rigs-path" , "-r" ), argv, csRigs, LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--input-ply" , "-i" ), argv, csiPly, LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--output-ply", "-o" ), argv, csoPly, LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--gps-tag"   , "-g" ), argv, csGPSd, LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--gps-mod"   , "-n" ), argv, csGPSm, LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--path"      , "-p" ), argv,   csPath , LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--rigs-path" , "-r" ), argv,   csRigs , LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--input-ply" , "-i" ), argv,   csiPly , LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--output-ply", "-o" ), argv,   csoPly , LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--cam-tag"   , "-c" ), argv,   csCAMd , LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--cam-mod"   , "-m" ), argv,   csCAMm , LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--gps-tag"   , "-g" ), argv,   csGPSd , LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--gps-mod"   , "-n" ), argv,   csGPSm , LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--delay"     , "-d" ), argv, & csDelay, LC_LONG   );
 
         /* Execution switch */
         if ( lc_stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
@@ -74,7 +86,24 @@
             printf( CS_HELP );
 
         } else {
-            
+
+            double csT[3] = { 0.0 };
+            double csR[3][3] = { { 0.0 } };
+         
+            /* Import curves */
+            cs_earth_curve( csPath, csRigs, csCAMd, csCAMm, csGPSd, csGPSm, & csMVG, & csGPS, csDelay );
+
+            /* Retrieve matrix */
+            cs_earth_lte( csGPS.cvSize / 3, csGPS.cvData, csMVG.cvData, csR, csT );
+
+            fprintf( LC_OUT, "\nTranslation :\n  %lf %lf %lf\n", csT[0], csT[1], csT[2] );
+            fprintf( LC_OUT, "\nRotation :\n  %lf %lf %lf\n", csR[0][0], csR[0][1], csR[0][2] );
+            fprintf( LC_OUT, "  %lf %lf %lf\n", csR[1][0], csR[1][1], csR[1][2] );
+            fprintf( LC_OUT, "  %lf %lf %lf\n", csR[2][0], csR[2][1], csR[2][2] );
+
+            /* Process ply files */
+            cs_earth_process( csiPly, csoPly, csR, csT, & csGPS );
+   
         }
 
         /* Return to system */
@@ -86,8 +115,15 @@
     Source - Linear transformation estimation
 */
 
-    void cs_omvg_align_lt( int const csN, double const * const csrData, double const * const csaData, double csR[3][3], double csT[3] ) {
+    void cs_earth_lte( 
 
+        int    const         csN, 
+        double const * const csrData, 
+        double const * const csaData, 
+        double               csR[3][3], 
+        double               csT[3]
+
+    ) {
         /* Parsing variables */
         unsigned long csParse = 0;
 
@@ -197,6 +233,257 @@
         csT[0] = - csR[0][0] * csMean[0] - csR[0][1] * csMean[1] - csR[0][2] * csMean[2] + csMean[3];
         csT[1] = - csR[1][0] * csMean[0] - csR[1][1] * csMean[1] - csR[1][2] * csMean[2] + csMean[4];
         csT[2] = - csR[2][0] * csMean[0] - csR[2][1] * csMean[1] - csR[2][2] * csMean[2] + csMean[5];
+
+    }
+
+    void cs_earth_curve( 
+
+        char       const * const csPath, 
+        char       const * const csRigs, 
+        char       const * const csCAMd, 
+        char       const * const csCAMm, 
+        char       const * const csGPSd, 
+        char       const * const csGPSm, 
+        cs_Curve_t       * const csMVG,
+        cs_Curve_t       * const csGPS,
+        long       const         csDelay
+
+    ) {
+
+        /* CSPS query variables */
+        lp_Trigger_t csTrigger;
+        lp_Geopos_t  csGeopos;
+
+        /* Enumeration variables */
+        char csFile[256] = { 0 };
+
+        /* Importation variables */
+        double csVoid = 0.0;
+        double csLng = 0.0;
+        double csLat = 0.0;
+        double csAlt = 0.0;
+        double csmLng = 0.0;
+        double csmLat = 0.0;
+
+        /* Timestamp variables */
+        lp_Time_t csTime = 0;
+        lp_Time_t csUse = 0;
+
+        /* Stream variables */
+        FILE * csStream = NULL;
+
+        /* Create query descriptors */
+        csTrigger = lp_query_trigger_create ( csPath, csCAMd, csCAMm );
+        csGeopos  = lp_query_position_create( csPath, csGPSd, csGPSm );
+
+        /* Directory entity enumeration */
+        while ( lc_file_enum( csRigs, csFile ) != LC_FALSE ) {
+
+            /* Consider only file entity */
+            if ( lc_file_detect( csFile, LC_FILE ) == LC_TRUE ) {
+
+                fprintf( LC_OUT, "%s\n", csFile );
+
+                /* Open file */
+                if ( ( csStream = fopen( csFile, "r" ) ) != NULL ) {
+
+                    /* Read position */
+                    if ( fscanf( csStream, "%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf", & csVoid, & csVoid, & csVoid, & csVoid, & csVoid, & csVoid, & csVoid, & csVoid, & csVoid, & csLng, & csLat, & csAlt ) == 12 ) {
+
+                        /* Retrieve master timestamp */
+                        sscanf( basename( csFile ), "%" lp_Time_i "_%" lp_Time_i, & csTime, & csUse );
+
+                        /* Query synch timestamp */
+                        lp_query_trigger_bymaster( & csTrigger, lp_timestamp_compose( csTime + csDelay, csUse ) );
+
+                        if ( lp_query_trigger_status( & csTrigger ) == LP_TRUE ) {
+
+                            /* Query position */
+                            lp_query_position( & csGeopos, csTrigger.qrSynch );
+
+                            if ( lp_query_position_status( & csGeopos ) == LP_TRUE ) {                                
+
+                                /* Push position */
+                                cs_earth_curve_push( csMVG, csLng, csLat, csAlt );
+
+                                /* Optimize minimization */
+                                if ( csGPS->cvSize == 0 ) {
+
+                                    csGPS->cvLow1 = csGeopos.qrLongitude; csGeopos.qrLongitude = 0.0;
+                                    csGPS->cvLow2 = csGeopos.qrLatitude;  csGeopos.qrLatitude = 0.0;
+
+                                } else {
+
+                                    csGeopos.qrLongitude = ( csGeopos.qrLongitude - csGPS->cvLow1 ) * 111134.093193;
+                                    csGeopos.qrLatitude  = ( csGeopos.qrLatitude  - csGPS->cvLow2 ) * 111134.093193;
+
+                                }
+
+                                /* Push position */
+                                cs_earth_curve_push( csGPS, csGeopos.qrLongitude, csGeopos.qrLatitude, csGeopos.qrAltitude );
+
+                                fprintf( LC_OUT, "  %lf %lf %lf - %lf %lf %lf\n", csLng, csLat, csAlt, csGeopos.qrLongitude, csGeopos.qrLatitude, csGeopos.qrAltitude );
+
+                            }
+
+                        }
+
+                    }
+
+                    /* Close file */
+                    fclose( csStream );
+
+                }
+
+            }
+
+        }
+
+        /* Delete query descriptors */
+        lp_query_trigger_delete( & csTrigger );
+        lp_query_position_delete( & csGeopos );
+
+    }
+
+    void cs_earth_curve_push( 
+
+        cs_Curve_t * const csCurve, 
+        double const cvLng,
+        double const cvLat,
+        double const cvAlt
+
+    ) {
+
+        /* Array memory verification */
+        if ( csCurve->cvSize >= csCurve->cvGhost ) {
+
+            /* Update real memory size */
+            csCurve->cvGhost += 3 * 1024;
+
+            /* Re-allocate memory */
+            csCurve->cvData = realloc( csCurve->cvData, sizeof( double ) * csCurve->cvGhost );
+
+        }
+
+        /* Assign pushed elements */
+        csCurve->cvData[csCurve->cvSize++] = cvLng;
+        csCurve->cvData[csCurve->cvSize++] = cvLat;
+        csCurve->cvData[csCurve->cvSize++] = cvAlt;
+
+    }
+
+    void cs_earth_process( 
+
+        char const * const csiPly,
+        char const * const csoPly,
+        double csR[3][3],
+        double csT[3],
+        cs_Curve_t * const csGPS
+
+    ) {
+
+        /* Stream variables */
+        FILE * csiStream = NULL;
+        FILE * csoStream = NULL;
+
+        /* Reading buffer variables */
+        char csToken[256];
+
+        /* Interpreted value */
+        double csValue = 0.0;
+        double csValue2 = 0.0;
+        double csValue3 = 0.0;
+        double csnx = 0.0;
+        double csny = 0.0;
+        double csnz = 0.0;
+
+        /* Open input stream */
+        if ( ( csiStream = fopen( csiPly, "r" ) ) == NULL ) {
+
+            fprintf( LC_ERR, "Error : unable to load %s for input\n", basename( ( char * ) csiPly ) );
+
+        } else {
+
+            /* Open input stream */
+            if ( ( csoStream = fopen( csoPly, "w" ) ) == NULL ) {
+
+                fprintf( LC_ERR, "Error : unable to create %s for output\n", basename( ( char * ) csoPly ) );
+
+            } else {
+
+                int mode = 0;
+                int cols = 0;
+                int rets = 0;
+
+                /* Reading loop */
+                while ( fscanf( csiStream, "%s", csToken ) == 1 ) {
+
+                    if ( mode == 0 ) {
+
+                        if ( strcmp( csToken, "end_header" ) == 0 ) {
+
+                            fprintf( csoStream, "%s\n", csToken ); 
+                            mode = 1;
+                            rets = 0;
+
+                        } else
+                        if ( strcmp( csToken, "property" ) == 0 ) {
+
+                            fprintf( csoStream, "%s ", csToken );
+                            rets = fscanf( csiStream, "%s", csToken ); fprintf( csoStream, "%s " , csToken );
+                            rets = fscanf( csiStream, "%s", csToken ); fprintf( csoStream, "%s\n", csToken );
+                            cols++;
+
+                        } else
+                        if ( strcmp( csToken, "ply" ) == 0 ) {
+
+                            fprintf( csoStream, "%s\n", csToken );
+
+                        }  else {
+
+                            fprintf( csoStream, "%s ", csToken );
+                            rets = fscanf( csiStream, "%s", csToken ); fprintf( csoStream, "%s " , csToken );
+                            rets = fscanf( csiStream, "%s", csToken ); fprintf( csoStream, "%s\n", csToken );
+
+                        }
+
+                    } else {
+
+                        if ( ( rets % cols ) == 0 ) {
+
+                            csValue = atof( csToken ); 
+                            fscanf( csiStream, "%s", csToken ); csValue2 = atof( csToken ); 
+                            fscanf( csiStream, "%s", csToken ); csValue3 = atof( csToken ); 
+
+                            csnx = ( csValue - csT[0] ) * csR[0][0] + ( csValue2 - csT[1] ) * csR[1][0] + ( csValue3 - csT[2] ) * csR[2][0];
+                            csny = ( csValue - csT[0] ) * csR[0][1] + ( csValue2 - csT[1] ) * csR[1][1] + ( csValue3 - csT[2] ) * csR[2][1];
+                            csnz = ( csValue - csT[0] ) * csR[0][2] + ( csValue2 - csT[1] ) * csR[1][2] + ( csValue3 - csT[2] ) * csR[2][2];
+
+                            fprintf( csoStream, "%.16lf %.16lf %.16lf ", ( csnx / 111134.093193 ) + csGPS->cvLow1, ( csny / 111134.093193 ) + csGPS->cvLow2, csnz );
+
+                            rets += 2;
+
+                        } else {
+
+                            fprintf( csoStream, "%s ", csToken );
+
+                        }
+
+                        if ( ( (++rets) % cols ) == 0 ) fprintf( csoStream, "\n" );
+
+                    }
+
+                }
+
+                /* Close input stream */
+                fclose( csoStream );
+
+            }
+
+            /* Close input stream */
+            fclose( csiStream );
+
+        }
 
     }
 

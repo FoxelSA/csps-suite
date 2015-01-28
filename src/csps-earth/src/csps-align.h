@@ -101,6 +101,7 @@
     # include <string.h>
     # include <csps-all.h>
     # include <common-all.h>
+    # include <libgen.h>
 
 /* 
     Header - Preprocessor definitions
@@ -124,6 +125,18 @@
 /* 
     Header - Structures
  */
+
+    typedef struct cs_Curve_struct {
+
+        size_t cvSize;
+        size_t cvGhost;
+
+        double * cvData;
+
+        double cvLow1;
+        double cvLow2;
+
+    } cs_Curve_t;
 
 /* 
     Header - Function prototypes
@@ -167,13 +180,46 @@
      *  \param csT      Returned estimation of translation vector
      */
 
-    void cs_omvg_align_lt( 
+    void cs_earth_lte( 
 
         int    const         csN, 
         double const * const csrData, 
         double const * const csaData, 
         double               csR[3][3], 
         double               csT[3]
+
+    );
+
+    void cs_earth_curve( 
+
+        char       const * const csPath, 
+        char       const * const csRigs, 
+        char       const * const csCAMd, 
+        char       const * const csCAMm, 
+        char       const * const csGPSd, 
+        char       const * const csGPSm, 
+        cs_Curve_t       * const csMVG,
+        cs_Curve_t       * const csGPS,
+        long       const         csDelay
+
+    );
+
+    void cs_earth_curve_push( 
+
+        cs_Curve_t * const csCurve, 
+        double const cvLng,
+        double const cvLat,
+        double const cvAlt
+
+    );
+
+    void cs_earth_process( 
+
+        char const * const csiPly,
+        char const * const csoPly,
+        double csR[3][3],
+        double csT[3],
+        cs_Curve_t * const csGPS
 
     );
 
