@@ -184,13 +184,16 @@
             csSize = lp_query_trigger_size( csTrigger );
 
             /* Search for initial position (for signal missing on boundaries) */
-            while ( ( csGuess < csSize ) && ( lp_query_position_status( csGeopos ) == LC_FALSE ) ) {
+            while ( ( csGuess < csSize ) && ( ( lp_query_position_status( csGeopos ) == LC_FALSE ) || ( lp_query_orientation_status( csOrient ) == LP_FALSE ) ) ) {
 
                 /* Query trigger by index */
                 lp_query_trigger_byindex( csTrigger, csGuess ++ );
 
-                /* Query timestamp position */
+                /* Query position */
                 lp_query_position( csGeopos, csTrigger->qrSynch );
+
+                /* Query orientation */
+                lp_query_orientation( csOrient, csTrigger->qrSynch );
 
             }
 
