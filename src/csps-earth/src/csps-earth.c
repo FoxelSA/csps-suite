@@ -100,13 +100,13 @@
             cs_earth_curve( csPath, csRigs, csCAMd, csCAMm, csGPSd, csGPSm, & csMVG, & csGPS, csDelay );
 
             /* WGS84 frame alignment model computation */
-            csWGS = cs_earth_wgs84_align( & csGPS );
+            csWGS = cs_earth_model( & csGPS );
 
             /* Estimation of linear transformation  */
             cs_earth_lte( csGPS.cvSize / 3, csGPS.cvData, csMVG.cvData, csR, csT );
 
             /* Linear transformation application on ply file */
-            cs_earth_process( csiPly, csoPly, csR, csT, & csWGS );
+            cs_earth_transform( csiPly, csoPly, csR, csT, & csWGS );
    
         }
 
@@ -169,6 +169,159 @@
 
         /* Return computed model */
         return( csWGS );
+
+    }
+
+/*
+    Source - Stanford triangle format linear transformation
+*/
+
+    void cs_earth_transform( 
+
+        char       const * const csiPly,
+        char       const * const csoPly,
+        double     const         csR[3][3],
+        double     const         csT[3],
+        cs_WGS84_t const * const csWGS
+
+    ) {
+
+        /* Token variables */
+        char csToken[256];
+
+        /* Reading mode variables */
+        int csMode = CS_HEADER;
+
+        /* Interpreted value */
+        double csValue = 0.0;
+        double csValue2 = 0.0;
+        double csValue3 = 0.0;
+        double csnx = 0.0;
+        double csny = 0.0;
+        double csnz = 0.0;
+
+        /* Stream variables */
+        FILE * csiStream = NULL;
+        FILE * csoStream = NULL;
+
+        /* Create input stream */
+        if ( ( csiStream = fopen( csiPly, "r" ) ) == NULL ) {
+
+            /* Display message */
+            fprintf( LC_ERR, "Error : unable to load %s for input\n", basename( ( char * ) csiPly ) );
+
+        } else {
+
+            /* Create output stream */
+            if ( ( csoStream = fopen( csoPly, "w" ) ) == NULL ) {
+
+                /* Display message */
+                fprintf( LC_ERR, "Error : unable to create %s for output\n", basename( ( char * ) csoPly ) );
+
+            } else {
+
+                /* Read initial token */
+                if ( strcmp( cs_earth_transform_token( csToken, csiStream ), "ply" ) != 0 ) {
+
+                    /* Display message */
+                    fprintf( LC_ERR, "Error : unknown input format\n" );
+
+                } else {
+
+                    int cols = 0;
+                    int rets = 0;
+
+                    /* Reading loop */
+                    while ( fscanf( csiStream, "%s", csToken ) == 1 ) {
+
+                        if ( csMode == 0 ) {
+
+                            if ( strcmp( csToken, "end_header" ) == 0 ) {
+
+                                fprintf( csoStream, "%s\n", csToken ); 
+                                csMode = 1;
+                                rets = 0;
+
+                            } else
+                            if ( strcmp( csToken, "property" ) == 0 ) {
+
+                                fprintf( csoStream, "%s ", csToken );
+                                rets = fscanf( csiStream, "%s", csToken ); fprintf( csoStream, "%s " , csToken );
+                                rets = fscanf( csiStream, "%s", csToken ); fprintf( csoStream, "%s\n", csToken );
+                                cols++;
+
+                            } else
+                            if ( strcmp( csToken, "ply" ) == 0 ) {
+
+                                fprintf( csoStream, "%s\n", csToken );
+
+                            }  else {
+
+                                fprintf( csoStream, "%s ", csToken );
+                                rets = fscanf( csiStream, "%s", csToken ); fprintf( csoStream, "%s " , csToken );
+                                rets = fscanf( csiStream, "%s", csToken ); fprintf( csoStream, "%s\n", csToken );
+
+                            }
+
+                        } else {
+
+                            if ( ( rets % cols ) == 0 ) {
+
+                                csValue = atof( csToken ); 
+                                fscanf( csiStream, "%s", csToken ); csValue2 = atof( csToken ); 
+                                fscanf( csiStream, "%s", csToken ); csValue3 = atof( csToken ); 
+
+                                csnx = ( csValue - csT[0] ) * csR[0][0] + ( csValue2 - csT[1] ) * csR[1][0] + ( csValue3 - csT[2] ) * csR[2][0];
+                                csny = ( csValue - csT[0] ) * csR[0][1] + ( csValue2 - csT[1] ) * csR[1][1] + ( csValue3 - csT[2] ) * csR[2][1];
+                                csnz = ( csValue - csT[0] ) * csR[0][2] + ( csValue2 - csT[1] ) * csR[1][2] + ( csValue3 - csT[2] ) * csR[2][2];
+
+                                fprintf( csoStream, "%.16lf %.16lf %.16lf ", ( csnx / csWGS->wgfactor ) + csWGS->wglonm, ( csny / csWGS->wgfactor ) + csWGS->wglatm, csnz );
+
+                                rets += 2;
+
+                            } else {
+
+                                fprintf( csoStream, "%s ", csToken );
+
+                            }
+
+                            if ( ( (++rets) % cols ) == 0 ) fprintf( csoStream, "\n" );
+
+                        }
+
+                }
+
+                }
+
+                /* Close input stream */
+                fclose( csoStream );
+
+            }
+
+            /* Close input stream */
+            fclose( csiStream );
+
+        }
+
+    }
+
+    char * cs_earth_transform_token(
+
+        char * const csToken,
+        FILE * const csStream
+
+    ) {
+
+        /* Read token from file */
+        if ( fscanf( csStream, "%s", csToken ) != 1 ) {
+
+            /* Empty token */
+            csToken[0] = '\0';
+
+        }
+
+        /* Return token pointer */
+        return( csToken );
 
     }
 
@@ -290,127 +443,6 @@
         csCurve->cvData[csCurve->cvSize++] = cvLng;
         csCurve->cvData[csCurve->cvSize++] = cvLat;
         csCurve->cvData[csCurve->cvSize++] = cvAlt;
-
-    }
-
-/*
-    Source - Point-cloud earth-alignment
-*/
-
-    void cs_earth_process( 
-
-        char const * const csiPly,
-        char const * const csoPly,
-        double csR[3][3],
-        double csT[3],
-        cs_WGS84_t const * const csWGS
-
-    ) {
-
-        /* Stream variables */
-        FILE * csiStream = NULL;
-        FILE * csoStream = NULL;
-
-        /* Reading buffer variables */
-        char csToken[256];
-
-        /* Interpreted value */
-        double csValue = 0.0;
-        double csValue2 = 0.0;
-        double csValue3 = 0.0;
-        double csnx = 0.0;
-        double csny = 0.0;
-        double csnz = 0.0;
-
-        /* Open input stream */
-        if ( ( csiStream = fopen( csiPly, "r" ) ) == NULL ) {
-
-            fprintf( LC_ERR, "Error : unable to load %s for input\n", basename( ( char * ) csiPly ) );
-
-        } else {
-
-            /* Open input stream */
-            if ( ( csoStream = fopen( csoPly, "w" ) ) == NULL ) {
-
-                fprintf( LC_ERR, "Error : unable to create %s for output\n", basename( ( char * ) csoPly ) );
-
-            } else {
-
-                int mode = 0;
-                int cols = 0;
-                int rets = 0;
-
-                int check = 0;
-
-                /* Reading loop */
-                while ( fscanf( csiStream, "%s", csToken ) == 1 ) {
-
-                    if ( mode == 0 ) {
-
-                        if ( strcmp( csToken, "end_header" ) == 0 ) {
-
-                            fprintf( csoStream, "%s\n", csToken ); 
-                            mode = 1;
-                            rets = 0;
-
-                        } else
-                        if ( strcmp( csToken, "property" ) == 0 ) {
-
-                            fprintf( csoStream, "%s ", csToken );
-                            rets = fscanf( csiStream, "%s", csToken ); fprintf( csoStream, "%s " , csToken );
-                            rets = fscanf( csiStream, "%s", csToken ); fprintf( csoStream, "%s\n", csToken );
-                            cols++;
-
-                        } else
-                        if ( strcmp( csToken, "ply" ) == 0 ) {
-
-                            fprintf( csoStream, "%s\n", csToken );
-
-                        }  else {
-
-                            fprintf( csoStream, "%s ", csToken );
-                            rets = fscanf( csiStream, "%s", csToken ); fprintf( csoStream, "%s " , csToken );
-                            rets = fscanf( csiStream, "%s", csToken ); fprintf( csoStream, "%s\n", csToken );
-
-                        }
-
-                    } else {
-
-                        if ( ( rets % cols ) == 0 ) {
-
-                            csValue = atof( csToken ); 
-                            fscanf( csiStream, "%s", csToken ); csValue2 = atof( csToken ); 
-                            fscanf( csiStream, "%s", csToken ); csValue3 = atof( csToken ); 
-
-                            csnx = ( csValue - csT[0] ) * csR[0][0] + ( csValue2 - csT[1] ) * csR[1][0] + ( csValue3 - csT[2] ) * csR[2][0];
-                            csny = ( csValue - csT[0] ) * csR[0][1] + ( csValue2 - csT[1] ) * csR[1][1] + ( csValue3 - csT[2] ) * csR[2][1];
-                            csnz = ( csValue - csT[0] ) * csR[0][2] + ( csValue2 - csT[1] ) * csR[1][2] + ( csValue3 - csT[2] ) * csR[2][2];
-
-                            fprintf( csoStream, "%.16lf %.16lf %.16lf ", ( csnx / csWGS->wgfactor ) + csWGS->wglonm, ( csny / csWGS->wgfactor ) + csWGS->wglatm, csnz );
-
-                            rets += 2;
-
-                        } else {
-
-                            fprintf( csoStream, "%s ", csToken );
-
-                        }
-
-                        if ( ( (++rets) % cols ) == 0 ) fprintf( csoStream, "\n" );
-
-                    }
-
-                }
-
-                /* Close input stream */
-                fclose( csoStream );
-
-            }
-
-            /* Close input stream */
-            fclose( csiStream );
-
-        }
 
     }
 

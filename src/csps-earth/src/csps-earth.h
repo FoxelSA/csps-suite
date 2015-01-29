@@ -123,6 +123,10 @@
     "csps-earth - csps-suite\n"                      \
     "Copyright (c) 2013-2015 FOXEL SA\n"
 
+    /* Define ply reading modes */
+    # define CS_HEADER 0
+    # define CS_VERTEX 1
+
 /* 
     Header - Preprocessor macros
  */
@@ -195,7 +199,24 @@
 
         cs_Curve_t * const csGPS
 
-    )
+    );
+
+    void cs_earth_transform( 
+
+        char       const * const csiPly,
+        char       const * const csoPly,
+        double     const         csR[3][3],
+        double     const         csT[3],
+        cs_WGS84_t const * const csWGS
+
+    );
+
+    char * cs_earth_transform_token(
+
+        char * const csToken,
+        FILE * const csStream
+
+    );
 
     void cs_earth_curve( 
 
@@ -217,16 +238,6 @@
         double const cvLng,
         double const cvLat,
         double const cvAlt
-
-    );
-
-    void cs_earth_process( 
-
-        char const * const csiPly,
-        char const * const csoPly,
-        double csR[3][3],
-        double csT[3],
-        cs_WGS84_t const * const csWGS
 
     );
 
