@@ -108,10 +108,19 @@
  */
 
     /* Standard help */
-    # define CS_HELP "Usage summary :\n"          \
-    "  csps-earth [Arguments] [Parameters] ...\n" \
-    "Short arguments and parameters summary :\n"  \
-    "csps-earth - csps-suite\n"                   \
+    # define CS_HELP "Usage summary :\n"             \
+    "  csps-earth [Arguments] [Parameters] ...\n"    \
+    "Short arguments and parameters summary :\n"     \
+    "  -p CSPS-processed structure root directory\n" \
+    "  -r OpenMVG rigid rig output directory\n"      \
+    "  -i Input PLY file\n"                          \
+    "  -o Output PLY file\n"                         \
+    "  -c Camera device CSPS-tag\n"                  \
+    "  -m Camera device CSPS-module\n"               \
+    "  -g GPS device CSPS-tag\n"                     \
+    "  -n GPS device CSPS-module\n"                  \
+    "  -d Timestamp delay\n"                         \
+    "csps-earth - csps-suite\n"                      \
     "Copyright (c) 2013-2015 FOXEL SA\n"
 
 /* 
@@ -133,10 +142,17 @@
 
         double * cvData;
 
-        double cvLow1;
-        double cvLow2;
-
     } cs_Curve_t;
+
+    typedef struct cs_WGS84_struct {
+
+        double wglonm;
+        double wglatm;
+        double wgaltm;
+
+        double wgfactor;
+
+    } cs_WGS84_t;
 
 /* 
     Header - Function prototypes
@@ -190,6 +206,12 @@
 
     );
 
+    cs_WGS84_t cs_earth_wgs84_align(
+
+        cs_Curve_t * const csGPS
+
+    );
+
     void cs_earth_curve( 
 
         char       const * const csPath, 
@@ -219,7 +241,7 @@
         char const * const csoPly,
         double csR[3][3],
         double csT[3],
-        cs_Curve_t * const csGPS
+        cs_WGS84_t const * const csWGS
 
     );
 

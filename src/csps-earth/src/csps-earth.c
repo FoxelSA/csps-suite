@@ -61,12 +61,21 @@
         char csGPSd[256] = { 0 };
         char csGPSm[256] = { 0 };
 
-        /* Delay variables */
+        /* Timestamp delay variables */
         long csDelay = 0;
 
-        /* Curve variables */
+        /* Rotation matrix variables */
+        double csR[3][3] = { { 0.0 } };
+
+        /* Translation vector variables */
+        double csT[3] = { 0.0 };
+
+        /* WGS84 curve alignment */
+        cs_WGS84_t csWGS = { 0, 0, 0, 0 };
+
+        /* Curve structure variables */
         cs_Curve_t csMVG = { 0, 0, NULL };
-        cs_Curve_t csGPS = { 0, 0, NULL };;
+        cs_Curve_t csGPS = { 0, 0, NULL };
 
         /* Search in parameters */
         lc_stdp( lc_stda( argc, argv, "--path"      , "-p" ), argv,   csPath , LC_STRING );
@@ -86,18 +95,18 @@
             printf( CS_HELP );
 
         } else {
-
-            double csT[3] = { 0.0 };
-            double csR[3][3] = { { 0.0 } };
          
-            /* Import curves */
+            /* MVG and GPS curve importation */
             cs_earth_curve( csPath, csRigs, csCAMd, csCAMm, csGPSd, csGPSm, & csMVG, & csGPS, csDelay );
 
-            /* Retrieve matrix */
+            /* WGS84 frame alignment module computation */
+            csWGS = cs_earth_wgs84_align( & csGPS );
+
+            /* Estimation of linear transformation  */
             cs_earth_lte( csGPS.cvSize / 3, csGPS.cvData, csMVG.cvData, csR, csT );
 
-            /* Process ply files */
-            cs_earth_process( csiPly, csoPly, csR, csT, & csGPS );
+            /* Linear transformation application on ply file */
+            cs_earth_process( csiPly, csoPly, csR, csT, & csWGS );
    
         }
 
@@ -231,6 +240,69 @@
 
     }
 
+/*
+    Source - WGS84 alignment model
+*/
+
+    cs_WGS84_t cs_earth_wgs84_align(
+
+        cs_Curve_t * const csGPS
+
+    ) {
+
+        /* Parsing variables */
+        size_t csParse = 0;
+
+        /* Returned value variables */
+        cs_WGS84_t csWGS = { 0.0, 0.0, 0.0, 0.0 };
+
+        /* Parsing GPS track */
+        while ( csParse < csGPS->cvSize ) {
+
+            /* Accumulate GPS track */
+            csWGS.wglonm += csGPS->cvData[csParse++];
+            csWGS.wglatm += csGPS->cvData[csParse++];
+            csWGS.wgaltm += csGPS->cvData[csParse++];
+
+        }
+
+        /* Compute center of mass */
+        csWGS.wglonm /= ( double ) ( csGPS->cvSize / 3 );
+        csWGS.wglatm /= ( double ) ( csGPS->cvSize / 3 );
+        csWGS.wgaltm /= ( double ) ( csGPS->cvSize / 3 );
+
+        /* Compute approximate metric factor */
+        csWGS.wgfactor = ( 6378137.0 + csWGS.wgaltm ) * ( LP_PI / 180 );
+
+        /* Reset parsing variables */
+        csParse = 0;
+
+        /* Parsing GPS track */
+        while ( csParse < csGPS->cvSize ) {
+
+            /* Setting alignment model */
+            csGPS->cvData[csParse] = ( csGPS->cvData[csParse] - csWGS.wglonm ) * csWGS.wgfactor;
+
+            /* Update index */
+            csParse += 1;
+
+            /* Setting alignment model */
+            csGPS->cvData[csParse] = ( csGPS->cvData[csParse] - csWGS.wglatm ) * csWGS.wgfactor;
+
+            /* Update index */
+            csParse += 2;
+
+        }
+
+        /* Return alignment model */
+        return( csWGS );
+
+    }
+
+/*
+    Source - Curve creation
+*/
+
     void cs_earth_curve( 
 
         char       const * const csPath, 
@@ -257,8 +329,6 @@
         double csLng = 0.0;
         double csLat = 0.0;
         double csAlt = 0.0;
-        double csmLng = 0.0;
-        double csmLat = 0.0;
 
         /* Timestamp variables */
         lp_Time_t csTime = 0;
@@ -298,19 +368,6 @@
 
                                 /* Push position */
                                 cs_earth_curve_push( csMVG, csLng, csLat, csAlt );
-
-                                /* Optimize minimization */
-                                if ( csGPS->cvSize == 0 ) {
-
-                                    csGPS->cvLow1 = csGeopos.qrLongitude; csGeopos.qrLongitude = 0.0;
-                                    csGPS->cvLow2 = csGeopos.qrLatitude;  csGeopos.qrLatitude = 0.0;
-
-                                } else {
-
-                                    csGeopos.qrLongitude = ( csGeopos.qrLongitude - csGPS->cvLow1 ) * 111134.093193;
-                                    csGeopos.qrLatitude  = ( csGeopos.qrLatitude  - csGPS->cvLow2 ) * 111134.093193;
-
-                                }
 
                                 /* Push position */
                                 cs_earth_curve_push( csGPS, csGeopos.qrLongitude, csGeopos.qrLatitude, csGeopos.qrAltitude );
@@ -363,13 +420,17 @@
 
     }
 
+/*
+    Source - Point-cloud earth-alignment
+*/
+
     void cs_earth_process( 
 
         char const * const csiPly,
         char const * const csoPly,
         double csR[3][3],
         double csT[3],
-        cs_Curve_t * const csGPS
+        cs_WGS84_t const * const csWGS
 
     ) {
 
@@ -452,7 +513,7 @@
                             csny = ( csValue - csT[0] ) * csR[0][1] + ( csValue2 - csT[1] ) * csR[1][1] + ( csValue3 - csT[2] ) * csR[2][1];
                             csnz = ( csValue - csT[0] ) * csR[0][2] + ( csValue2 - csT[1] ) * csR[1][2] + ( csValue3 - csT[2] ) * csR[2][2];
 
-                            fprintf( csoStream, "%.16lf %.16lf %.16lf ", ( csnx / 111134.093193 ) + csGPS->cvLow1, ( csny / 111134.093193 ) + csGPS->cvLow2, csnz );
+                            fprintf( csoStream, "%.16lf %.16lf %.16lf ", ( csnx / csWGS->wgfactor ) + csWGS->wglonm, ( csny / csWGS->wgfactor ) + csWGS->wglatm, csnz );
 
                             rets += 2;
 
