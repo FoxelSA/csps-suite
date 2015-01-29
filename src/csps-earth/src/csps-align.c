@@ -96,11 +96,6 @@
             /* Retrieve matrix */
             cs_earth_lte( csGPS.cvSize / 3, csGPS.cvData, csMVG.cvData, csR, csT );
 
-            fprintf( LC_OUT, "\nTranslation :\n  %lf %lf %lf\n", csT[0], csT[1], csT[2] );
-            fprintf( LC_OUT, "\nRotation :\n  %lf %lf %lf\n", csR[0][0], csR[0][1], csR[0][2] );
-            fprintf( LC_OUT, "  %lf %lf %lf\n", csR[1][0], csR[1][1], csR[1][2] );
-            fprintf( LC_OUT, "  %lf %lf %lf\n", csR[2][0], csR[2][1], csR[2][2] );
-
             /* Process ply files */
             cs_earth_process( csiPly, csoPly, csR, csT, & csGPS );
    
@@ -282,8 +277,6 @@
             /* Consider only file entity */
             if ( lc_file_detect( csFile, LC_FILE ) == LC_TRUE ) {
 
-                fprintf( LC_OUT, "%s\n", csFile );
-
                 /* Open file */
                 if ( ( csStream = fopen( csFile, "r" ) ) != NULL ) {
 
@@ -321,8 +314,6 @@
 
                                 /* Push position */
                                 cs_earth_curve_push( csGPS, csGeopos.qrLongitude, csGeopos.qrLatitude, csGeopos.qrAltitude );
-
-                                fprintf( LC_OUT, "  %lf %lf %lf - %lf %lf %lf\n", csLng, csLat, csAlt, csGeopos.qrLongitude, csGeopos.qrLatitude, csGeopos.qrAltitude );
 
                             }
 
@@ -414,6 +405,8 @@
                 int mode = 0;
                 int cols = 0;
                 int rets = 0;
+
+                int check = 0;
 
                 /* Reading loop */
                 while ( fscanf( csiStream, "%s", csToken ) == 1 ) {
