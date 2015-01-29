@@ -137,19 +137,25 @@
 
     typedef struct cs_Curve_struct {
 
+        /* Data array size */
         size_t cvSize;
+        
+        /* Data array memory size */
         size_t cvGhost;
 
+        /* Pointer to data memory */
         double * cvData;
 
     } cs_Curve_t;
 
     typedef struct cs_WGS84_struct {
 
+        /* WGS84 central point */
         double wglonm;
         double wglatm;
         double wgaltm;
 
+        /* WGS84 metric factor */
         double wgfactor;
 
     } cs_WGS84_t;
@@ -167,6 +173,62 @@
      */
 
     int main ( int argc, char ** argv );
+
+    /*! \brief WGS84 frame alignment model
+     *
+     *  This function applies a bijective transformation to the WGS84-GPS track
+     *  provided as parameter. It computes the track geometric center in order
+     *  to translate the track near frame origin. It also computes the metric
+     *  factor between WGS84-attached angular position at the track mean height.
+     *  
+     *  The track is denormalized using the metric factor to retrieve a near
+     *  metric representation of the track. This is done in order to have a
+     *  curve similar in size and scale the the provided visual odometry curve,
+     *  needed to perform a valid linear transformation estimation.
+     *
+     *  \param csGPS WGS84-GPS track curve
+     *
+     *  \return Returns computed alignment model structure
+     */
+
+    cs_WGS84_t cs_earth_model(
+
+        cs_Curve_t * const csGPS
+
+    )
+
+    void cs_earth_curve( 
+
+        char       const * const csPath, 
+        char       const * const csRigs, 
+        char       const * const csCAMd, 
+        char       const * const csCAMm, 
+        char       const * const csGPSd, 
+        char       const * const csGPSm, 
+        cs_Curve_t       * const csMVG,
+        cs_Curve_t       * const csGPS,
+        long       const         csDelay
+
+    );
+
+    void cs_earth_curve_push( 
+
+        cs_Curve_t * const csCurve, 
+        double const cvLng,
+        double const cvLat,
+        double const cvAlt
+
+    );
+
+    void cs_earth_process( 
+
+        char const * const csiPly,
+        char const * const csoPly,
+        double csR[3][3],
+        double csT[3],
+        cs_WGS84_t const * const csWGS
+
+    );
 
     /*! \brief Linear transformation estimation
      * 
@@ -203,45 +265,6 @@
         double const * const csaData, 
         double               csR[3][3], 
         double               csT[3]
-
-    );
-
-    cs_WGS84_t cs_earth_wgs84_align(
-
-        cs_Curve_t * const csGPS
-
-    );
-
-    void cs_earth_curve( 
-
-        char       const * const csPath, 
-        char       const * const csRigs, 
-        char       const * const csCAMd, 
-        char       const * const csCAMm, 
-        char       const * const csGPSd, 
-        char       const * const csGPSm, 
-        cs_Curve_t       * const csMVG,
-        cs_Curve_t       * const csGPS,
-        long       const         csDelay
-
-    );
-
-    void cs_earth_curve_push( 
-
-        cs_Curve_t * const csCurve, 
-        double const cvLng,
-        double const cvLat,
-        double const cvAlt
-
-    );
-
-    void cs_earth_process( 
-
-        char const * const csiPly,
-        char const * const csoPly,
-        double csR[3][3],
-        double csT[3],
-        cs_WGS84_t const * const csWGS
 
     );
 
