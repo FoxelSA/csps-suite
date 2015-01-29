@@ -36,7 +36,7 @@
  *      Attribution" section of <http://foxel.ch/license>.
  */
 
-    /*! \file   csps-align.h
+    /*! \file   csps-earth.h
      *  \author Nils Hamel <n.hamel@foxel.ch>
      *   
      *  Software main header
@@ -81,8 +81,8 @@
     Header - Include guard
  */
 
-    # ifndef __CS_OMVG_ALIGN__
-    # define __CS_OMVG_ALIGN__
+    # ifndef __CS_EARTH__
+    # define __CS_EARTH__
 
 /* 
     Header - C/C++ compatibility
@@ -109,9 +109,9 @@
 
     /* Standard help */
     # define CS_HELP "Usage summary :\n"          \
-    "  csps-align [Arguments] [Parameters] ...\n" \
+    "  csps-earth [Arguments] [Parameters] ...\n" \
     "Short arguments and parameters summary :\n"  \
-    "csps-align - csps-suite\n"                   \
+    "csps-earth - csps-suite\n"                   \
     "Copyright (c) 2013-2015 FOXEL SA\n"
 
 /* 
