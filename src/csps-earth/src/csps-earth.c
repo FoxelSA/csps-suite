@@ -180,8 +180,8 @@
 
         char       const * const csiPly,
         char       const * const csoPly,
-        double     const         csR[3][3],
-        double     const         csT[3],
+        double                   csR[3][3],
+        double                   csT[3],
         cs_WGS84_t const * const csWGS
 
     ) {
@@ -192,13 +192,18 @@
         /* Reading mode variables */
         int csMode = CS_HEADER;
 
-        /* Interpreted value */
-        double csValue = 0.0;
-        double csValue2 = 0.0;
-        double csValue3 = 0.0;
-        double csnx = 0.0;
-        double csny = 0.0;
-        double csnz = 0.0;
+        /* Vertex description variables */
+        int csColidx = 0;
+        int csColxyz = 0;
+        int csColumn = 0;
+
+        /* Size variables */
+        long csIndex = 0;
+        long csCount = 0;
+
+        /* Linear transformation variables */
+        double csiVertex[3] = { 0.0 };
+        double csoVertex[3] = { 0.0 };
 
         /* Stream variables */
         FILE * csiStream = NULL;
@@ -228,68 +233,201 @@
 
                 } else {
 
-                    int cols = 0;
-                    int rets = 0;
+                    /* Export initial token */
+                    fprintf( csoStream, "%s\n", csToken );
 
-                    /* Reading loop */
-                    while ( fscanf( csiStream, "%s", csToken ) == 1 ) {
+                    /* Stanford triangle format (very) simple parser */
+                    while ( ( ! feof( csiStream ) ) && ( csMode != CS_EXIT ) ) {
 
-                        if ( csMode == 0 ) {
+                        /* Parsing mode detection */
+                        if ( csMode == CS_HEADER ) {
 
+                            /* Read token from input file */
+                            cs_earth_transform_token( csToken, csiStream );
+
+                            /* Token reader */
                             if ( strcmp( csToken, "end_header" ) == 0 ) {
 
-                                fprintf( csoStream, "%s\n", csToken ); 
-                                csMode = 1;
-                                rets = 0;
+                                /* Export token */
+                                fprintf( csoStream, "%s\n", csToken );
+
+                                /* Upate parsing mode */
+                                csMode = CS_VERTEX;
+
+                            } else
+                            if ( strcmp( csToken, "element" ) == 0 ) {
+
+                                /* Export token */
+                                fprintf( csoStream, "%s ", csToken );
+
+                                /* Detect vertex count */
+                                if ( strcmp( cs_earth_transform_token( csToken, csiStream ), "vertex" ) == 0 ) {
+
+                                    /* Export token */
+                                    fprintf( csoStream, "%s ", csToken );
+
+                                    /* Read value token */
+                                    cs_earth_transform_token( csToken, csiStream );
+
+                                    /* Export token */
+                                    fprintf( csoStream, "%s\n", csToken );
+
+                                    /* Interprete value */
+                                    csCount = atol( csToken );
+
+                                } else {
+
+                                    /* Export token */
+                                    fprintf( csoStream, "%s ", csToken );
+
+                                    /* Import token */
+                                    cs_earth_transform_token( csToken, csiStream );
+
+                                    /* Export token */
+                                    fprintf( csoStream, "%s\n", csToken );
+
+                                }
 
                             } else
                             if ( strcmp( csToken, "property" ) == 0 ) {
 
+                                /* Export token */
                                 fprintf( csoStream, "%s ", csToken );
-                                rets = fscanf( csiStream, "%s", csToken ); fprintf( csoStream, "%s " , csToken );
-                                rets = fscanf( csiStream, "%s", csToken ); fprintf( csoStream, "%s\n", csToken );
-                                cols++;
 
-                            } else
-                            if ( strcmp( csToken, "ply" ) == 0 ) {
+                                /* Import token */
+                                cs_earth_transform_token( csToken, csiStream );
 
+                                /* Export token */
+                                fprintf( csoStream, "%s ", csToken );
+
+                                /* Import token */
+                                cs_earth_transform_token( csToken, csiStream );
+
+                                /* Export token */
                                 fprintf( csoStream, "%s\n", csToken );
+
+                                /* Detect x token */
+                                if ( strcmp( csToken, "x" ) == 0 ) {
+
+                                    /* Assign initial column of x-y-z */
+                                    csColxyz = csColumn;
+
+                                } else
+                                if ( strcmp( csToken, "y" ) == 0 ) {
+
+                                    /* Consistency detection */
+                                    if ( ( csColumn - 1 ) != csColxyz ) {
+
+                                        /* Display message */
+                                        fprintf( LC_ERR, "Error : x,y,z vertex as to be contigous\n" );
+
+                                        /* Exit parsing loop */
+                                        csMode = CS_EXIT;
+
+                                    }
+
+                                }
+                                if ( strcmp( csToken, "z" ) == 0 ) {
+
+                                    /* Consistency detection */
+                                    if ( ( csColumn - 2 ) != csColxyz ) {
+
+                                        /* Display message */
+                                        fprintf( LC_ERR, "Error : x,y,z vertex as to be contigous\n" );
+
+                                        /* Exit parsing loop */
+                                        csMode = CS_EXIT;
+
+                                    }
+
+                                }
+
+                                /* Update column count */
+                                csColumn ++;
 
                             }  else {
 
-                                fprintf( csoStream, "%s ", csToken );
-                                rets = fscanf( csiStream, "%s", csToken ); fprintf( csoStream, "%s " , csToken );
-                                rets = fscanf( csiStream, "%s", csToken ); fprintf( csoStream, "%s\n", csToken );
+                                /* Export token */
+                                fprintf( csoStream, "%s", csToken );
+
+                                /* Copy whole line */
+                                while ( ( * csToken = fgetc( csiStream ) ) >= 32 ) {
+
+                                    /* Export read token */
+                                    fputc( * csToken, csoStream );
+
+                                }
+
+                                /* Export end of line */
+                                fprintf( csoStream, "\n" );
 
                             }
 
                         } else {
 
-                            if ( ( rets % cols ) == 0 ) {
+                            /* Parse vertex rows */
+                            for ( csIndex = 0; csIndex < csCount; csIndex ++ ) {
 
-                                csValue = atof( csToken ); 
-                                fscanf( csiStream, "%s", csToken ); csValue2 = atof( csToken ); 
-                                fscanf( csiStream, "%s", csToken ); csValue3 = atof( csToken ); 
+                                /* Clear column parser */
+                                csColidx = 0;
 
-                                csnx = ( csValue - csT[0] ) * csR[0][0] + ( csValue2 - csT[1] ) * csR[1][0] + ( csValue3 - csT[2] ) * csR[2][0];
-                                csny = ( csValue - csT[0] ) * csR[0][1] + ( csValue2 - csT[1] ) * csR[1][1] + ( csValue3 - csT[2] ) * csR[2][1];
-                                csnz = ( csValue - csT[0] ) * csR[0][2] + ( csValue2 - csT[1] ) * csR[1][2] + ( csValue3 - csT[2] ) * csR[2][2];
+                                /* Parse current row */
+                                while ( csColidx < csColumn ) {
 
-                                fprintf( csoStream, "%.16lf %.16lf %.16lf ", ( csnx / csWGS->wgfactor ) + csWGS->wglonm, ( csny / csWGS->wgfactor ) + csWGS->wglatm, csnz );
+                                    /* Detect x-y-z column */
+                                    if ( csColidx == csColxyz ) {
 
-                                rets += 2;
+                                        /* Read x-y-z values */
+                                        if ( fscanf( csiStream, "%lf %lf %lf", & ( csiVertex[0] ), & ( csiVertex[1] ), & ( csiVertex[2] ) ) != 3 ) {
 
-                            } else {
+                                            /* Display message */
+                                            fprintf( LC_ERR, "Error : unable to import expected x, y and z value\n" );
 
-                                fprintf( csoStream, "%s ", csToken );
+                                        } else {
+
+                                            /* Apply linear transformation */
+                                            csoVertex[0] = ( csiVertex[0] - csT[0] ) * csR[0][0] + ( csiVertex[1] - csT[1] ) * csR[1][0] + ( csiVertex[2] - csT[2] ) * csR[2][0];
+                                            csoVertex[1] = ( csiVertex[0] - csT[0] ) * csR[0][1] + ( csiVertex[1] - csT[1] ) * csR[1][1] + ( csiVertex[2] - csT[2] ) * csR[2][1];
+                                            csoVertex[2] = ( csiVertex[0] - csT[0] ) * csR[0][2] + ( csiVertex[1] - csT[1] ) * csR[1][2] + ( csiVertex[2] - csT[2] ) * csR[2][2];
+
+                                            /* Export transformed values */
+                                            fprintf( csoStream, "%.16lf %.16lf %.16lf ", 
+
+                                                /* Remove alignment model */
+                                                csoVertex[0] / csWGS->wgfactor + csWGS->wglonm,
+                                                csoVertex[1] / csWGS->wgfactor + csWGS->wglatm, 
+                                                csoVertex[2] 
+
+                                            );
+
+                                        }
+
+                                        /* Update column parser */
+                                        csColidx += 2;
+
+                                    } else {
+
+                                        /* Copy token */
+                                        cs_earth_transform_copy( csiStream, csoStream, LC_FALSE );
+
+                                    }
+
+                                    /* Update column parser */
+                                    csColidx += 1;
+
+                                }
+
+                                /* Export end of line */
+                                fprintf( csoStream, "\n" );
 
                             }
 
-                            if ( ( (++rets) % cols ) == 0 ) fprintf( csoStream, "\n" );
+                            /* Exit parsing loop */
+                            csMode = CS_EXIT;
 
                         }
 
-                }
+                    }
 
                 }
 
@@ -313,15 +451,38 @@
     ) {
 
         /* Read token from file */
-        if ( fscanf( csStream, "%s", csToken ) != 1 ) {
+        if ( fscanf( csStream, "%s", csToken ) == 1 ) {
 
-            /* Empty token */
-            csToken[0] = '\0';
+            /* Return token pointer */
+            return( csToken );
+
+        } else {
+
+            /* Return null pointer */
+            return( NULL );
 
         }
 
-        /* Return token pointer */
-        return( csToken );
+    }
+
+    void cs_earth_transform_copy(
+
+        FILE * const csiStream,
+        FILE * const csoStream,
+        int    const csEOL
+
+    ) {
+
+        /* Token buffer variables */
+        char csToken[256] = { 0 };
+
+        /* Read token from input file */
+        if ( fscanf( csiStream, "%s", csToken ) == 1 ) {
+
+            /* Export token in output file */
+            fprintf( csoStream, ( csEOL == LC_TRUE ) ? "%s\n" : "%s ", csToken ); 
+
+        }
 
     }
 

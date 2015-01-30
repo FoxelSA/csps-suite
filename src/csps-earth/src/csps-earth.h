@@ -124,8 +124,9 @@
     "Copyright (c) 2013-2015 FOXEL SA\n"
 
     /* Define ply reading modes */
-    # define CS_HEADER 0
-    # define CS_VERTEX 1
+    # define CS_EXIT   0
+    # define CS_HEADER 1
+    # define CS_VERTEX 2
 
 /* 
     Header - Preprocessor macros
@@ -205,8 +206,8 @@
 
         char       const * const csiPly,
         char       const * const csoPly,
-        double     const         csR[3][3],
-        double     const         csT[3],
+        double                   csR[3][3],
+        double                   csT[3],
         cs_WGS84_t const * const csWGS
 
     );
@@ -215,6 +216,14 @@
 
         char * const csToken,
         FILE * const csStream
+
+    );
+
+    void cs_earth_transform_copy(
+
+        FILE * const csiStream,
+        FILE * const csoStream,
+        int    const csEOL
 
     );
 
