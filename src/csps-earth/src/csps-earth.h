@@ -1,7 +1,7 @@
 /*
  * csps-suite - CSPS library front-end suite
  *
- * Copyright (c) 2013-2014 FOXEL SA - http://foxel.ch
+ * Copyright (c) 2013-2015 FOXEL SA - http://foxel.ch
  * Please read <http://foxel.ch/license> for more information.
  *
  *
@@ -51,17 +51,17 @@
      *  a serie of softwares used for camera logs-files preparation and 
      *  validation according to manufacturers standards. It comes with a main 
      *  software that is responsible of CSPS processing, using libcsps, of the
-     *  camera logs-files and also offers software for CSPS processing results
-     *  visualization.
+     *  camera logs-files and also offers softwares for CSPS processing results
+     *  visualization and exportation
      *
      *  \section Documentation
      *
      *  A detailed documentation can be generated through doxygen. A more general
-     *  documentation can be consulted at https://github.com/niam-foxel/csps-suite/wiki.
+     *  documentation can be consulted at https://github.com/FoxelSA/csps-suite/wiki.
      *
      *  \section Copyright
      * 
-     *  Copyright (c) 2013-2014 FOXEL SA - http://foxel.ch \n
+     *  Copyright (c) 2013-2015 FOXEL SA - http://foxel.ch \n
      *  This program is part of the FOXEL project <http://foxel.ch>.
      *  
      *  Please read the COPYRIGHT.md file for more information.
@@ -140,6 +140,10 @@
     Header - Structures
  */
 
+    /*! \struct cs_Curve_struct
+     *  \brief Cruve storage
+     */
+
     typedef struct cs_Curve_struct {
 
         /* Data array size */
@@ -152,6 +156,10 @@
         double * cvData;
 
     } cs_Curve_t;
+
+    /*! \struct cs_Curve_struct
+     *  \brief WGS84 alignment model
+     */
 
     typedef struct cs_WGS84_struct {
 
@@ -171,6 +179,18 @@
 
     /*! \brief Software main function
      *  
+     *  The main function is responsible for arguments and parameters reading 
+     *  and lauching the software main task. It starts by calling the curve
+     *  importation procedure in order to perform alignment of visual odometry
+     *  curve on GPS track curve. It then calls the WGS84 model for GPS curve
+     *  modification in order to allow to compare, in terms of scale, the two 
+     *  considered cruves. The linear transformation estimation procedure is
+     *  then called.
+     *
+     *  The linear transformation is the applied to the vertex of the input PLY
+     *  file. The resulting PLY file is exported in the directory provided as
+     *  parameter.
+     *
      *  \param  argc Standard main parameter
      *  \param  argv Standard main parameter
      *
@@ -202,6 +222,10 @@
 
     );
 
+    /*! \brief Stanford triangle format linear transformation
+     *
+     */
+
     void cs_earth_transform( 
 
         char       const * const csiPly,
@@ -212,12 +236,20 @@
 
     );
 
+    /*! \brief Stanford triangle format linear transformation
+     *
+     */
+
     char * cs_earth_transform_token(
 
         char * const csToken,
         FILE * const csStream
 
     );
+
+    /*! \brief Stanford triangle format linear transformation
+     *
+     */
 
     void cs_earth_transform_copy(
 
@@ -226,6 +258,10 @@
         int    const csEOL
 
     );
+
+    /*! \brief Cruve importation procedure
+     *
+     */
 
     void cs_earth_curve( 
 
@@ -240,6 +276,10 @@
         long       const         csDelay
 
     );
+
+    /*! \brief Cruve importation procedure
+     *
+     */
 
     void cs_earth_curve_push( 
 
