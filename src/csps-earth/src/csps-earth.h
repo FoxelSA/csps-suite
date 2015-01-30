@@ -243,10 +243,10 @@
 
     void cs_earth_curve_push( 
 
-        cs_Curve_t * const csCurve, 
-        double const cvLng,
-        double const cvLat,
-        double const cvAlt
+        cs_Curve_t       * const csCurve, 
+        double     const         cvLongitude,
+        double     const         cvLatitude,
+        double     const         cvAltitude
 
     );
 

@@ -487,7 +487,7 @@
     }
 
 /*
-    Source - Curve creation
+    Source - Cruve importation
 */
 
     void cs_earth_curve( 
@@ -504,25 +504,30 @@
 
     ) {
 
-        /* CSPS query variables */
-        lp_Trigger_t csTrigger;
-        lp_Geopos_t  csGeopos;
-
         /* Enumeration variables */
         char csFile[256] = { 0 };
 
+        /* Parsing variables */
+        size_t csParse = 0;
+
         /* Importation variables */
-        double csVoid = 0.0;
-        double csLng = 0.0;
-        double csLat = 0.0;
-        double csAlt = 0.0;
+        double csBuffer = 0.0;
+
+        /* Curve element variables */
+        double csMVGlon = 0.0;
+        double csMVGlat = 0.0;
+        double csMVGalt = 0.0;
 
         /* Timestamp variables */
-        lp_Time_t csTime = 0;
+        lp_Time_t csSec = 0;
         lp_Time_t csUse = 0;
 
         /* Stream variables */
         FILE * csStream = NULL;
+
+        /* Query structure variables */
+        lp_Trigger_t csTrigger;
+        lp_Geopos_t  csGeopos;
 
         /* Create query descriptors */
         csTrigger = lp_query_trigger_create ( csPath, csCAMd, csCAMm );
@@ -531,42 +536,71 @@
         /* Directory entity enumeration */
         while ( lc_file_enum( csRigs, csFile ) != LC_FALSE ) {
 
-            /* Consider only file entity */
+            /* Consider only file entities */
             if ( lc_file_detect( csFile, LC_FILE ) == LC_TRUE ) {
 
-                /* Open file */
-                if ( ( csStream = fopen( csFile, "r" ) ) != NULL ) {
+                /* Retrieve master timestamp through file-name */
+                sscanf( basename( csFile ), "%" lp_Time_i "_%" lp_Time_i, & csSec, & csUse );
 
-                    /* Read position */
-                    if ( fscanf( csStream, "%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf", & csVoid, & csVoid, & csVoid, & csVoid, & csVoid, & csVoid, & csVoid, & csVoid, & csVoid, & csLng, & csLat, & csAlt ) == 12 ) {
+                /* Query synchronization timestamp */
+                lp_query_trigger_bymaster( & csTrigger, lp_timestamp_compose( csSec + csDelay, csUse ) );
 
-                        /* Retrieve master timestamp */
-                        sscanf( basename( csFile ), "%" lp_Time_i "_%" lp_Time_i, & csTime, & csUse );
+                /* Check query status */
+                if ( lp_query_trigger_status( & csTrigger ) == LP_TRUE ) {
 
-                        /* Query synch timestamp */
-                        lp_query_trigger_bymaster( & csTrigger, lp_timestamp_compose( csTime + csDelay, csUse ) );
+                    /* Query position by synchronization timestamp */
+                    lp_query_position( & csGeopos, csTrigger.qrSynch );
 
-                        if ( lp_query_trigger_status( & csTrigger ) == LP_TRUE ) {
+                    /* Check query status */
+                    if ( lp_query_position_status( & csGeopos ) == LP_TRUE ) {
 
-                            /* Query position */
-                            lp_query_position( & csGeopos, csTrigger.qrSynch );
+                        /* Create current rig-file handle */
+                        if ( ( csStream = fopen( csFile, "r" ) ) != NULL ) {
 
-                            if ( lp_query_position_status( & csGeopos ) == LP_TRUE ) {                                
+                            /* Parsing rig-file content */
+                            for ( csParse = 0; csParse < 12; csParse ++ ) {
 
-                                /* Push position */
-                                cs_earth_curve_push( csMVG, csLng, csLat, csAlt );
+                                /* Read rig-file values */
+                                if ( fscanf( csStream, "%lf", & csBuffer ) == 1 ) {
 
-                                /* Push position */
-                                cs_earth_curve_push( csGPS, csGeopos.qrLongitude, csGeopos.qrLatitude, csGeopos.qrAltitude );
+                                    /* Assignation seletor */
+                                    switch ( csParse ) {
+
+                                        /* Read desired content */
+                                        case (  9 ) : { csMVGlon = csBuffer; } break;
+                                        case ( 10 ) : { csMVGlat = csBuffer; } break;
+                                        case ( 11 ) : { csMVGalt = csBuffer; } break;
+
+                                    };
+
+                                }
 
                             }
+
+                            /* Push MVG curve element */
+                            cs_earth_curve_push( csMVG, 
+
+                                csMVGlon, 
+                                csMVGlat,
+                                csMVGalt
+
+                            );
+
+                            /* Push GPS curve element */
+                            cs_earth_curve_push( csGPS, 
+
+                                csGeopos.qrLongitude, 
+                                csGeopos.qrLatitude, 
+                                csGeopos.qrAltitude
+
+                            );
+
+                            /* Delete rig-file handle */
+                            fclose( csStream );
 
                         }
 
                     }
-
-                    /* Close file */
-                    fclose( csStream );
 
                 }
 
@@ -575,35 +609,35 @@
         }
 
         /* Delete query descriptors */
-        lp_query_trigger_delete( & csTrigger );
-        lp_query_position_delete( & csGeopos );
+        lp_query_trigger_delete ( & csTrigger );
+        lp_query_position_delete( & csGeopos  );
 
     }
 
     void cs_earth_curve_push( 
 
-        cs_Curve_t * const csCurve, 
-        double const cvLng,
-        double const cvLat,
-        double const cvAlt
+        cs_Curve_t       * const csCurve, 
+        double     const         cvLongitude,
+        double     const         cvLatitude,
+        double     const         cvAltitude
 
     ) {
 
-        /* Array memory verification */
+        /* Ghost memory management */
         if ( csCurve->cvSize >= csCurve->cvGhost ) {
 
             /* Update real memory size */
             csCurve->cvGhost += 3 * 1024;
 
-            /* Re-allocate memory */
+            /* Reallocate memory */
             csCurve->cvData = realloc( csCurve->cvData, sizeof( double ) * csCurve->cvGhost );
 
         }
 
         /* Assign pushed elements */
-        csCurve->cvData[csCurve->cvSize++] = cvLng;
-        csCurve->cvData[csCurve->cvSize++] = cvLat;
-        csCurve->cvData[csCurve->cvSize++] = cvAlt;
+        csCurve->cvData[csCurve->cvSize++] = cvLongitude;
+        csCurve->cvData[csCurve->cvSize++] = cvLatitude;
+        csCurve->cvData[csCurve->cvSize++] = cvAltitude;
 
     }
 
