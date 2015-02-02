@@ -272,8 +272,7 @@
         char       const * const csGPSd, 
         char       const * const csGPSm, 
         cs_Curve_t       * const csMVG,
-        cs_Curve_t       * const csGPS,
-        long       const         csDelay
+        cs_Curve_t       * const csGPS
 
     );
 

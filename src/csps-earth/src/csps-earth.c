@@ -61,9 +61,6 @@
         char csGPSd[256] = { 0 };
         char csGPSm[256] = { 0 };
 
-        /* Timestamp delay variables */
-        long csDelay = 0;
-
         /* Rotation matrix variables */
         double csR[3][3] = { { 0.0 } };
 
@@ -86,7 +83,6 @@
         lc_stdp( lc_stda( argc, argv, "--cam-mod"   , "-m" ), argv,   csCAMm , LC_STRING );
         lc_stdp( lc_stda( argc, argv, "--gps-tag"   , "-g" ), argv,   csGPSd , LC_STRING );
         lc_stdp( lc_stda( argc, argv, "--gps-mod"   , "-n" ), argv,   csGPSm , LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--delay"     , "-d" ), argv, & csDelay, LC_LONG   );
 
         /* Execution switch */
         if ( lc_stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
@@ -97,7 +93,7 @@
         } else {
          
             /* MVG and GPS curve importation */
-            cs_earth_curve( csPath, csRigs, csCAMd, csCAMm, csGPSd, csGPSm, & csMVG, & csGPS, csDelay );
+            cs_earth_curve( csPath, csRigs, csCAMd, csCAMm, csGPSd, csGPSm, & csMVG, & csGPS );
 
             /* WGS84 frame alignment model computation */
             csWGS = cs_earth_model( & csGPS );
@@ -499,8 +495,7 @@
         char       const * const csGPSd, 
         char       const * const csGPSm, 
         cs_Curve_t       * const csMVG,
-        cs_Curve_t       * const csGPS,
-        long       const         csDelay
+        cs_Curve_t       * const csGPS
 
     ) {
 
@@ -543,7 +538,7 @@
                 sscanf( basename( csFile ), "%" lp_Time_i "_%" lp_Time_i, & csSec, & csUse );
 
                 /* Query synchronization timestamp */
-                lp_query_trigger_bymaster( & csTrigger, lp_timestamp_compose( csSec + csDelay, csUse ) );
+                lp_query_trigger_bymaster( & csTrigger, lp_timestamp_compose( csSec, csUse ) );
 
                 /* Check query status */
                 if ( lp_query_trigger_status( & csTrigger ) == LP_TRUE ) {
