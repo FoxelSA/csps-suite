@@ -108,19 +108,18 @@
  */
 
     /* Standard help */
-    # define CS_HELP "Usage summary :\n"             \
-    "  csps-earth [Arguments] [Parameters] ...\n"    \
-    "Short arguments and parameters summary :\n"     \
-    "  -p CSPS-processed structure root directory\n" \
-    "  -r OpenMVG rigid rig output directory\n"      \
-    "  -i Input PLY file\n"                          \
-    "  -o Output PLY file\n"                         \
-    "  -c Camera device CSPS-tag\n"                  \
-    "  -m Camera device CSPS-module\n"               \
-    "  -g GPS device CSPS-tag\n"                     \
-    "  -n GPS device CSPS-module\n"                  \
-    "  -d Timestamp delay\n"                         \
-    "csps-earth - csps-suite\n"                      \
+    # define CS_HELP "Usage summary :\n"          \
+    "  csps-earth [Arguments] [Parameters] ...\n" \
+    "Short arguments and parameters summary :\n"  \
+    "  -p Path to CSPS directory structure\n"     \
+    "  -r OpenMVG rigid-rig output directory\n"   \
+    "  -i Input stanford triangle format file\n"  \
+    "  -o Output stanford triangle format file\n" \
+    "  -c Camera device CSPS-tag\n"               \
+    "  -m Camera device CSPS-module\n"            \
+    "  -g GPS device CSPS-tag\n"                  \
+    "  -n GPS device CSPS-module\n"               \
+    "csps-earth - csps-suite\n"                   \
     "Copyright (c) 2013-2015 FOXEL SA\n"
 
     /* Define ply reading modes */
@@ -145,21 +144,21 @@
      *
      *  This structure is used to store geopositions that define a GPS track or
      *  a visual odometry path. The data array is a one-dimensional array that
-     *  stores successively longitude, latitude and altitude of each position.
+     *  stores longitude, latitude and altitude of each successive positions.
      *  It follows that the number of geopositions defining the curve is given
-     *  by cvSize fields over three.
+     *  by the cvSize field value devided by three.
      *
-     *  \var cs_Descriptor_struct::cvSize
-     *  Size, in type units, of the curve storage array
-     *  \var cs_Descriptor_struct::cvGhost
-     *  Size, in type units, of the array memory allocation
-     *  \var cs_Descriptor_struct::cvData
+     *  \var cs_Curve_struct::cvSize
+     *  Size, in type units, of the curve array
+     *  \var cs_Curve_struct::cvGhost
+     *  Size, in type units, of the curve array allocated memory
+     *  \var cs_Curve_struct::cvData
      *  Pointer to one-dimensional array containing the geopositions
      */
 
     typedef struct cs_Curve_struct {
 
-        /* Data array size */
+        /* Data array element size */
         size_t cvSize;
         
         /* Data array memory size */
@@ -181,14 +180,14 @@
      *  attached to a point using spherical coordinates. This point is called
      *  ELMFF central point.
      *
-     *  \var cs_Descriptor_struct::wglonm
-     *  ELMFF longitude central position
-     *  \var cs_Descriptor_struct::wglatm
-     *  ELMFF latitude central position
-     *  \var cs_Descriptor_struct::wgaltm
-     *  ELMFF altitude central position
-     *  \var cs_Descriptor_struct::wgfactor
-     *  Factor between WGS84 angular positions and ELMFF
+     *  \var cs_WGS84_struct::wglonm
+     *  ELMFF central position longitude, in decimal degrees
+     *  \var cs_WGS84_struct::wglatm
+     *  ELMFF central position latitude, in decimal degrees
+     *  \var cs_WGS84_struct::wgaltm
+     *  ELMFF central position altitude, in metres
+     *  \var cs_WGS84_struct::wgfactor
+     *  Planimetric scale factor between WGS84 and ELMFF
      */
 
     typedef struct cs_WGS84_struct {
@@ -210,36 +209,33 @@
     /*! \brief Software main function
      *  
      *  The main function is responsible for arguments and parameters reading 
-     *  and lauching the software main task. It starts by calling the curve
+     *  and lauching the software main task. It starts by calling the curves
      *  importation procedure in order to perform alignment of visual odometry
-     *  curve on GPS track curve. It then calls the WGS84 model for GPS curve
-     *  modification in order to allow to compare, in terms of scale, the two 
-     *  considered cruves. The linear transformation estimation procedure is
-     *  then called.
+     *  curve on GPS track curve. It then calls the WGS84 model creation to
+     *  bring visual odometry path and GPS track in the same frame. The linear
+     *  transformation estimation procedure is then called.
      *
-     *  The linear transformation is the applied to the vertex of the input PLY
-     *  file. The resulting PLY file is exported in the directory provided as
-     *  parameter.
+     *  The estimated linear transformation is the considered to transform x, y
+     *  and z vertex of the input PLY file. The result of vertex transformation
+     *  is finaly exported in the output PLY file.
      *
      *  \param  argc Standard main parameter
      *  \param  argv Standard main parameter
      *
-     *  \return Code returned to system
+     *  \return Software exit code
      */
 
     int main ( int argc, char ** argv );
 
     /*! \brief WGS84 frame alignment model
      *
-     *  This function applies a bijective transformation to the WGS84-GPS track
-     *  provided as parameter. It computes the track geometric center in order
-     *  to translate the track near frame origin. It also computes the metric
-     *  factor between WGS84-attached angular position at the track mean height.
-     *  
-     *  The track is denormalized using the metric factor to retrieve a near
-     *  metric representation of the track. This is done in order to have a
-     *  curve similar in size and scale the the provided visual odometry curve,
-     *  needed to perform a valid linear transformation estimation.
+     *  GPS track and visual odometry path curves are aligned in earth local
+     *  metric flat frame (ELMFF) with a central point corresponding to GPS
+     *  track geometric center. The parameters of ELMFF are computed and are
+     *  returned through the alignment model specific storage structure.
+     *
+     *  The GPS track curve is modified in order to express GPS geopositions in
+     *  the computed ELMFF.
      *
      *  \param  csGPS WGS84-GPS track curve
      *
@@ -255,21 +251,22 @@
     /*! \brief Stanford triangle format linear transformation
      *
      *  This function expects a linear transformation estimation that brings the
-     *  visual odometry curve on the WGS84 GPS track curve. The transformation
-     *  is provided using a rotation matrix and a translation vector. The input
-     *  PLY file is read and the x, y and z vertex of each point of the file is
-     *  transformed using the linear transformation in order to retrieve an
-     *  earth-alignment point-cloud. The result is exported in the output PLY
-     *  file. 
+     *  visual odometry curve on the WGS84 GPS track curve in earth local metric
+     *  flat frame. The transformation is provided using a rotation matrix and 
+     *  a translation vector. The input PLY file is read and the x, y and z 
+     *  vertex of each point of the file are transformed using the linear
+     *  transformation in order to retrieve an earth-alignment point-cloud. 
+     *  The result is exported in the output PLY file after ELMFF to WGS84 frame
+     *  conversion.
      *
-     *  The input PLY file as to have x, y and z vertex to be consecutive in 
+     *  The input PLY file has to have x, y and z vertex to be consecutive in 
      *  terms of columns.
      *
      *  \param csiPly Path to input PLY file
      *  \param csoPly Path to output PLY file
      *  \param csR    Rotation matrix
      *  \param csT    Translation vector
-     *  \param csWGS  WSG84 alignment model
+     *  \param csWGS  Alignment model storage structure
      */
 
     void cs_earth_transform( 
@@ -285,9 +282,9 @@
     /*! \brief Stanford triangle format linear transformation
      *
      *  This function simply reads a string token from the provided open file
-     *  stream. If token reading failed, the function returns a NULL pointer.
+     *  stream. If token reading fails, the function returns a NULL pointer.
      * 
-     *  \param  csToken  Token char buffer
+     *  \param  csToken  Char buffer that recieves read token
      *  \param  csStream Open file stream in which token is read
      *
      *  \return Returns pointer to provided token buffer or NULL if no token
@@ -303,7 +300,7 @@
 
     /*! \brief Stanford triangle format linear transformation
      *
-     *  This function reads string token from open input PLY file stream and
+     *  This function reads a string token from open input PLY file stream and
      *  exports it in open output PLY file stream. The end of line condition
      *  is used to add space or end of line character after string token
      *  exportation.
@@ -324,12 +321,12 @@
     /*! \brief Cruve importation procedure
      *
      *  This function creates the visual odometry and GPS track curves that are
-     *  considered for earth-alignment process. GPS track is retrieve using
+     *  considered for earth-alignment process. GPS track is retrieved using
      *  queries on CSPS-processed data when visual odometry curve is imported
      *  from OpenMVG rigid-rig specific output directory.
      *
      *  \param csPath Path to CSPS directory structure
-     *  \param csRigs OpenMVG rigs-file directory
+     *  \param csRigs OpenMVG rigid-rig output directory
      *  \param csCAMd Camera device CSPS-tag
      *  \param csCAMm Camera device CSPS-module
      *  \param csGPSd GPS device CSPS-tag
@@ -355,7 +352,7 @@
      *
      *  This function is used to push a geoposition definition in the provided
      *  curve structure. The function detects data array overflow and manage the
-     *  array memory re-allocation.
+     *  array memory re-allocation to allow geoposition addition.
      * 
      *  \param csCurve     Curve in which values are pushed
      *  \param cvLongitude Longitude value to push
@@ -375,14 +372,14 @@
     /*! \brief Linear transformation estimation
      * 
      *  This function is designed to estimates the rotation and translation,
-     *  that defines the linear tranform, needed to align two similar data
+     *  that defines the linear tranformation needed to align two similar data
      *  sets. It is typically used to synchronize visual odometry coming from
      *  OpenMVG process and the GPS track extracted from the camera device logs.
      *
      *  It then waits two arrays storing, through one dimensional arrays, the
      *  three components of the camera sensor positions coming from visual
      *  odometry and the three WGS84 camera sensor positions coming from the
-     *  GPS device. The 3-coordinates are store successively as follows : 
+     *  GPS device. The three-coordinates are store successively as follows : 
      * 
      *      x1, y1, z1, x2, y2, z2, ... xn, yn, zn
      * 
@@ -393,9 +390,9 @@
      *  \param csN      Number of coordinates stored in each array; multiplying
      *                  this value by three gives the size, in type units, of
      *                  each array
-     *  \param csrData  Pointer to array that store the reference curve (GPS)
-     *  \param csaData  Pointer to array that store the curve to align on the
-     *                  reference curve
+     *  \param csrData  Pointer to array that stores the reference curve (GPS)
+     *  \param csaData  Pointer to array that stores the curve to align on the
+     *                  reference curve (MVG)
      *  \param csR      Returned estimation of rotation matrix
      *  \param csT      Returned estimation of translation vector
      */
