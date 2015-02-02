@@ -42,7 +42,7 @@
      *  Software main header
      */
 
-    /*! \mainpage csps-align
+    /*! \mainpage csps-earth
      *
      *  \section csps-suite
      *  \section _ CSPS library front-end suite
@@ -312,9 +312,9 @@
 
     void cs_earth_transform_copy(
 
-        FILE * const csiStream,
-        FILE * const csoStream,
-        int    const csEOL
+        FILE       * const csiStream,
+        FILE       * const csoStream,
+        int  const         csEOL
 
     );
 
