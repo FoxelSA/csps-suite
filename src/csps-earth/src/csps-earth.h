@@ -142,6 +142,19 @@
 
     /*! \struct cs_Curve_struct
      *  \brief Cruve storage
+     *
+     *  This structure is used to store geopositions that define a GPS track or
+     *  a visual odometry path. The data array is a one-dimensional array that
+     *  stores successively longitude, latitude and altitude of each position.
+     *  It follows that the number of geopositions defining the curve is given
+     *  by cvSize fields over three.
+     *
+     *  \var cs_Descriptor_struct::cvSize
+     *  Size, in type units, of the curve storage array
+     *  \var cs_Descriptor_struct::cvGhost
+     *  Size, in type units, of the array memory allocation
+     *  \var cs_Descriptor_struct::cvData
+     *  Pointer to one-dimensional array containing the geopositions
      */
 
     typedef struct cs_Curve_struct {
@@ -159,6 +172,23 @@
 
     /*! \struct cs_WGS84_struct
      *  \brief WGS84 alignment model
+     *
+     *  This structure contains the information about the considered earth local
+     *  metric flat frame (ELMFF) in which visual odometry path is aligned on
+     *  GPS track.
+     *
+     *  The ELMFF is an euclidian three-dimensional space defined by the frame
+     *  attached to a point using spherical coordinates. This point is called
+     *  ELMFF central point.
+     *
+     *  \var cs_Descriptor_struct::wglonm
+     *  ELMFF longitude central position
+     *  \var cs_Descriptor_struct::wglatm
+     *  ELMFF latitude central position
+     *  \var cs_Descriptor_struct::wgaltm
+     *  ELMFF altitude central position
+     *  \var cs_Descriptor_struct::wgfactor
+     *  Factor between WGS84 angular positions and ELMFF
      */
 
     typedef struct cs_WGS84_struct {
