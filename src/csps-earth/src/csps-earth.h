@@ -157,7 +157,7 @@
 
     } cs_Curve_t;
 
-    /*! \struct cs_Curve_struct
+    /*! \struct cs_WGS84_struct
      *  \brief WGS84 alignment model
      */
 
@@ -211,7 +211,7 @@
      *  curve similar in size and scale the the provided visual odometry curve,
      *  needed to perform a valid linear transformation estimation.
      *
-     *  \param csGPS WGS84-GPS track curve
+     *  \param  csGPS WGS84-GPS track curve
      *
      *  \return Returns computed alignment model structure
      */
@@ -224,6 +224,22 @@
 
     /*! \brief Stanford triangle format linear transformation
      *
+     *  This function expects a linear transformation estimation that brings the
+     *  visual odometry curve on the WGS84 GPS track curve. The transformation
+     *  is provided using a rotation matrix and a translation vector. The input
+     *  PLY file is read and the x, y and z vertex of each point of the file is
+     *  transformed using the linear transformation in order to retrieve an
+     *  earth-alignment point-cloud. The result is exported in the output PLY
+     *  file. 
+     *
+     *  The input PLY file as to have x, y and z vertex to be consecutive in 
+     *  terms of columns.
+     *
+     *  \param csiPly Path to input PLY file
+     *  \param csoPly Path to output PLY file
+     *  \param csR    Rotation matrix
+     *  \param csT    Translation vector
+     *  \param csWGS  WSG84 alignment model
      */
 
     void cs_earth_transform( 
@@ -238,6 +254,14 @@
 
     /*! \brief Stanford triangle format linear transformation
      *
+     *  This function simply reads a string token from the provided open file
+     *  stream. If token reading failed, the function returns a NULL pointer.
+     * 
+     *  \param  csToken  Token char buffer
+     *  \param  csStream Open file stream in which token is read
+     *
+     *  \return Returns pointer to provided token buffer or NULL if no token
+     *          where read.
      */
 
     char * cs_earth_transform_token(
@@ -249,6 +273,14 @@
 
     /*! \brief Stanford triangle format linear transformation
      *
+     *  This function reads string token from open input PLY file stream and
+     *  exports it in open output PLY file stream. The end of line condition
+     *  is used to add space or end of line character after string token
+     *  exportation.
+     *
+     *  \param csiStream Open input PLY file stream
+     *  \param csoStream Open output PLY file stream
+     *  \param csEOL     End of line boolean parameter
      */
 
     void cs_earth_transform_copy(
@@ -261,6 +293,19 @@
 
     /*! \brief Cruve importation procedure
      *
+     *  This function creates the visual odometry and GPS track curves that are
+     *  considered for earth-alignment process. GPS track is retrieve using
+     *  queries on CSPS-processed data when visual odometry curve is imported
+     *  from OpenMVG rigid-rig specific output directory.
+     *
+     *  \param csPath Path to CSPS directory structure
+     *  \param csRigs OpenMVG rigs-file directory
+     *  \param csCAMd Camera device CSPS-tag
+     *  \param csCAMm Camera device CSPS-module
+     *  \param csGPSd GPS device CSPS-tag
+     *  \param csGPSm GPS device CSPS-module
+     *  \param csMVG  Visual odometry curve
+     *  \param csGPS  GPS track curve
      */
 
     void cs_earth_curve( 
@@ -278,6 +323,14 @@
 
     /*! \brief Cruve importation procedure
      *
+     *  This function is used to push a geoposition definition in the provided
+     *  curve structure. The function detects data array overflow and manage the
+     *  array memory re-allocation.
+     * 
+     *  \param csCurve     Curve in which values are pushed
+     *  \param cvLongitude Longitude value to push
+     *  \param cvLatitude  Latitude value to push
+     *  \param cvAltitude  Altitude value to push
      */
 
     void cs_earth_curve_push( 
@@ -327,7 +380,7 @@
 
     );
 
-    /* Specific liblapack prototype :( */
+    /* Specific extern liblapack prototype */
     extern void dgesvd_( 
 
         char   * jobu, 

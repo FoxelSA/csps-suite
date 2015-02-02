@@ -315,7 +315,7 @@
                                     if ( ( csColumn - 1 ) != csColxyz ) {
 
                                         /* Display message */
-                                        fprintf( LC_ERR, "Error : x,y,z vertex as to be contigous\n" );
+                                        fprintf( LC_ERR, "Error : x,y,z vertex as to be consecutive\n" );
 
                                         /* Exit parsing loop */
                                         csMode = CS_EXIT;
@@ -329,7 +329,7 @@
                                     if ( ( csColumn - 2 ) != csColxyz ) {
 
                                         /* Display message */
-                                        fprintf( LC_ERR, "Error : x,y,z vertex as to be contigous\n" );
+                                        fprintf( LC_ERR, "Error : x,y,z vertex as to be consecutive\n" );
 
                                         /* Exit parsing loop */
                                         csMode = CS_EXIT;
