@@ -62,10 +62,7 @@
         char csGPSm[256] = { 0 };
 
         /* Rotation matrix variables */
-        double csR[3][3] = { { 0.0 } };
-
-        /* Translation vector variables */
-        double csT[3] = { 0.0 };
+        double csR[3][4] = { { 0.0 } };
 
         /* WGS84 curve alignment */
         cs_WGS84_t csWGS = { 0, 0, 0, 0 };
@@ -99,10 +96,10 @@
             csWGS = cs_earth_model( & csGPS );
 
             /* Estimation of linear transformation  */
-            cs_earth_lte( csGPS.cvSize / 3, csGPS.cvData, csMVG.cvData, csR, csT );
+            cs_earth_lte( csGPS.cvSize / 3, csGPS.cvData, csMVG.cvData, csR );
 
             /* Linear transformation application on ply file */
-            cs_earth_transform( csiPly, csoPly, csR, csT, & csWGS );
+            cs_earth_transform( csiPly, csoPly, csR, & csWGS );
    
         }
 
@@ -176,8 +173,7 @@
 
         char       const * const csiPly,
         char       const * const csoPly,
-        double                   csR[3][3],
-        double                   csT[3],
+        double                   csR[3][4],
         cs_WGS84_t const * const csWGS
 
     ) {
@@ -382,9 +378,9 @@
                                         } else {
 
                                             /* Apply linear transformation */
-                                            csoVertex[0] = ( csiVertex[0] - csT[0] ) * csR[0][0] + ( csiVertex[1] - csT[1] ) * csR[1][0] + ( csiVertex[2] - csT[2] ) * csR[2][0];
-                                            csoVertex[1] = ( csiVertex[0] - csT[0] ) * csR[0][1] + ( csiVertex[1] - csT[1] ) * csR[1][1] + ( csiVertex[2] - csT[2] ) * csR[2][1];
-                                            csoVertex[2] = ( csiVertex[0] - csT[0] ) * csR[0][2] + ( csiVertex[1] - csT[1] ) * csR[1][2] + ( csiVertex[2] - csT[2] ) * csR[2][2];
+                                            csoVertex[0] = ( csiVertex[0] - csR[0][3] ) * csR[0][0] + ( csiVertex[1] - csR[1][3] ) * csR[1][0] + ( csiVertex[2] - csR[2][3] ) * csR[2][0];
+                                            csoVertex[1] = ( csiVertex[0] - csR[0][3] ) * csR[0][1] + ( csiVertex[1] - csR[1][3] ) * csR[1][1] + ( csiVertex[2] - csR[2][3] ) * csR[2][1];
+                                            csoVertex[2] = ( csiVertex[0] - csR[0][3] ) * csR[0][2] + ( csiVertex[1] - csR[1][3] ) * csR[1][2] + ( csiVertex[2] - csR[2][3] ) * csR[2][2];
 
                                             /* Export transformed values */
                                             fprintf( csoStream, "%.16lf %.16lf %.16lf ", 
@@ -645,8 +641,7 @@
         int    const         csN, 
         double const * const csrData, 
         double const * const csaData, 
-        double               csR[3][3], 
-        double               csT[3]
+        double               csR[3][4]
 
     ) {
         /* Parsing variables */
@@ -755,9 +750,9 @@
         }
 
         /* Compute translation vector */
-        csT[0] = - csR[0][0] * csMean[0] - csR[0][1] * csMean[1] - csR[0][2] * csMean[2] + csMean[3];
-        csT[1] = - csR[1][0] * csMean[0] - csR[1][1] * csMean[1] - csR[1][2] * csMean[2] + csMean[4];
-        csT[2] = - csR[2][0] * csMean[0] - csR[2][1] * csMean[1] - csR[2][2] * csMean[2] + csMean[5];
+        csR[0][3] = - csR[0][0] * csMean[0] - csR[0][1] * csMean[1] - csR[0][2] * csMean[2] + csMean[3];
+        csR[1][3] = - csR[1][0] * csMean[0] - csR[1][1] * csMean[1] - csR[1][2] * csMean[2] + csMean[4];
+        csR[2][3] = - csR[2][0] * csMean[0] - csR[2][1] * csMean[1] - csR[2][2] * csMean[2] + csMean[5];
 
     }
 

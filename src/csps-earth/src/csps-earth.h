@@ -113,8 +113,8 @@
     "Short arguments and parameters summary :\n"  \
     "  -p Path to CSPS directory structure\n"     \
     "  -r OpenMVG rigid-rig output directory\n"   \
-    "  -i Input stanford triangle format file\n"  \
-    "  -o Output stanford triangle format file\n" \
+    "  -i Input Stanford triangle format file\n"  \
+    "  -o Output Stanford triangle format file\n" \
     "  -c Camera device CSPS-tag\n"               \
     "  -m Camera device CSPS-module\n"            \
     "  -g GPS device CSPS-tag\n"                  \
@@ -273,8 +273,7 @@
 
         char       const * const csiPly,
         char       const * const csoPly,
-        double                   csR[3][3],
-        double                   csT[3],
+        double                   csR[3][4],
         cs_WGS84_t const * const csWGS
 
     );
@@ -402,8 +401,7 @@
         int    const         csN, 
         double const * const csrData, 
         double const * const csaData, 
-        double               csR[3][3], 
-        double               csT[3]
+        double               csR[3][4]
 
     );
 

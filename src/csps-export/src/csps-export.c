@@ -204,7 +204,6 @@
             fprintf( csStream, "{\n" );
 
             /* Export to stream */
-            cs_export_field( "gps", ( csParse < csSize ) ? "true" : "false", ",", csStream, NULL );
             cs_export_field( "split", "false", ",", csStream, csJson );
             cs_export_field( "preview", "null", ",", csStream, csJson );
             cs_export_field( "pose", "", "", csStream, NULL );
