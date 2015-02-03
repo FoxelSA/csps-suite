@@ -163,7 +163,8 @@
         lp_Size_t csParse = 0;
 
         /* Index memory variables */
-        lp_Size_t csGuess = 0;
+        lp_Size_t csgGuess = 0;
+        lp_Size_t csiGuess = 0;
 
         /* Object variables */
         cs_Object_t * csArray = NULL;
@@ -184,13 +185,21 @@
             csSize = lp_query_trigger_size( csTrigger );
 
             /* Search for initial position (for signal missing on boundaries) */
-            while ( ( csGuess < csSize ) && ( ( lp_query_position_status( csGeopos ) == LC_FALSE ) || ( lp_query_orientation_status( csOrient ) == LP_FALSE ) ) ) {
+            while ( ( csgGuess < csSize ) && ( lp_query_position_status( csGeopos ) == LC_FALSE ) ) {
 
                 /* Query trigger by index */
-                lp_query_trigger_byindex( csTrigger, csGuess ++ );
+                lp_query_trigger_byindex( csTrigger, csgGuess ++ );
 
                 /* Query position */
                 lp_query_position( csGeopos, csTrigger->qrSynch );
+
+            }
+
+            /* Search for initial position (for signal missing on boundaries) */
+            while ( ( csiGuess < csSize ) && ( lp_query_orientation_status( csOrient ) == LP_FALSE ) ) {
+
+                /* Query trigger by index */
+                lp_query_trigger_byindex( csTrigger, csiGuess ++ );
 
                 /* Query orientation */
                 lp_query_orientation( csOrient, csTrigger->qrSynch );
@@ -233,7 +242,7 @@
                 fprintf( csStream, "{\n" );
 
                 /* Missing measure detection */
-                if ( csGuess >= csSize ) {
+                if ( csgGuess >= csSize ) {
 
                     /* Export to stream */
                     cs_export_field( "gps", "null", ",", csStream, NULL );
@@ -250,6 +259,29 @@
 
                         /* Export to stream */
                         cs_export_field( "gps", "\"repeat\"", ",", csStream, NULL );
+
+                    }
+
+                }
+
+                /* Missing measure detection */
+                if ( csiGuess >= csSize ) {
+
+                    /* Export to stream */
+                    cs_export_field( "imu", "null", ",", csStream, NULL );
+
+                } else {
+
+                    /* Query status verification */
+                    if ( lp_query_orientation_status( csOrient ) == LC_TRUE ) {
+
+                        /* Export to stream */
+                        cs_export_field( "imu", "\"valid\"", ",", csStream, NULL );
+
+                    } else {
+
+                        /* Export to stream */
+                        cs_export_field( "imu", "\"repeat\"", ",", csStream, NULL );
 
                     }
 
