@@ -162,16 +162,12 @@
         /* Parsing variables */
         lp_Size_t csParse = 0;
 
-        /* Index memory variables */
-        lp_Size_t csgGuess = 0;
-        lp_Size_t csiGuess = 0;
+        /* Stream variables */
+        FILE * csStream = NULL;
 
         /* Object variables */
         cs_Object_t * csArray = NULL;
         cs_Object_t * csPose  = NULL;
-
-        /* Stream variables */
-        FILE * csStream = NULL;
 
         /* Create stream */
         if ( ( csStream = fopen( csFile, "w" ) ) == NULL ) {
@@ -183,28 +179,6 @@
 
             /* Trigger count query */
             csSize = lp_query_trigger_size( csTrigger );
-
-            /* Search for initial position (for signal missing on boundaries) */
-            while ( ( csgGuess < csSize ) && ( lp_query_position_status( csGeopos ) == LC_FALSE ) ) {
-
-                /* Query trigger by index */
-                lp_query_trigger_byindex( csTrigger, csgGuess ++ );
-
-                /* Query position */
-                lp_query_position( csGeopos, csTrigger->qrSynch );
-
-            }
-
-            /* Search for initial position (for signal missing on boundaries) */
-            while ( ( csiGuess < csSize ) && ( lp_query_orientation_status( csOrient ) == LP_FALSE ) ) {
-
-                /* Query trigger by index */
-                lp_query_trigger_byindex( csTrigger, csiGuess ++ );
-
-                /* Query orientation */
-                lp_query_orientation( csOrient, csTrigger->qrSynch );
-
-            }
 
             /* Create pose array object */
             csArray = json_object_object_get( csJson, "pose" );
@@ -241,84 +215,107 @@
                 /* Export format */
                 fprintf( csStream, "{\n" );
 
-                /* Missing measure detection */
-                if ( csgGuess >= csSize ) {
-
-                    /* Export to stream */
-                    cs_export_field( "gps", "null", ",", csStream, NULL );
-
-                } else {
-
-                    /* Query status verification */
-                    if ( lp_query_position_status( csGeopos ) == LC_TRUE ) {
-
-                        /* Export to stream */
-                        cs_export_field( "gps", ( csGeopos->qrWeak == LP_TRUE ) ? "\"weak\"" : "\"valid\"", ",", csStream, NULL );
-
-                    } else {
-
-                        /* Export to stream */
-                        cs_export_field( "gps", "\"repeat\"", ",", csStream, NULL );
-
-                    }
-
-                }
-
-                /* Missing measure detection */
-                if ( csiGuess >= csSize ) {
-
-                    /* Export to stream */
-                    cs_export_field( "imu", "null", ",", csStream, NULL );
-
-                } else {
-
-                    /* Query status verification */
-                    if ( lp_query_orientation_status( csOrient ) == LC_TRUE ) {
-
-                        /* Export to stream */
-                        cs_export_field( "imu", "\"valid\"", ",", csStream, NULL );
-
-                    } else {
-
-                        /* Export to stream */
-                        cs_export_field( "imu", "\"repeat\"", ",", csStream, NULL );
-
-                    }
-
-                }
-
                 /* Export to stream */
                 cs_export_field( "still", ( csStill->qrStill == LP_TRUE ) ? "true" : "false", ",", csStream, NULL );
                 cs_export_field( "raw", "\"unknown\"", ",", csStream, csPose );
 
                 /* Export to stream */
-                fprintf( csStream, "\"sec\":%" lp_Time_p ",\n",  lp_timestamp_sec ( csTrigger->qrMaster ) );
+                fprintf( csStream, "\"sec\":%"  lp_Time_p ",\n", lp_timestamp_sec ( csTrigger->qrMaster ) );
                 fprintf( csStream, "\"usec\":%" lp_Time_p ",\n", lp_timestamp_usec( csTrigger->qrMaster ) );
 
-                /* Export to stream */
-                fprintf( csStream, "\"lng\":%.12" lp_Real_p ",\n", csGeopos->qrLongitude );
-                fprintf( csStream, "\"lat\":%.12" lp_Real_p ",\n", csGeopos->qrLatitude  );
-                fprintf( csStream, "\"alt\":%.12" lp_Real_p ",\n", csGeopos->qrAltitude  );
+                /* Check position availability */
+                if ( lp_query_position_status( csGeopos ) == LP_FALSE ) {
 
-                /* Export to stream */
-                cs_export_field( "rotation", "", "", csStream, NULL );
+                    /* Export to stream */
+                    cs_export_field( "position", "null", ",", csStream, NULL );
 
-                /* Export format */
-                fprintf( csStream, "[\n" );
+                } else {
 
-                /* Export to stream */
-                fprintf( csStream, "%.12" lp_Real_p ",\n", csOrient->qrfxx );
-                fprintf( csStream, "%.12" lp_Real_p ",\n", csOrient->qrfxy );
-                fprintf( csStream, "%.12" lp_Real_p ",\n", csOrient->qrfxz );
-                fprintf( csStream, "%.12" lp_Real_p ",\n", csOrient->qrfyx );
-                fprintf( csStream, "%.12" lp_Real_p ",\n", csOrient->qrfyy );
-                fprintf( csStream, "%.12" lp_Real_p ",\n", csOrient->qrfyz );
-                fprintf( csStream, "%.12" lp_Real_p ",\n", csOrient->qrfzx );
-                fprintf( csStream, "%.12" lp_Real_p ",\n", csOrient->qrfzy );
-                fprintf( csStream, "%.12" lp_Real_p " \n", csOrient->qrfzz );
+                    /* Exception management */
+                    if ( 
 
-                /* Export format */
-                fprintf( csStream, "]\n" );
+                        ( isnormal( csGeopos->qrAltitude  ) == 0 ) || 
+                        ( isnormal( csGeopos->qrLongitude ) == 0 ) || 
+                        ( isnormal( csGeopos->qrLatitude  ) == 0 ) 
+
+                    ) {
+
+                        /* Export to stream */
+                        cs_export_field( "position", "null", ",", csStream, NULL );
+
+                    } else {
+
+                        /* Export to stream */
+                        cs_export_field( "position", "", "", csStream, NULL );
+
+                        /* Export format */
+                        fprintf( csStream, "[\n" ); 
+
+                        /* Export to stream */
+                        fprintf( csStream, "%.16e,\n", csGeopos->qrAltitude  );
+                        fprintf( csStream, "%.16e,\n", csGeopos->qrLongitude );
+                        fprintf( csStream, "%.16e,\n", csGeopos->qrLatitude  );
+                        fprintf( csStream, "%.16e,\n", 0.0  );
+
+                        /* Export format */
+                        fprintf( csStream, "],\n" );
+
+                    }
+
+                }
+
+                /* Check orientation availability */
+                if ( lp_query_orientation_status( csOrient ) == LP_FALSE ) {
+
+                    /* Export to stream */
+                    cs_export_field( "orientation", "null", "", csStream, NULL );
+
+                } else {
+
+                    /* Exception management */
+                    if ( 
+
+                         ( isnormal( csOrient->qrfxx ) == 0 ) ||
+                         ( isnormal( csOrient->qrfxy ) == 0 ) ||
+                         ( isnormal( csOrient->qrfxz ) == 0 ) ||
+                         ( isnormal( csOrient->qrfyx ) == 0 ) ||
+                         ( isnormal( csOrient->qrfyy ) == 0 ) ||
+                         ( isnormal( csOrient->qrfyz ) == 0 ) ||
+                         ( isnormal( csOrient->qrfzx ) == 0 ) ||
+                         ( isnormal( csOrient->qrfzy ) == 0 ) ||
+                         ( isnormal( csOrient->qrfzz ) == 0 ) 
+
+                    ) {
+
+                        /* Export to stream */
+                        cs_export_field( "orientation", "null", "", csStream, NULL );
+
+                    } else {
+
+                        /* Export to stream */
+                        cs_export_field( "orientation", "", "", csStream, NULL );
+
+                        /* Export format */
+                        fprintf( csStream, "[\n" );
+
+                        /* Export to stream */
+                        fprintf( csStream, "%.16e,\n", csOrient->qrfxx );
+                        fprintf( csStream, "%.16e,\n", csOrient->qrfxy );
+                        fprintf( csStream, "%.16e,\n", csOrient->qrfxz );
+                        fprintf( csStream, "%.16e,\n", csOrient->qrfyx );
+                        fprintf( csStream, "%.16e,\n", csOrient->qrfyy );
+                        fprintf( csStream, "%.16e,\n", csOrient->qrfyz );
+                        fprintf( csStream, "%.16e,\n", csOrient->qrfzx );
+                        fprintf( csStream, "%.16e,\n", csOrient->qrfzy );
+                        fprintf( csStream, "%.16e,\n", csOrient->qrfzz );
+                        fprintf( csStream, "%.16e \n", 0.0 );
+
+                        /* Export format */
+                        fprintf( csStream, "]\n" );
+
+                    }
+
+                }
 
                 /* Export format */
                 fprintf( csStream, "}%s\n", ( csParse < ( csSize - 1 ) ) ? "," : "" );
@@ -374,7 +371,7 @@
                 csTime = lp_timestamp_compose( 
 
                     json_object_get_int( json_object_object_get( csPose, "sec" ) ), 
-                    json_object_get_int( json_object_object_get( csPose, "usc" ) ) 
+                    json_object_get_int( json_object_object_get( csPose, "usec" ) ) 
 
                 );
 
