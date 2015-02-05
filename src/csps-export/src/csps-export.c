@@ -289,11 +289,11 @@
 
                 /* Export to stream */
                 cs_export_field( "still", ( csStill->qrStill == LP_TRUE ) ? "true" : "false", ",", csStream, NULL );
-                cs_export_field( "status", "\"unknown\"", ",", csStream, csPose );
+                cs_export_field( "raw", "\"unknown\"", ",", csStream, csPose );
 
                 /* Export to stream */
-                fprintf( csStream, "\"sec\":%" lp_Time_p ",\n", lp_timestamp_sec ( csTrigger->qrMaster ) );
-                fprintf( csStream, "\"usc\":%" lp_Time_p ",\n", lp_timestamp_usec( csTrigger->qrMaster ) );
+                fprintf( csStream, "\"sec\":%" lp_Time_p ",\n",  lp_timestamp_sec ( csTrigger->qrMaster ) );
+                fprintf( csStream, "\"usec\":%" lp_Time_p ",\n", lp_timestamp_usec( csTrigger->qrMaster ) );
 
                 /* Export to stream */
                 fprintf( csStream, "\"lng\":%.12" lp_Real_p ",\n", csGeopos->qrLongitude );
