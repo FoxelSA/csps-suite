@@ -255,7 +255,7 @@
                         fprintf( csStream, "%.16e,\n", csGeopos->qrAltitude  );
                         fprintf( csStream, "%.16e,\n", csGeopos->qrLongitude );
                         fprintf( csStream, "%.16e,\n", csGeopos->qrLatitude  );
-                        fprintf( csStream, "%.16e,\n", 0.0  );
+                        fprintf( csStream, "%.16e \n", 0.0  );
 
                         /* Export format */
                         fprintf( csStream, "],\n" );
