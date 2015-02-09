@@ -62,10 +62,10 @@
         char csSTLm[256] = { 0 };
 
         /* Query variables */
-        lp_Trigger_t csTrigger;
-        lp_Geopos_t  csGeopos;
-        lp_Orient_t  csOrient;
-        lp_Still_t   csStill;
+        lp_Trigger_t  csTrigger;
+        lp_Position_t csPosition;
+        lp_Orient_t   csOrient;
+        lp_Still_t    csStill;
 
         /* Object variables */
         cs_Object_t * csJson = NULL;
@@ -91,10 +91,10 @@
         } else {
 
             /* Create queries descriptors */
-            csTrigger = lp_query_trigger_create    ( csPath, csCAMd, csCAMm );
-            csGeopos  = lp_query_position_create   ( csPath, csGPSd, csGPSm );
-            csOrient  = lp_query_orientation_create( csPath, csIMUd, csIMUm );
-            csStill   = lp_query_still_create      ( csPath, csSTLd, csSTLm );
+            csTrigger  = lp_query_trigger_create    ( csPath, csCAMd, csCAMm );
+            csPosition = lp_query_position_create   ( csPath, csGPSd, csGPSm );
+            csOrient   = lp_query_orientation_create( csPath, csIMUd, csIMUm );
+            csStill    = lp_query_still_create      ( csPath, csSTLd, csSTLm );
 
             /* Check previous file existence */
             if ( lc_file_detect( csFile, LC_FILE ) == LC_TRUE ) {
@@ -111,7 +111,7 @@
                     fprintf( LC_OUT, "Updating %s JSON file ...\n", basename( csFile ) );
 
                     /* File exportation */
-                    cs_export( & csTrigger, & csGeopos, & csOrient, & csStill, csFile, csJson );
+                    cs_export( & csTrigger, & csPosition, & csOrient, & csStill, csFile, csJson );
 
                     /* Delete master object */
                     json_object_put( csJson );
@@ -124,15 +124,15 @@
                 fprintf( LC_OUT, "Creating %s JSON file ...\n", basename( csFile ) );
 
                 /* File exportation */
-                cs_export( & csTrigger, & csGeopos, & csOrient, & csStill, csFile, NULL );
+                cs_export( & csTrigger, & csPosition, & csOrient, & csStill, csFile, NULL );
 
             }
 
             /* Delete queries descriptors */
-            lp_query_trigger_delete    ( & csTrigger );
-            lp_query_position_delete   ( & csGeopos  );
-            lp_query_orientation_delete( & csOrient  );
-            lp_query_still_delete      ( & csStill   );
+            lp_query_trigger_delete    ( & csTrigger  );
+            lp_query_position_delete   ( & csPosition );
+            lp_query_orientation_delete( & csOrient   );
+            lp_query_still_delete      ( & csStill    );
 
         }
 
@@ -147,12 +147,12 @@
 
     void cs_export( 
 
-        lp_Trigger_t * const csTrigger, 
-        lp_Geopos_t  * const csGeopos, 
-        lp_Orient_t  * const csOrient,
-        lp_Still_t   * const csStill,
-        char         * const csFile,
-        cs_Object_t  * const csJson
+        lp_Trigger_t  * const csTrigger, 
+        lp_Position_t * const csPosition, 
+        lp_Orient_t   * const csOrient,
+        lp_Still_t    * const csStill,
+        char          * const csFile,
+        cs_Object_t   * const csJson
 
     ) {
 
@@ -201,7 +201,7 @@
                 lp_query_trigger_byindex( csTrigger, csParse );
 
                 /* Query position */
-                lp_query_position( csGeopos, csTrigger->qrSynch );
+                lp_query_position( csPosition, csTrigger->qrSynch );
 
                 /* Query orientation */
                 lp_query_orientation( csOrient, csTrigger->qrSynch );
@@ -224,7 +224,7 @@
                 fprintf( csStream, "\"usec\":%" lp_Time_p ",\n", lp_timestamp_usec( csTrigger->qrMaster ) );
 
                 /* Check position availability */
-                if ( lp_query_position_status( csGeopos ) == LP_FALSE ) {
+                if ( lp_query_position_status( csPosition ) == LP_FALSE ) {
 
                     /* Export to stream */
                     cs_export_field( "position", "null", ",", csStream, NULL );
@@ -234,9 +234,9 @@
                     /* Exception management */
                     if ( 
 
-                        ( isnormal( csGeopos->qrAltitude  ) == 0 ) || 
-                        ( isnormal( csGeopos->qrLongitude ) == 0 ) || 
-                        ( isnormal( csGeopos->qrLatitude  ) == 0 ) 
+                        ( isnormal( csPosition->qrAltitude  ) == 0 ) || 
+                        ( isnormal( csPosition->qrLongitude ) == 0 ) || 
+                        ( isnormal( csPosition->qrLatitude  ) == 0 ) 
 
                     ) {
 
@@ -252,9 +252,9 @@
                         fprintf( csStream, "[\n" ); 
 
                         /* Export to stream */
-                        fprintf( csStream, "%.16e,\n", csGeopos->qrAltitude  );
-                        fprintf( csStream, "%.16e,\n", csGeopos->qrLongitude );
-                        fprintf( csStream, "%.16e,\n", csGeopos->qrLatitude  );
+                        fprintf( csStream, "%.16e,\n", csPosition->qrAltitude  );
+                        fprintf( csStream, "%.16e,\n", csPosition->qrLongitude );
+                        fprintf( csStream, "%.16e,\n", csPosition->qrLatitude  );
                         fprintf( csStream, "%.16e \n", 0.0  );
 
                         /* Export format */
