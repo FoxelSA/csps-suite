@@ -140,9 +140,9 @@
         lp_Size_t csParse = 0;
 
         /* CSPS query variables */
-        lp_Trigger_t csTrigger;
-        lp_Geopos_t  csGeopos;
-        lp_Orient_t  csOrient;
+        lp_Trigger_t  csTrigger;
+        lp_Position_t csPosition;
+        lp_Orient_t   csOrient;
 
         /* Define flags */
         int csMF = 0, csFF = 0, csIF = 0;
@@ -175,9 +175,9 @@
         double csMinAlt = 1e100, csMaxAlt = -1e100;
 
         /* Create query descriptors */
-        csTrigger = lp_query_trigger_create    ( csPath.ptRoot, csPath.ptCAMd, csPath.ptCAMm );
-        csGeopos  = lp_query_position_create   ( csPath.ptRoot, csPath.ptGPSd, csPath.ptGPSm );
-        csOrient  = lp_query_orientation_create( csPath.ptRoot, csPath.ptIMUd, csPath.ptIMUm );
+        csTrigger  = lp_query_trigger_create    ( csPath.ptRoot, csPath.ptCAMd, csPath.ptCAMm );
+        csPosition = lp_query_position_create   ( csPath.ptRoot, csPath.ptGPSd, csPath.ptGPSm );
+        csOrient   = lp_query_orientation_create( csPath.ptRoot, csPath.ptIMUd, csPath.ptIMUm );
 
         /* Declare display list begining */
         glNewList( csTag, GL_COMPILE ); {
@@ -193,30 +193,30 @@
 
                     /* Query position and orientation by timestamp */
                     lp_query_trigger_byindex( & csTrigger, csParse );
-                    lp_query_position( & csGeopos, csTrigger.qrSynch );
+                    lp_query_position( & csPosition, csTrigger.qrSynch );
                     lp_query_orientation( & csOrient, csTrigger.qrSynch );
 
                     /* Check query results */
-                    if ( ( csGeopos.qrStatus == LP_TRUE ) && ( csOrient.qrStatus == LP_TRUE ) ) {
+                    if ( ( csPosition.qrStatus == LP_TRUE ) && ( csOrient.qrStatus == LP_TRUE ) ) {
 
                         /* Compute flat meters using equatorial radius */
-                        csGeopos.qrLongitude *= CS_VIEW_SCENE_RAD2METER; 
-                        csGeopos.qrLatitude  *= CS_VIEW_SCENE_RAD2METER;
+                        csPosition.qrLongitude *= CS_VIEW_SCENE_RAD2METER; 
+                        csPosition.qrLatitude  *= CS_VIEW_SCENE_RAD2METER;
 
                         /* Save initial position */
                         if ( csIF == 0 ) {
 
                             /* Save components */
-                            csIX = + csGeopos.qrLongitude;
-                            csIY = + csGeopos.qrAltitude;
-                            csIZ = + csGeopos.qrLatitude;
+                            csIX = + csPosition.qrLongitude;
+                            csIY = + csPosition.qrAltitude;
+                            csIZ = + csPosition.qrLatitude;
 
                         } csIF = 1;
 
                         /* Compute cartesian coordinates */
-                        csPX = csGeopos.qrLongitude - csIX;
-                        csPY = csGeopos.qrAltitude  - csIY;
-                        csPZ = csGeopos.qrLatitude  - csIZ;
+                        csPX = csPosition.qrLongitude - csIX;
+                        csPY = csPosition.qrAltitude  - csIY;
+                        csPZ = csPosition.qrLatitude  - csIZ;
 
                         /* Verify previous point memory */
                         if ( csMF != 0 ) { 
@@ -365,7 +365,7 @@
 
         /* Delete queries descriptors */
         lp_query_trigger_delete    ( & csTrigger );
-        lp_query_position_delete   ( & csGeopos  );
+        lp_query_position_delete   ( & csPosition  );
         lp_query_orientation_delete( & csOrient  );
 
         /* Reset initial position and assign initial means */
