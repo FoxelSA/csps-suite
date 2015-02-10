@@ -307,7 +307,7 @@
                         fprintf( csStream, "%.16e,\n", csPosition->qrAltitude  );
                         fprintf( csStream, "%.16e,\n", csPosition->qrLongitude );
                         fprintf( csStream, "%.16e,\n", csPosition->qrLatitude  );
-                        fprintf( csStream, "%.16e \n", 0.0  );
+                        fprintf( csStream, "%.16e \n", csPosition->qrWeak      );
 
                         /* Export format */
                         fprintf( csStream, "],\n" );
@@ -351,16 +351,16 @@
                         fprintf( csStream, "[\n" );
 
                         /* Export to stream */
-                        fprintf( csStream, "%.16e,\n", csOrient->qrfxx );
-                        fprintf( csStream, "%.16e,\n", csOrient->qrfxy );
-                        fprintf( csStream, "%.16e,\n", csOrient->qrfxz );
-                        fprintf( csStream, "%.16e,\n", csOrient->qrfyx );
-                        fprintf( csStream, "%.16e,\n", csOrient->qrfyy );
-                        fprintf( csStream, "%.16e,\n", csOrient->qrfyz );
-                        fprintf( csStream, "%.16e,\n", csOrient->qrfzx );
-                        fprintf( csStream, "%.16e,\n", csOrient->qrfzy );
-                        fprintf( csStream, "%.16e,\n", csOrient->qrfzz );
-                        fprintf( csStream, "%.16e \n", 0.0 );
+                        fprintf( csStream, "%.16e,\n", csOrient->qrfxx  );
+                        fprintf( csStream, "%.16e,\n", csOrient->qrfxy  );
+                        fprintf( csStream, "%.16e,\n", csOrient->qrfxz  );
+                        fprintf( csStream, "%.16e,\n", csOrient->qrfyx  );
+                        fprintf( csStream, "%.16e,\n", csOrient->qrfyy  );
+                        fprintf( csStream, "%.16e,\n", csOrient->qrfyz  );
+                        fprintf( csStream, "%.16e,\n", csOrient->qrfzx  );
+                        fprintf( csStream, "%.16e,\n", csOrient->qrfzy  );
+                        fprintf( csStream, "%.16e,\n", csOrient->qrfzz  );
+                        fprintf( csStream, "%.16e \n", csOrient->qrWeak );
 
                         /* Export format */
                         fprintf( csStream, "]\n" );
