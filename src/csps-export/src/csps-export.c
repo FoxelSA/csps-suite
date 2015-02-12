@@ -97,92 +97,52 @@
             if ( lp_query_trigger_state( & csTrigger ) == LP_FALSE ) {
 
                 /* Display message */
-                fprintf( LC_ERR, "Error : unable to create query structure on trigger\n" );
+                fprintf( LC_ERR, "Error : unable to create query structure on camera trigger\n" );
 
             } else {
 
                 /* Create query structure */
                 csPosition = lp_query_position_create( csPath, csGPSd, csGPSm );
+                csOrient   = lp_query_orientation_create( csPath, csIMUd, csIMUm );
+                csStill    = lp_query_still_create( csPath, csSTLd, csSTLm );
 
-                /* Verify query structures */
-                if ( lp_query_position_state( & csPosition ) == LP_FALSE ) {
+                /* Check previous file existence */
+                if ( lc_file_detect( csFile, LC_FILE ) == LC_TRUE ) {
 
-                    /* Display message */
-                    fprintf( LC_ERR, "Error : unable to create query structure on position\n" );
-
-                } else {
-
-                    /* Create query structure */
-                    csOrient = lp_query_orientation_create( csPath, csIMUd, csIMUm );
-
-                    /* Verify query structures */
-                    if ( lp_query_orientation_state( & csOrient ) == LP_FALSE ) {
+                    /* Create master object */
+                    if ( ( csJson = json_object_from_file( csFile ) ) == NULL ) {
 
                         /* Display message */
-                        fprintf( LC_ERR, "Error : unable to create query structure on orientation\n" );
+                        fprintf( LC_ERR, "Error : unable to import %s file content\n", basename( csFile ) );
 
                     } else {
 
-                        /* Create query structure */
-                        csStill = lp_query_still_create( csPath, csSTLd, csSTLm );
+                        /* Display message */
+                        fprintf( LC_OUT, "Updating %s JSON file ...\n", basename( csFile ) );
 
-                        /* Verify query structures */
-                        if ( lp_query_still_state( & csStill ) == LP_FALSE ) {
+                        /* File exportation */
+                        cs_export( & csTrigger, & csPosition, & csOrient, & csStill, csFile, csJson );
 
-                            /* Display message */
-                            fprintf( LC_ERR, "Error : unable to create query structure on still range\n" );
-
-                        } else {
-
-                            /* Check previous file existence */
-                            if ( lc_file_detect( csFile, LC_FILE ) == LC_TRUE ) {
-
-                                /* Create master object */
-                                if ( ( csJson = json_object_from_file( csFile ) ) == NULL ) {
-
-                                    /* Display message */
-                                    fprintf( LC_ERR, "Error : unable to import %s file content\n", basename( csFile ) );
-
-                                } else {
-
-                                    /* Display message */
-                                    fprintf( LC_OUT, "Updating %s JSON file ...\n", basename( csFile ) );
-
-                                    /* File exportation */
-                                    cs_export( & csTrigger, & csPosition, & csOrient, & csStill, csFile, csJson );
-
-                                    /* Delete master object */
-                                    json_object_put( csJson );
-
-                                }
-
-                            } else {
-
-                                /* Display message */
-                                fprintf( LC_OUT, "Creating %s JSON file ...\n", basename( csFile ) );
-
-                                /* File exportation */
-                                cs_export( & csTrigger, & csPosition, & csOrient, & csStill, csFile, NULL );
-
-                            }
-
-                            /* Delete query structure */
-                            lp_query_still_delete( & csStill );
-
-                        }
-
-                        /* Delete query structure */
-                        lp_query_orientation_delete( & csOrient );
+                        /* Delete master object */
+                        json_object_put( csJson );
 
                     }
 
-                    /* Delete query structure */
-                    lp_query_position_delete( & csPosition );
+                } else {
+
+                    /* Display message */
+                    fprintf( LC_OUT, "Creating %s JSON file ...\n", basename( csFile ) );
+
+                    /* File exportation */
+                    cs_export( & csTrigger, & csPosition, & csOrient, & csStill, csFile, NULL );
 
                 }
 
                 /* Delete query structure */
-                lp_query_trigger_delete( & csTrigger  );
+                lp_query_still_delete      ( & csStill    );
+                lp_query_orientation_delete( & csOrient   );
+                lp_query_position_delete   ( & csPosition );
+                lp_query_trigger_delete    ( & csTrigger  );
 
             }
 
