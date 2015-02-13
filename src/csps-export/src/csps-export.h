@@ -169,22 +169,22 @@
      *  the previous exportation file if available. The function expect already
      *  created CSPS query structures.
      *
-     *  \param csTrigger CSPS camera trigger query structure
-     *  \param csGeopos  CSPS geoposition query structure
-     *  \param csOrient  CSPS orientation query structure
-     *  \param csStill   CSPS still range query structure
-     *  \param csFile    JSON exportation file
-     *  \param csJson    Previous JSON file main object
+     *  \param csTrigger  CSPS camera trigger query structure
+     *  \param csPosition CSPS geoposition query structure
+     *  \param csOrient   CSPS orientation query structure
+     *  \param csStill    CSPS still range query structure
+     *  \param csFile     JSON exportation file
+     *  \param csJson     Previous JSON file main object
      */
 
     void cs_export( 
 
-        lp_Trigger_t * const csTrigger, 
-        lp_Geopos_t  * const csGeopos, 
-        lp_Orient_t  * const csOrient,
-        lp_Still_t   * const csStill,
-        char         * const csFile,
-        cs_Object_t  * const csJson
+        lp_Trigger_t  * const csTrigger, 
+        lp_Position_t * const csPosition, 
+        lp_Orient_t   * const csOrient,
+        lp_Still_t    * const csStill,
+        char          * const csFile,
+        cs_Object_t   * const csJson
 
     );
 

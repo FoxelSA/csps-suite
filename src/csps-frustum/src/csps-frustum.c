@@ -86,11 +86,11 @@
         cs_List_t * csStack = NULL;
 
         /* CSPS query structures variables */
-        lp_Geopos_t  csaGeopos;
-        lp_Geopos_t  csbGeopos;
-        lp_Orient_t  csaOrient;
-        lp_Orient_t  csbOrient;
-        lp_Trigger_t csTrigger;
+        lp_Position_t csaPosition;
+        lp_Position_t csbPosition;
+        lp_Orient_t   csaOrient;
+        lp_Orient_t   csbOrient;
+        lp_Trigger_t  csTrigger;
 
         /* Frustums variables */
         cs_Frustum_t csaFrustum;
@@ -131,11 +131,11 @@
             } else {
 
                 /* Create queries descriptors */
-                csTrigger = lp_query_trigger_create    ( csPath, csCAMd, csCAMm );
-                csaGeopos = lp_query_position_create   ( csPath, csGPSd, csGPSm );
-                csbGeopos = lp_query_position_create   ( csPath, csGPSd, csGPSm );
-                csaOrient = lp_query_orientation_create( csPath, csIMUd, csIMUm );
-                csbOrient = lp_query_orientation_create( csPath, csIMUd, csIMUm );
+                csTrigger   = lp_query_trigger_create    ( csPath, csCAMd, csCAMm );
+                csaPosition = lp_query_position_create   ( csPath, csGPSd, csGPSm );
+                csbPosition = lp_query_position_create   ( csPath, csGPSd, csGPSm );
+                csaOrient   = lp_query_orientation_create( csPath, csIMUd, csIMUm );
+                csbOrient   = lp_query_orientation_create( csPath, csIMUd, csIMUm );
 
                 /* Import OpenMVG list */
                 if ( ( csSize = cs_frusmtum_list( csList, & csStack, & csTrigger ) ) == 0 ) {
@@ -165,11 +165,11 @@
                             for ( csaLoop = 0; csaLoop < csSize; csaLoop ++ ) {
 
                                 /* CSPS query - Positions & orientation */
-                                lp_query_position   ( & csaGeopos, csStack[csaLoop].lsTime );
-                                lp_query_orientation( & csaOrient, csStack[csaLoop].lsTime );
+                                lp_query_position   ( & csaPosition, csStack[csaLoop].lsTime );
+                                lp_query_orientation( & csaOrient  , csStack[csaLoop].lsTime );
 
                                 /* Check query status */
-                                if ( ( lp_query_position_status( & csaGeopos ) == LP_FALSE ) || ( lp_query_orientation_status( & csaOrient ) == LP_FALSE ) ) {
+                                if ( ( lp_query_position_status( & csaPosition ) == LP_FALSE ) || ( lp_query_orientation_status( & csaOrient ) == LP_FALSE ) ) {
 
                                     /* Display message */
                                     fprintf( LC_ERR, "Warning : unable to query position/orientation with image %lu\n", csaLoop );
@@ -180,11 +180,11 @@
                                     for ( csbLoop = csaLoop + 1; csbLoop < csSize; csbLoop ++ ) {
 
                                         /* CSPS query - Positions and orientation */
-                                        lp_query_position   ( & csbGeopos, csStack[csbLoop].lsTime );
-                                        lp_query_orientation( & csbOrient, csStack[csbLoop].lsTime );
+                                        lp_query_position   ( & csbPosition, csStack[csbLoop].lsTime );
+                                        lp_query_orientation( & csbOrient  , csStack[csbLoop].lsTime );
 
                                         /* Check query status */
-                                        if ( ( lp_query_position_status( & csbGeopos ) == LP_FALSE ) || ( lp_query_orientation_status( & csbOrient ) == LP_FALSE ) ) {
+                                        if ( ( lp_query_position_status( & csbPosition ) == LP_FALSE ) || ( lp_query_orientation_status( & csbOrient ) == LP_FALSE ) ) {
 
                                             /* Display message */
                                             fprintf( LC_ERR, "Warning : unable to query position/orientation with image %lu\n", csbLoop );
@@ -192,9 +192,9 @@
                                         } else {
 
                                             /* Compute corrected positions - Local flat earth model */
-                                            csbGeopos.qrLongitude = ( csbGeopos.qrLongitude - csaGeopos.qrLongitude ) * ( ( ( 6367514.5 + csaGeopos.qrAltitude ) * LF_PI / 180.0 ) );
-                                            csbGeopos.qrLatitude  = ( csbGeopos.qrLatitude  - csaGeopos.qrLatitude  ) * ( ( ( 6367514.5 + csaGeopos.qrAltitude ) * LF_PI / 180.0 ) );
-                                            csbGeopos.qrAltitude  = ( csbGeopos.qrAltitude  - csaGeopos.qrAltitude  );
+                                            csbPosition.qrLongitude = ( csbPosition.qrLongitude - csaPosition.qrLongitude ) * ( ( ( 6367514.5 + csaPosition.qrAltitude ) * LF_PI / 180.0 ) );
+                                            csbPosition.qrLatitude  = ( csbPosition.qrLatitude  - csaPosition.qrLatitude  ) * ( ( ( 6367514.5 + csaPosition.qrAltitude ) * LF_PI / 180.0 ) );
+                                            csbPosition.qrAltitude  = ( csbPosition.qrAltitude  - csaPosition.qrAltitude  );
 
                                             /* Compute frustum of first camera */
                                             cs_frustum_eyesis4pi( csCamera, csStack[csaLoop].lsChannel,
@@ -228,9 +228,9 @@
                                                 csbOrient.qrfzx, 
                                                 csbOrient.qrfzy, 
                                                 csbOrient.qrfzz,
-                                                csbGeopos.qrLongitude, 
-                                                csbGeopos.qrLatitude, 
-                                                csbGeopos.qrAltitude,
+                                                csbPosition.qrLongitude, 
+                                                csbPosition.qrLatitude, 
+                                                csbPosition.qrAltitude,
                                                 csNear, 
                                                 csFar, 
 
@@ -280,11 +280,11 @@
                 }
 
                 /* Delete queries descriptor */
-                lp_query_trigger_delete    ( & csTrigger );
-                lp_query_position_delete   ( & csaGeopos );
-                lp_query_position_delete   ( & csbGeopos );
-                lp_query_orientation_delete( & csaOrient );
-                lp_query_orientation_delete( & csbOrient );
+                lp_query_trigger_delete    ( & csTrigger   );
+                lp_query_position_delete   ( & csaPosition );
+                lp_query_position_delete   ( & csbPosition );
+                lp_query_orientation_delete( & csaOrient   );
+                lp_query_orientation_delete( & csbOrient   );
 
             }
 
