@@ -102,9 +102,9 @@
             } else {
 
                 /* Create query structure */
-                csPosition = lp_query_position_create( csPath, csGPSd, csGPSm );
+                csPosition = lp_query_position_create   ( csPath, csGPSd, csGPSm );
                 csOrient   = lp_query_orientation_create( csPath, csIMUd, csIMUm );
-                csStill    = lp_query_still_create( csPath, csSTLd, csSTLm );
+                csStill    = lp_query_still_create      ( csPath, csSTLd, csSTLm );
 
                 /* Check previous file existence */
                 if ( lc_file_detect( csFile, LC_FILE ) == LC_TRUE ) {
