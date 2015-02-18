@@ -112,6 +112,13 @@
 
     ) {
 
+        /* Sorting array variables */
+        lp_Time_t * csTime[2] = { NULL };
+        size_t    * csLink[2] = { NULL };
+
+        /* Size variables */
+        size_t csSize = 0;
+
         /* Streams variables */
         FILE * csiStream = NULL;
         FILE * csoStream = NULL;
@@ -119,13 +126,21 @@
         /* Create and check input stream */
         if ( ( csiStream = fopen( csiFile, "r" ) ) != NULL ) {
 
+            /* Retrieve input stream size */
+            csSize = lc_file_size( csiFile );
+
             /* Create and check input stream */
             if ( ( csoStream = fopen( csoFile, "w" ) ) != NULL ) {
 
-                
+                /* Allocating sorting array memory */
+                csTime[0] = ( lp_Time_t * ) malloc( csSize * sizeof ( lp_Time_t ) );
+                csTime[1] = ( lp_Time_t * ) malloc( csSize * sizeof ( lp_Time_t ) );
+
+                csLink[0] = ( lp_Time_t * ) malloc( csSize * sizeof ( size_t ) );
+                csLink[1] = ( lp_Time_t * ) malloc( csSize * sizeof ( size_t ) );
 
 
-                /* Close input stream */
+                /* Close output stream */
                 fclose( csoStream );
 
             /* Display message */
