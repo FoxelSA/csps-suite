@@ -119,14 +119,19 @@
     Source - File copy
 */
 
-    void cs_elphel_validate( char const * const csIFile, char const * const csOFile ) {
+    void cs_elphel_validate( 
+
+        char const * const csiFile, 
+        char const * const csoFile 
+
+    ) {
 
         /* Records buffer variables */
         lp_Byte_t csBuffer[LC_RECORD] = { 0 };
 
         /* File handle variables */
-        FILE * csIStream = fopen( csIFile, "rb" );
-        FILE * csOStream = fopen( csOFile, "wb" );
+        FILE * csIStream = fopen( csiFile, "rb" );
+        FILE * csOStream = fopen( csoFile, "wb" );
 
         /* Check stream creation */
         if ( ( csIStream != NULL ) && ( csOStream != NULL ) ) {
@@ -139,7 +144,7 @@
             fclose( csOStream );
 
         /* Display message */
-        } else { fprintf( LC_ERR, "Error : unable to access %s or/and %s\n", basename( ( char * ) csIFile ), basename( ( char * ) csOFile ) ); }
+        } else { fprintf( LC_ERR, "Error : unable to access %s or/and %s\n", basename( ( char * ) csiFile ), basename( ( char * ) csoFile ) ); }
 
     }
 

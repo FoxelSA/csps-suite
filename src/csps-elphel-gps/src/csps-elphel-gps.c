@@ -124,7 +124,12 @@
     Source - Logs-file GPS decimation
 */
 
-    unsigned long cs_elphel_gps_process( FILE * const csIStream, FILE * const csOStream ) {
+    unsigned long cs_elphel_gps_process( 
+
+        FILE * const csIStream, 
+        FILE * const csOStream 
+
+    ) {
 
         /* Records buffer stack variables */
         lp_Byte_t csStackSent[CS_NTYPE][LC_RECORD] = { { 0 } };
@@ -273,7 +278,11 @@
     Source - NMEA sentence block validation
  */
 
-    int cs_elphel_gps_bloc( lp_Byte_t const * const csBlock ) {
+    int cs_elphel_gps_bloc( 
+
+        lp_Byte_t const * const csBlock
+
+    ) {
 
         /* Returned value variables */
         int csReturn = LC_TRUE;
@@ -298,7 +307,12 @@
     Source - GPS timestamp reconstruction
 */
 
-    lp_Time_t cs_elphel_gps_timestamp( lp_Time_t const csReference, unsigned long const csRepet ) {
+    lp_Time_t cs_elphel_gps_timestamp( 
+
+        lp_Time_t     const csReference,
+        unsigned long const csRepet 
+
+    ) {
 
         /* Computation buffer variables */
         lp_Time_t csReturn = csRepet * 200000lu;
@@ -312,7 +326,12 @@
     Source - Record header override
 */
 
-    void cs_elphel_gps_header( lp_Time_t * const csHeader, lp_Time_t const csTime ) {
+    void cs_elphel_gps_header( 
+
+        lp_Time_t * const csHeader, 
+        lp_Time_t   const csTime 
+
+    ) {
 
         /* Override record header */
         ( * csHeader ) = csTime | ( ( * csHeader ) & 0x00000000FFF00000llu );

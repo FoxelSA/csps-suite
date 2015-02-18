@@ -151,11 +151,16 @@
      *
      *  This function simply copies the source file in the output destination.
      *
-     *  \param csIFile Source file path
-     *  \param csOFile destination file path
+     *  \param csiFile Source file path
+     *  \param csoFile destination file path
      */
 
-    void cs_elphel_validate ( char const * const csIFile, char const * const csOFile );
+    void cs_elphel_validate( 
+
+        char const * const csiFile, 
+        char const * const csoFile 
+
+    );
 
 /* 
     Header - C/C++ compatibility

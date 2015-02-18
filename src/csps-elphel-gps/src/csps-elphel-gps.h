@@ -166,7 +166,12 @@
      *  \return Returns the number of discarded GPS-events
      */
 
-    unsigned long cs_elphel_gps_process ( FILE * const csIStream, FILE * const csOStream );
+    unsigned long cs_elphel_gps_process( 
+
+        FILE * const csIStream, 
+        FILE * const csOStream 
+
+    );
 
     /*! \brief NMEA sentence block validation
      *
@@ -184,7 +189,11 @@
      *          otherwise
      */
 
-    int cs_elphel_gps_bloc ( lp_Byte_t const * const csBlock );
+    int cs_elphel_gps_bloc( 
+
+        lp_Byte_t const * const csBlock
+
+    );
 
     /*! \brief GPS timestamp reconstruction
      * 
@@ -198,7 +207,12 @@
      *  \return Returns rebuilded GPS-event timestamp
      */
 
-    lp_Time_t cs_elphel_gps_timestamp ( lp_Time_t const csReference, unsigned long const csRepet );
+    lp_Time_t cs_elphel_gps_timestamp( 
+
+        lp_Time_t     const csReference,
+        unsigned long const csRepet 
+
+    );
 
     /*! \brief Record header override
      *  
@@ -209,7 +223,12 @@
      *  \param csTime   Timestamp to write in recrod header
      */
 
-    void cs_elphel_gps_header ( lp_Time_t * const csHeader, lp_Time_t const csTime );
+    void cs_elphel_gps_header( 
+
+        lp_Time_t * const csHeader, 
+        lp_Time_t   const csTime 
+
+    );
 
 /* 
     Header - C/C++ compatibility
