@@ -148,7 +148,7 @@
 
     int main ( int argc, char ** argv );
 
-    /*! \brief File copy
+    /*! \brief File validation
      *
      *  This function simply copies the source file in the output destination.
      *

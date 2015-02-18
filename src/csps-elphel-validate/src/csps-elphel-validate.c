@@ -116,7 +116,7 @@
     }
 
 /*
-    Source - File copy
+    Source - File validation
 */
 
     void cs_elphel_validate( 
