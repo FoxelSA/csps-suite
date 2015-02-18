@@ -58,13 +58,9 @@
         /* Validation index variables */
         long csIndex = 1;
 
-        /* Minimum size variables */
-        long csMinimum = 317696; /* ~ 2 Seconds */
-
         /* Search in parameters */
-        lc_stdp( lc_stda( argc, argv, "--source"      , "-s" ), argv,   csSrc     , LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--destination" , "-d" ), argv,   csDst     , LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--minimum-size", "-m" ), argv, & csMinimum , LC_LONG   );
+        lc_stdp( lc_stda( argc, argv, "--source"     , "-s" ), argv,   csSrc     , LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--destination", "-d" ), argv,   csDst     , LC_STRING );
 
         /* Execution switch */
         if ( lc_stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
@@ -83,22 +79,14 @@
                     /* Check logs-file tag */
                     if ( strstr( csEnt, LC_PATTERN ) != 0 ) {
 
-                        /* Validation on file size */
-                        if ( lc_file_size( csEnt ) > csMinimum ) {
+                        /* Build validated logs-file path */
+                        sprintf( csExp, "%s/log-container.log-%05li", csDst, csIndex ++ );
 
-                            /* Build validated temporary logs-file path */
-                            sprintf( csExp, "%s/log-container.log-%05li", csDst, csIndex ++ );
+                        /* Display information */
+                        fprintf( LC_OUT, "Sorting : %s\n    Exported in %s\n", basename( csEnt ), basename( csExp ) );
 
-                            /* Display information */
-                            fprintf( LC_OUT, "Validating : %s\n    Exported in %s\n", basename( csEnt ), basename( csExp ) );
-
-
-                        } else {
-
-                            /* Display information */
-                            fprintf( LC_OUT, "Validating : %s\n    Not exported\n", basename( csEnt ) );
-
-                        }
+                        /* Sorting procedure */
+                        cs_elphel_sort( csEnt, csExp );
 
                     }
 
@@ -112,3 +100,42 @@
         return( EXIT_SUCCESS );
 
     }
+
+/*
+    Source - Sorting procedure
+ */
+
+    void cs_elphel_sort(
+
+        char const * const csiFile,
+        char const * const csoFile
+
+    ) {
+
+        /* Streams variables */
+        FILE * csiStream = NULL;
+        FILE * csoStream = NULL;
+
+        /* Create and check input stream */
+        if ( ( csiStream = fopen( csiFile, "r" ) ) != NULL ) {
+
+            /* Create and check input stream */
+            if ( ( csoStream = fopen( csoFile, "w" ) ) != NULL ) {
+
+                
+
+
+                /* Close input stream */
+                fclose( csoStream );
+
+            /* Display message */
+            } else { fprintf( LC_ERR, "Error : unable to access %s\n", basename( ( char * ) csoFile ) ); }
+
+            /* Close input stream */
+            fclose( csiStream );
+
+        /* Display message */
+        } else { fprintf( LC_ERR, "Error : unable to access %s\n", basename( ( char * ) csiFile ) ); }
+
+    }
+

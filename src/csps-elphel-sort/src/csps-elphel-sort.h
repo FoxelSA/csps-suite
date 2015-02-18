@@ -36,7 +36,7 @@
  *      Attribution" section of <http://foxel.ch/license>.
  */
 
-    /*! \file   csps-elphel-validate.h
+    /*! \file   csps-elphel-sort.h
      *  \author Nils Hamel <n.hamel@foxel.ch>
      *   
      *  Software main header
@@ -99,7 +99,6 @@
     # include <stdio.h>
     # include <stdlib.h>
     # include <string.h>
-    # include <stdint.h>
     # include <libgen.h>
     # include <csps-all.h>
     # include <common-all.h>
@@ -109,10 +108,12 @@
  */
 
     /* Standard help */
-    # define CS_HELP "Usage summary :\n"                \
-    "  csps-elphel-sort [Arguments] [Parameters] ...\n" \
-    "Short arguments and parameters summary :\n"        \
-    "csps-elphel-sort - csps-suite\n"                   \
+    # define CS_HELP "Usage summary :\n"                    \
+    "  csps-elphel-sort [Arguments] [Parameters] ...\n"     \
+    "Short arguments and parameters summary :\n"            \
+    "  -s Directory containing source logs-files\n"         \
+    "  -d Directory where sorted logs-files are exported\n" \
+    "csps-elphel-sort - csps-suite\n"                       \
     "Copyright (c) 2013-2015 FOXEL SA\n"
 
 /* 
@@ -140,6 +141,13 @@
      */
 
     int main ( int argc, char ** argv );
+
+    void cs_elphel_sort(
+
+        char const * const csiFile,
+        char const * const csoFile
+
+    );
 
 /* 
     Header - C/C++ compatibility
