@@ -99,6 +99,7 @@
     # include <stdio.h>
     # include <stdlib.h>
     # include <string.h>
+    # include <stdint.h>
     # include <libgen.h>
     # include <csps-all.h>
     # include <common-all.h>
@@ -159,6 +160,12 @@
 
         char const * const csiFile, 
         char const * const csoFile 
+
+    );
+
+    int cs_elphel_validate_record(
+
+        lp_Byte_t const * const csBuffer
 
     );
 
