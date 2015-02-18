@@ -163,6 +163,17 @@
 
     );
 
+    /*! \brief Record validation
+     *
+     *  This function detect if a record buffer is valid or not to remove record
+     *  buffer filled with random value due to hardware malfunction. Detection
+     *  is based on expected binary pattern in each record.
+     *
+     *  \param  csBuffer Pointer to record buffer
+     *
+     *  \return Returns boolean value that indicates record buffer validity
+     */
+
     int cs_elphel_validate_record(
 
         lp_Byte_t const * const csBuffer
