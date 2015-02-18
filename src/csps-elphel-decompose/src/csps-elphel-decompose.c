@@ -106,93 +106,81 @@
 
         char   const * const csLog, 
         char   const * const csDirectory, 
-        int                csIndex, 
-        double const       csInterval 
+        int                  csIndex, 
+        double const         csInterval 
 
     ) {
+
+        /* Decomposition path variables */
+        char csSeg[256] = { 0 };
 
         /* Records buffer variables */
         lp_Byte_t csRec[LC_RECORD] = { 0 };
 
         /* Timestamp variables */
-        lp_Time_t csPTime = 0;
-        lp_Time_t csCTime = 0;
+        lp_Time_t cspTime = 0;
+        lp_Time_t cscTime = 0;
 
         /* Stream handle variables */
         FILE * csIStream = NULL;
         FILE * csOStream = NULL;
 
-        /* Decomposition segment path variables */
-        char csSeg[256] = { 0 };
+        /* Create and check input stream creation */
+        if ( ( csIStream = fopen( csLog, "rb" ) ) != NULL ) {
 
-        /* Event loss counter variables */
-        unsigned long csCount = 0;
+            /* Compose initial decomposition segment path */
+            sprintf( csSeg, "%s/log-container.log-%05i", csDirectory, csIndex ++ );
 
-        /* Compose initial decomposition segment path */
-        sprintf( csSeg, "%s/log-container.log-%05i", csDirectory, csIndex ++ );
+            /* Create and check output stream creation */
+            if ( ( csOStream = fopen( csSeg, "wb" ) ) != NULL ) { 
 
-        /* Create input stream */
-        csIStream = fopen( csLog, "rb" );
+                /* Display decomposition information */
+                fprintf( LC_OUT, "Decomposing : %s\n    %s\n", basename( ( char * ) csLog ), basename( csSeg ) );
 
-        /* Create output stream */
-        csOStream = fopen( csSeg, "wb" );
+                /* Parsing input stream */
+                while ( fread( csRec, 1, LC_RECORD, csIStream ) == LC_RECORD ) {
 
-        /* Check stream creation */
-        if ( ( csIStream != NULL ) && ( csOStream != NULL ) ) { 
+                    /* Detect IMU events */
+                    if ( LC_EDM( csRec, LC_IMU ) ) {
 
-            /* Display decomposition information */
-            fprintf( LC_OUT, "Decomposing : %s\n    %s\n", basename( ( char * ) csLog ), basename( csSeg ) );
+                        /* Read record timestamp */
+                        cscTime = LC_TSR( csRec );
 
-            /* Parsing input stream */
-            while ( fread( csRec, 1, LC_RECORD, csIStream ) == LC_RECORD ) {
+                        /* Check splitting condition */
+                        if ( ( cspTime != 0 ) && ( lp_timestamp_float( lp_timestamp_diff( cscTime, cspTime ) ) > csInterval ) ) {
 
-                /* Detect IMU events */
-                if ( LC_EDM( csRec, LC_IMU ) ) {
+                            /* Update decomposition segment path */
+                            sprintf( csSeg, "%s/log-container.log-%05i", csDirectory, csIndex ++ );
 
-                    /* Read record timestamp */
-                    csCTime = LC_TSR( csRec );
+                            /* Reset output stream */
+                            fclose( csOStream ); csOStream = fopen( csSeg, "wb" );
 
-                    /* Check splitting condition */
-                    if ( ( csPTime != 0 ) && ( lp_timestamp_float( lp_timestamp_diff( csCTime, csPTime ) ) > csInterval ) ) {
+                            /* Display decomposition information */
+                            fprintf( LC_OUT, "    %s\n", basename( csSeg ) );
 
-                        /* Update decomposition segment path */
-                        sprintf( csSeg, "%s/log-container.log-%05i", csDirectory, csIndex ++ );
+                        }
 
-                        /* Close output stream */
-                        fclose( csOStream );
-
-                        /* Open output stream */
-                        csOStream = fopen( csSeg, "wb" );
-
-                        /* Display decomposition information */
-                        fprintf( LC_OUT, "    %s - %lu event(s) lost\n", basename( csSeg ), csCount );
+                        /* Memorize previous timestamp */
+                        cspTime = cscTime;
 
                     }
 
-                    /* Memorize previous timestamp */
-                    csPTime = csCTime;
-
-                    /* Reset loss count */
-                    csCount = 0;
-
-                } else {
-
-                    /* Update loss count */
-                    csCount ++;
+                    /* Write recored in output stream */
+                    if ( csOStream != NULL ) fwrite( csRec, 1, LC_RECORD, csOStream );
 
                 }
 
-                /* Write recored in output stream */
-                fwrite( csRec, 1, LC_RECORD, csOStream );
+                /* Close output stream */
+                if ( csOStream != NULL ) fclose( csIStream );
 
-            }
+            /* Display message */
+            } else { fprintf( LC_ERR, "Error : unable to access %s\n", basename( csSeg ) ); }
 
-            /* Close streams */
+            /* Close input stream */
             fclose( csOStream );
-            fclose( csIStream );
 
         /* Display message */
-        } else { fprintf( LC_ERR, "Error : unable to access %s or/and %s\n", basename( ( char * ) csLog ), basename( csSeg ) ); }
+        } else { fprintf( LC_ERR, "Error : unable to access %s\n", basename( ( char * ) csLog ) ); }
 
         /* Return decomposition index */
         return( csIndex );

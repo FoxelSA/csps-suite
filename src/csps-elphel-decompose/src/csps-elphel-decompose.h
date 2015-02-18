@@ -167,8 +167,8 @@
 
         char   const * const csLog, 
         char   const * const csDirectory, 
-        int                csIndex, 
-        double const       csInterval 
+        int                  csIndex, 
+        double const         csInterval 
 
     );
 
