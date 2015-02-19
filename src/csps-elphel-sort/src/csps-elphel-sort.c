@@ -117,13 +117,14 @@
 
         /* Sorting structure variables */
         cs_Sort_t * csSort = NULL;
-        cs_Sort_t * csInit = NULL;
+        cs_Sort_t * csHead = NULL;
         cs_Sort_t * csLast = NULL;
-        cs_Sort_t * csPush = NULL;
-        cs_Sort_t * csAdds = NULL;
+        cs_Sort_t * csNear = NULL;
+        cs_Sort_t * csRead = NULL;
+        cs_Sort_t * csTail = NULL;
 
         /* Insertion flag variables */
-        int csFlag = LC_FALSE;
+        //int csFlag = LC_FALSE;
 
         /* Parsing variables */
         size_t csSize  = 0;
@@ -139,13 +140,13 @@
         if ( ( csiStream = fopen( csiFile, "r" ) ) != NULL ) {
 
             /* Retrieve input stream size */
-            csSize = lc_file_size( csiFile );
+            csSize = lc_file_size( csiFile ) / 64;
 
             /* Create and check input stream */
             if ( ( csoStream = fopen( csoFile, "w" ) ) != NULL ) {
 
                 /* Allocating sorting array memory */
-                if ( ( csAdds = ( csSort = ( cs_Sort_t * ) malloc( csSize * sizeof( cs_Sort_t ) ) ) ) != NULL ) {
+                if ( ( csTail = ( csSort = ( cs_Sort_t * ) malloc( csSize * sizeof( cs_Sort_t ) ) ) ) != NULL ) {
 
                     /* Input stream parsing loop */
                     while ( fread( csBuffer, 1, LC_RECORD, csiStream ) == LC_RECORD ) {
@@ -154,77 +155,85 @@
                         csTime = LC_TSR( csBuffer );
 
                         /* Backward parser */
-                        csPush = csLast;
+                        csNear = NULL;
+                        csRead = csLast;
 
-                        /* Insertion flag */
-                        csFlag = LC_FALSE;
-
-                        /* backward insertion */                            
-                        while ( ( csFlag == LC_FALSE ) && ( csPush != NULL ) ) {
+                        /* backward insertion */
+                        while ( ( csNear == NULL ) && ( csRead != NULL ) ) {
 
                             /* Insertion position search */
-                            if ( lp_timestamp_ge( csTime, csPush->srTime ) == LP_TRUE ) {
+                            if ( lp_timestamp_ge( csTime, csRead->srTime ) == LP_TRUE ) {
 
-                                /* Update flag */
-                                csFlag = LC_TRUE;
+                                /* Select nearest */
+                                csNear = csRead;
 
                             } else {
 
-                                /* Update parser */
-                                csPush = csPush->srp;
+                                /* Continue backward insertion */
+                                csRead = csRead->srp;
 
                             }
 
                         }
 
                         /* Insert event */
-                        csAdds->srTime   = csTime;
-                        csAdds->srOffset = ftell( csiStream ) - LC_RECORD;
+                        csTail->srTime   = csTime;
+                        csTail->srOffset = ftell( csiStream ) - LC_RECORD;
 
                         /* Update previous link */
-                        if ( csPush == NULL ) {
+                        if ( csNear == NULL ) {
 
                             /* Update links */
-                            csAdds->srp = NULL;
-                            csAdds->srn = csInit;
+                            csTail->srp = NULL;
+                            csTail->srn = csHead;
 
                             /* Check boundary */
-                            if ( csInit == NULL ) csLast = csAdds; else csInit->srp = csAdds;
-
-                            /* Update boundary */
-                            csInit = csAdds;
-
-                        } else {
-
-                            /* Update link */
-                            csAdds->srp = csPush;
-
-                            /* Check boundary */
-                            if ( csPush->srn == NULL ) {
-
-                                /* Update link */
-                                csAdds->srn = NULL;
+                            if ( csHead == NULL ) {
 
                                 /* Update boundary */
-                                csLast = csAdds;
+                                csLast = csTail; 
 
                             } else {
 
                                 /* Update link */
-                                csAdds->srn = csPush->srn;
+                                csHead->srp = csTail;
+
+                            }
+
+                            /* Update boundary */
+                            csHead = csTail;
+
+                        } else {
+
+                            /* Update link */
+                            csTail->srp = csNear;
+
+                            /* Check boundary */
+                            if ( csNear->srn == NULL ) {
+
+                                /* Update link */
+                                csTail->srn = NULL;
+
+                                /* Update boundary */
+                                csLast = csTail;
+
+                            } else {
+
+                                /* Update link */
+                                csTail->srn = csNear->srn;
 
                                 /* Update next link */
-                                ( ( cs_Sort_t * ) csPush->srn )->srp = csAdds;
+                                ( ( cs_Sort_t * ) csNear->srn )->srp = csTail;
 
                             }
 
                             /* Update previous link */
-                            csPush->srn = csAdds;
+                            csNear->srn = csTail;
 
                         }
 
                         /* Update */
-                        csAdds += 1;
+                        csTail += 1;
 
                     }
 
@@ -232,7 +241,7 @@
                     do {
 
                         /* Setting offset in input stream */
-                        fseek( csiStream, csInit->srOffset , SEEK_SET );
+                        fseek( csiStream, csHead->srOffset , SEEK_SET );
 
                         /* Read input stream */
                         if ( fread( csBuffer, 1, LC_RECORD, csiStream ) == LC_RECORD ) {
@@ -243,9 +252,9 @@
                         }
 
                         /* Update parser */
-                        csInit = csInit->srn;
+                        csHead = csHead->srn;
 
-                    } while ( csInit != NULL );
+                    } while ( csHead != NULL );
 
                     /* Unallocate sorting array memery */
                     free( csSort );
