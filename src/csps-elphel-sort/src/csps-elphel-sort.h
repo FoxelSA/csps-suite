@@ -148,6 +148,10 @@
 
     /*! \brief Software main function
      *  
+     *  The main function lists the logs-files stored in the source directory
+     *  and send them to the sorting procedure. Each sorted logs-file are then
+     *  exported in the destination directory.
+     *
      *  \param  argc Standard main parameter
      *  \param  argv Standard main parameter
      *
@@ -155,6 +159,18 @@
      */
 
     int main ( int argc, char ** argv );
+
+    /*! \brief Sorting procedure
+     *
+     *  This procedure takes a logs-file path as input in order to open it. It
+     *  reads the event records in the source logs-file and sort them, on the
+     *  basis of their timestamp, and export the sorted results in the output
+     *  file. This function is designed to consume as less as memory space as
+     *  possible, avoiding to load entire logs-file.
+     * 
+     *  \param csiFile Path to input logs-file
+     *  \param csiFile Path to output logs-file
+     */
 
     void cs_elphel_sort(
 
