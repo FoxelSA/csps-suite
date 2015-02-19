@@ -126,7 +126,6 @@
         int csFlag = LC_FALSE;
 
         /* Parsing variables */
-        size_t csParse = 0;
         size_t csSize  = 0;
 
         /* Timestamp variables */
@@ -190,7 +189,7 @@
                             csAdds->srn = csInit;
 
                             /* Check boundary */
-                            if ( csInit == NULL ) csLast = csAdds;
+                            if ( csInit == NULL ) csLast = csAdds; else csInit->srp = csAdds;
 
                             /* Update boundary */
                             csInit = csAdds;
