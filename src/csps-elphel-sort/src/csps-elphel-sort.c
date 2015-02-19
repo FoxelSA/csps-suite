@@ -125,12 +125,12 @@
         /* Insertion flag variables */
         int csFlag = LC_FALSE;
 
-        /* Timestamp variables */
-        lp_Time_t csTime = 0;
-
         /* Parsing variables */
         size_t csParse = 0;
         size_t csSize  = 0;
+
+        /* Timestamp variables */
+        lp_Time_t csTime = 0;
 
         /* Streams variables */
         FILE * csiStream = NULL;
@@ -146,18 +146,7 @@
             if ( ( csoStream = fopen( csoFile, "w" ) ) != NULL ) {
 
                 /* Allocating sorting array memory */
-                if ( ( csSort = ( cs_Sort_t * ) malloc( csSize * sizeof( cs_Sort_t ) ) ) != NULL ) {
-
-                    /* Initialize memory structure */
-                    for ( csParse = 0; csParse < csSize; csParse ++ ) {
-
-                        /* Clear chain pointers */
-                        csSort[csParse].srp = NULL;
-                        csSort[csParse].srn = NULL;
-
-                    }
-
-                    csAdds = csSort;
+                if ( ( csAdds = ( csSort = ( cs_Sort_t * ) malloc( csSize * sizeof( cs_Sort_t ) ) ) ) != NULL ) {
 
                     /* Input stream parsing loop */
                     while ( fread( csBuffer, 1, LC_RECORD, csiStream ) == LC_RECORD ) {
@@ -177,10 +166,12 @@
                             /* Insertion position search */
                             if ( lp_timestamp_ge( csTime, csPush->srTime ) == LP_TRUE ) {
 
+                                /* Update flag */
                                 csFlag = LC_TRUE;
 
                             } else {
 
+                                /* Update parser */
                                 csPush = csPush->srp;
 
                             }
