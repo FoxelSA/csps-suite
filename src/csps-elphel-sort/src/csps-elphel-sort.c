@@ -112,12 +112,20 @@
 
     ) {
 
-        /* Sorting array variables */
-        lp_Time_t * csTime[2] = { NULL };
-        size_t    * csLink[2] = { NULL };
+        /* Records buffer variables */
+        lp_Byte_t csBuffer[LC_RECORD] = { 0 };
 
-        /* Size variables */
-        size_t csSize = 0;
+        /* Sorting structure variables */
+        cs_Sort_t * csSort = NULL;
+        cs_Sort_t * csLast = NULL;
+        cs_Sort_t * csPush = NULL;
+
+        /* Timestamp variables */
+        lp_Time_t csTime = 0;
+
+        /* Parsing variables */
+        size_t csParse = 0;
+        size_t csSize  = 0;
 
         /* Streams variables */
         FILE * csiStream = NULL;
@@ -133,12 +141,71 @@
             if ( ( csoStream = fopen( csoFile, "w" ) ) != NULL ) {
 
                 /* Allocating sorting array memory */
-                csTime[0] = ( lp_Time_t * ) malloc( csSize * sizeof ( lp_Time_t ) );
-                csTime[1] = ( lp_Time_t * ) malloc( csSize * sizeof ( lp_Time_t ) );
+                if ( ( csSort = ( cs_Sort_t * ) malloc( csSize * sizeof( cs_Sort_t ) ) ) != NULL ) {
 
-                csLink[0] = ( lp_Time_t * ) malloc( csSize * sizeof ( size_t ) );
-                csLink[1] = ( lp_Time_t * ) malloc( csSize * sizeof ( size_t ) );
+                    /* Initialize memory structure */
+                    for ( csParse = 0; csParse < csSize; csParse ++ ) {
 
+                        /* Clear chain pointers */
+                        csSort[0].srp = NULL;
+                        csSort[0].srn = NULL;
+
+                    }
+
+                    /* Input stream parsing loop */
+                    while ( fread( csBuffer, 1, LC_RECORD, csiStream ) == LC_RECORD ) {
+
+                        /* Retrieve record timestamp */
+                        csTime = LC_TSR( csBuffer );
+
+                        /* Insertion procedure */
+                        if ( csLast == NULL ) {
+
+                            /* Insert first event */
+                            csSort->srTime   = csTime;
+                            csSort->srOffset = ftell( csiStream ) - LC_RECORD;
+
+                            /* Update last element */
+                            csLast = csSort;
+
+                        } else {
+                            
+                            /* Insertion backward loop */
+                            while ( csPush->srp != NULL ) {
+
+                                /* Insertion check */
+                                if ( lp_timestamp_ge( csTime, csPush->srTime ) == LP_TRUE ) {
+
+                                    /* Insert event */
+                                    ( csLast + 1 )->srTime   = csTime;
+                                    ( csLast + 1 )->srOffset = ftell( csiStream ) - LC_RECORD;
+
+                                    /* Update current node */
+                                    ( csLast + 1 )->srn = csPush->srn;
+                                    ( csLast + 1 )->srp = csPush;
+
+                                    /* Update previous node */
+                                    csPush->srn = csLast + 1;
+
+                                }
+
+                                /* Update backward parser */
+                                csPush = csPush->srp;
+
+                            }
+
+                        }
+
+                        /* Setting backward parser */
+                        csPush = csLast;
+
+                    }
+
+                    /* Unallocate sorting array memery */
+                    free( csSort );
+
+                /* Display message */
+                } else { fprintf( LC_ERR, "Error : unable to allocate memory\n" ); }
 
                 /* Close output stream */
                 fclose( csoStream );

@@ -128,6 +128,20 @@
     Header - Structures
  */
 
+    typedef struct cs_Sort_struct {
+
+        /* Event timestamp */
+        lp_Time_t   srTime;
+
+        /* Offset of record */
+        size_t      srOffset;
+
+        /* Chained pointers */
+        void      * srp;
+        void      * srn;
+
+    } cs_Sort_t;
+
 /* 
     Header - Function prototypes
  */
