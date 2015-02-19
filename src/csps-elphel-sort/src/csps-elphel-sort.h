@@ -128,6 +128,22 @@
     Header - Structures
  */
 
+    /*! \struct cs_Sort_struct
+     *  \brief Sorting array structure
+     *
+     *  This structure is used to create a chained list in order to sort events
+     *  provided by through a logs-file using insertion sorting algorithm.
+     *
+     *  \var cs_Sort_struct::srTime
+     *  Field that stores record timestamp
+     *  \var cs_Sort_struct::srOffset
+     *  Field that stores record offset in input file
+     *  \var cs_Sort_struct::srp
+     *  Pointer to previous node of sorted structure
+     *  \var cs_Sort_struct::srn
+     *  Pointer to next node of sorted structure
+     */ 
+
     typedef struct cs_Sort_struct {
 
         /* Event timestamp */
@@ -136,7 +152,7 @@
         /* Offset of record */
         size_t      srOffset;
 
-        /* Chained pointers */
+        /* Chained list pointers */
         void      * srp;
         void      * srn;
 
@@ -162,11 +178,17 @@
 
     /*! \brief Sorting procedure
      *
-     *  This procedure takes a logs-file path as input in order to open it. It
-     *  reads the event records in the source logs-file and sort them, on the
-     *  basis of their timestamp, and export the sorted results in the output
-     *  file. This function is designed to consume as less as memory space as
-     *  possible, avoiding to load entire logs-file.
+     *  This procedure takes a logs-file path as input in order to reads the 
+     *  event records and to perform a time-based sorting of the events. The
+     *  sorted events are the exported in the output logs-files.
+     *
+     *  This function is designed to consume as less as memory space as possible
+     *  avoiding to load entire logs-file.
+     *
+     *  The function implement an insertion sorting algorithm due to the fact 
+     *  that records have to be read at least one time to get their timestamp
+     *  and because incomming logs-file are assumed, most of the time, to be 
+     *  nearly sorted.
      * 
      *  \param csiFile Path to input logs-file
      *  \param csiFile Path to output logs-file

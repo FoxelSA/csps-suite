@@ -59,8 +59,8 @@
         long csIndex = 1;
 
         /* Search in parameters */
-        lc_stdp( lc_stda( argc, argv, "--source"     , "-s" ), argv,   csSrc     , LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--destination", "-d" ), argv,   csDst     , LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--source"     , "-s" ), argv, csSrc, LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--destination", "-d" ), argv, csDst, LC_STRING );
 
         /* Execution switch */
         if ( lc_stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
@@ -122,9 +122,6 @@
         cs_Sort_t * csNear = NULL;
         cs_Sort_t * csRead = NULL;
         cs_Sort_t * csTail = NULL;
-
-        /* Insertion flag variables */
-        //int csFlag = LC_FALSE;
 
         /* Parsing variables */
         size_t csSize  = 0;
@@ -238,7 +235,7 @@
                     }
 
                     /* Exportation of sorted events */
-                    do {
+                    while ( csHead != NULL ) {
 
                         /* Setting offset in input stream */
                         fseek( csiStream, csHead->srOffset , SEEK_SET );
@@ -254,7 +251,7 @@
                         /* Update parser */
                         csHead = csHead->srn;
 
-                    } while ( csHead != NULL );
+                    } 
 
                     /* Unallocate sorting array memery */
                     free( csSort );
