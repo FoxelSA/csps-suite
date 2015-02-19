@@ -117,8 +117,13 @@
 
         /* Sorting structure variables */
         cs_Sort_t * csSort = NULL;
+        cs_Sort_t * csInit = NULL;
         cs_Sort_t * csLast = NULL;
         cs_Sort_t * csPush = NULL;
+        cs_Sort_t * csAdds = NULL;
+
+        /* Insertion flag variables */
+        int csFlag = LC_FALSE;
 
         /* Timestamp variables */
         lp_Time_t csTime = 0;
@@ -147,10 +152,12 @@
                     for ( csParse = 0; csParse < csSize; csParse ++ ) {
 
                         /* Clear chain pointers */
-                        csSort[0].srp = NULL;
-                        csSort[0].srn = NULL;
+                        csSort[csParse].srp = NULL;
+                        csSort[csParse].srn = NULL;
 
                     }
+
+                    csAdds = csSort;
 
                     /* Input stream parsing loop */
                     while ( fread( csBuffer, 1, LC_RECORD, csiStream ) == LC_RECORD ) {
@@ -158,48 +165,97 @@
                         /* Retrieve record timestamp */
                         csTime = LC_TSR( csBuffer );
 
-                        /* Insertion procedure */
-                        if ( csLast == NULL ) {
+                        /* Backward parser */
+                        csPush = csLast;
 
-                            /* Insert first event */
-                            csSort->srTime   = csTime;
-                            csSort->srOffset = ftell( csiStream ) - LC_RECORD;
+                        /* Insertion flag */
+                        csFlag = LC_FALSE;
 
-                            /* Update last element */
-                            csLast = csSort;
+                        /* backward insertion */                            
+                        while ( ( csFlag == LC_FALSE ) && ( csPush != NULL ) ) {
 
-                        } else {
-                            
-                            /* Insertion backward loop */
-                            while ( csPush->srp != NULL ) {
+                            /* Insertion position search */
+                            if ( lp_timestamp_ge( csTime, csPush->srTime ) == LP_TRUE ) {
 
-                                /* Insertion check */
-                                if ( lp_timestamp_ge( csTime, csPush->srTime ) == LP_TRUE ) {
+                                csFlag = LC_TRUE;
 
-                                    /* Insert event */
-                                    ( csLast + 1 )->srTime   = csTime;
-                                    ( csLast + 1 )->srOffset = ftell( csiStream ) - LC_RECORD;
+                            } else {
 
-                                    /* Update current node */
-                                    ( csLast + 1 )->srn = csPush->srn;
-                                    ( csLast + 1 )->srp = csPush;
-
-                                    /* Update previous node */
-                                    csPush->srn = csLast + 1;
-
-                                }
-
-                                /* Update backward parser */
                                 csPush = csPush->srp;
 
                             }
 
                         }
 
-                        /* Setting backward parser */
-                        csPush = csLast;
+                        /* Insert event */
+                        csAdds->srTime   = csTime;
+                        csAdds->srOffset = ftell( csiStream ) - LC_RECORD;
+
+                        /* Update previous link */
+                        if ( csPush == NULL ) {
+
+                            /* Update links */
+                            csAdds->srp = NULL;
+                            csAdds->srn = csInit;
+
+                            /* Check boundary */
+                            if ( csInit == NULL ) csLast = csAdds;
+
+                            /* Update boundary */
+                            csInit = csAdds;
+
+                        } else {
+
+                            /* Update link */
+                            csAdds->srp = csPush;
+
+                            /* Check boundary */
+                            if ( csPush->srn == NULL ) {
+
+                                /* Update link */
+                                csAdds->srn = NULL;
+
+                                /* Update boundary */
+                                csLast = csAdds;
+
+                            } else {
+
+                                /* Update link */
+                                csAdds->srn = csPush->srn;
+
+                                /* Update next link */
+                                ( ( cs_Sort_t * ) csPush->srn )->srp = csAdds;
+
+                            }
+
+                            /* Update previous link */
+                            csPush->srn = csAdds;
+
+                        }
+
+                        /* Update */
+                        csAdds += 1;
 
                     }
+
+                    /* Exportation of sorted events */
+                    do {
+
+                        /* Setting offset in input stream */
+                        fseek( csiStream, csInit->srOffset , SEEK_SET );
+
+                        /* Read input stream */
+                        if ( fread( csBuffer, 1, LC_RECORD, csiStream ) == LC_RECORD ) {
+
+                            /* Write output stream */
+                            fwrite( csBuffer, 1, LC_RECORD, csoStream );
+
+                        }
+
+                        /* Update parser */
+                        csInit = csInit->srn;
+
+                    } while ( csInit != NULL );
 
                     /* Unallocate sorting array memery */
                     free( csSort );
