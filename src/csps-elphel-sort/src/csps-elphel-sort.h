@@ -36,13 +36,13 @@
  *      Attribution" section of <http://foxel.ch/license>.
  */
 
-    /*! \file   csps-elphel-validate.h
+    /*! \file   csps-elphel-sort.h
      *  \author Nils Hamel <n.hamel@foxel.ch>
      *   
      *  Software main header
      */
 
-    /*! \mainpage csps-elphel-validate
+    /*! \mainpage csps-elphel-sort
      *
      *  \section csps-suite
      *  \section _ CSPS library front-end suite
@@ -81,8 +81,8 @@
     Header - Include guard
  */
 
-    # ifndef __CS_ELPHEL_VALIDATE__
-    # define __CS_ELPHEL_VALIDATE__
+    # ifndef __CS_ELPHEL_SORT__
+    # define __CS_ELPHEL_SORT__
 
 /* 
     Header - C/C++ compatibility
@@ -99,7 +99,6 @@
     # include <stdio.h>
     # include <stdlib.h>
     # include <string.h>
-    # include <stdint.h>
     # include <libgen.h>
     # include <csps-all.h>
     # include <common-all.h>
@@ -109,13 +108,12 @@
  */
 
     /* Standard help */
-    # define CS_HELP "Usage summary :\n"                       \
-    "  csps-elphel-validate [Arguments] [Parameters] ...\n"    \
-    "Short arguments and parameters summary :\n"               \
-    "  -s Directory containing source logs-files\n"            \
-    "  -d Directory where validated logs-files are exported\n" \
-    "  -m Minimum size, in bytes, for logs-file validation\n"  \
-    "csps-elphel-validate - csps-suite\n"                      \
+    # define CS_HELP "Usage summary :\n"                    \
+    "  csps-elphel-sort [Arguments] [Parameters] ...\n"     \
+    "Short arguments and parameters summary :\n"            \
+    "  -s Directory containing source logs-files\n"         \
+    "  -d Directory where sorted logs-files are exported\n" \
+    "csps-elphel-sort - csps-suite\n"                       \
     "Copyright (c) 2013-2015 FOXEL SA\n"
 
 /* 
@@ -130,16 +128,46 @@
     Header - Structures
  */
 
+    /*! \struct cs_Sort_struct
+     *  \brief Sorting array structure
+     *
+     *  This structure is used to create a chained list in order to sort events
+     *  provided by through a logs-file using insertion sorting algorithm.
+     *
+     *  \var cs_Sort_struct::srTime
+     *  Field that stores record timestamp
+     *  \var cs_Sort_struct::srOffset
+     *  Field that stores record offset in input file
+     *  \var cs_Sort_struct::srp
+     *  Pointer to previous node of sorted structure
+     *  \var cs_Sort_struct::srn
+     *  Pointer to next node of sorted structure
+     */ 
+
+    typedef struct cs_Sort_struct {
+
+        /* Event timestamp */
+        lp_Time_t   srTime;
+
+        /* Offset of record */
+        size_t      srOffset;
+
+        /* Chained list pointers */
+        void      * srp;
+        void      * srn;
+
+    } cs_Sort_t;
+
 /* 
     Header - Function prototypes
  */
 
     /*! \brief Software main function
      *  
-     *  The main function considers logs-files from the source directory and
-     *  proceed to a validation based on their size. Validated file are copied
-     *  in the destination directory.
-     *  
+     *  The main function lists the logs-files stored in the source directory
+     *  and send them to the sorting procedure. Each sorted logs-file are then
+     *  exported in the destination directory.
+     *
      *  \param  argc Standard main parameter
      *  \param  argv Standard main parameter
      *
@@ -148,35 +176,28 @@
 
     int main ( int argc, char ** argv );
 
-    /*! \brief File validation
+    /*! \brief Sorting procedure
      *
-     *  This function simply copies the source file in the output destination.
+     *  This procedure takes a logs-file path as input in order to reads the 
+     *  event records and to perform a time-based sorting of the events. The
+     *  sorted events are the exported in the output logs-files.
      *
-     *  \param csiFile Source file path
-     *  \param csoFile destination file path
+     *  This function is designed to consume as less as memory space as possible
+     *  avoiding to load entire logs-file.
+     *
+     *  The function implement an insertion sorting algorithm due to the fact 
+     *  that records have to be read at least one time to get their timestamp
+     *  and because incomming logs-file are assumed, most of the time, to be 
+     *  nearly sorted.
+     * 
+     *  \param csiFile Path to input logs-file
+     *  \param csiFile Path to output logs-file
      */
 
-    void cs_elphel_validate( 
+    void cs_elphel_sort(
 
-        char const * const csiFile, 
-        char const * const csoFile 
-
-    );
-
-    /*! \brief Record validation
-     *
-     *  This function detect if a record buffer is valid or not to remove record
-     *  buffer filled with random value due to hardware malfunction. Detection
-     *  is based on expected binary pattern in each record.
-     *
-     *  \param  csBuffer Pointer to record buffer
-     *
-     *  \return Returns boolean value that indicates record buffer validity
-     */
-
-    int cs_elphel_validate_record(
-
-        lp_Byte_t const * const csBuffer
+        char const * const csiFile,
+        char const * const csoFile
 
     );
 

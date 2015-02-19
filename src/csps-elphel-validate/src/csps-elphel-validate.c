@@ -116,7 +116,7 @@
     }
 
 /*
-    Source - File copy
+    Source - File validation
 */
 
     void cs_elphel_validate( 
@@ -130,21 +130,74 @@
         lp_Byte_t csBuffer[LC_RECORD] = { 0 };
 
         /* File handle variables */
-        FILE * csIStream = fopen( csiFile, "rb" );
-        FILE * csOStream = fopen( csoFile, "wb" );
+        FILE * csiStream = NULL;
+        FILE * csoStream = NULL;
 
-        /* Check stream creation */
-        if ( ( csIStream != NULL ) && ( csOStream != NULL ) ) {
+        /* Create and check input stream */
+        if ( ( csiStream = fopen( csiFile, "rb" ) ) != NULL ) {
 
-            /* Records copy loop */
-            while ( fread( csBuffer, 1, LC_RECORD, csIStream ) == LC_RECORD ) fwrite( csBuffer, 1, LC_RECORD, csOStream );
+            /* Create and check output stream */
+            if ( ( csoStream = fopen( csoFile, "wb" ) ) != NULL ) {
 
-            /* Close streams */
-            fclose( csIStream );
-            fclose( csOStream );
+                /* Parsing input stream */
+                while ( fread( csBuffer, 1, LC_RECORD, csiStream ) == LC_RECORD ) {
+
+                    /* Record buffer validation */
+                    if ( cs_elphel_validate_record( csBuffer ) == LP_TRUE ) {
+
+                        /* Export record buffer */
+                        fwrite( csBuffer, 1, LC_RECORD, csoStream );
+
+                    }
+
+                }
+
+                /* Close output stream */
+                fclose( csoStream );
+
+            /* Display message */
+            } else { fprintf( LC_ERR, "Error : unable to access %s\n", basename( ( char * ) csiFile ) ); }
+
+            /* Close input stream */
+            fclose( csiStream );
 
         /* Display message */
-        } else { fprintf( LC_ERR, "Error : unable to access %s or/and %s\n", basename( ( char * ) csiFile ), basename( ( char * ) csoFile ) ); }
+        } else { fprintf( LC_ERR, "Error : unable to access %s\n", basename( ( char * ) csiFile ) ); }
+
+    }
+
+/*
+    Source - Record validation
+*/
+
+    int cs_elphel_validate_record(
+
+        lp_Byte_t const * const csBuffer
+
+    ) {
+
+        /* Failsafe check on record tail */
+        if ( * ( ( uint32_t * ) ( csBuffer + 60 ) ) == 0 ) {
+
+            /* Failsafe check on record header */
+            if ( ( ( * ( ( uint64_t * ) csBuffer ) ) & 0x00000000F0F00000 ) == 0 ) {
+
+                /* Valide record */
+                return( LC_TRUE );
+
+            } else {
+
+                /* Invalide record */
+                return( LC_FALSE );
+
+            }
+
+        } else {
+
+            /* Invalide record */
+            return( LC_FALSE );
+
+        }
 
     }
 
