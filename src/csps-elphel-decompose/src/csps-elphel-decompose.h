@@ -109,13 +109,13 @@
  */
 
     /* Standard help */
-    # define CS_HELP "Usage summary :\n"                              \
-    "  csps-elphel-decompose [Arguments] [Parameters] ...\n"          \
-    "Short arguments and parameters summary :\n"                      \
-    "  -s Directory path containing the logs-files to decompose\n"    \
-    "  -d Directory path where decomposed logs-files are exported\n"  \
-    "  -i Maximum time interval, in seconds, that induce splitting\n" \
-    "csps-elphel-decompose - csps-suite\n"                            \
+    # define CS_HELP "Usage summary :\n"                               \
+    "  csps-elphel-decompose [Arguments] [Parameters] ...\n"           \
+    "Short arguments and parameters summary :\n"                       \
+    "  -s Directory path containing the logs-files to decompose\n"     \
+    "  -d Directory path where decomposed logs-files are exported\n"   \
+    "  -i Smallest time interval, in seconds, that induce splitting\n" \
+    "csps-elphel-decompose - csps-suite\n"                             \
     "Copyright (c) 2013-2015 FOXEL SA\n"
 
 /* 
