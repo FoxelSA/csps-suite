@@ -140,30 +140,25 @@
                 /* Parsing input stream */
                 while ( fread( csRec, 1, LC_RECORD, csIStream ) == LC_RECORD ) {
 
-                    /* Detect IMU events */
-                    if ( LC_EDM( csRec, LC_IMU ) ) {
+                    /* Read record timestamp */
+                    cscTime = LC_TSR( csRec );
 
-                        /* Read record timestamp */
-                        cscTime = LC_TSR( csRec );
+                    /* Check splitting condition */
+                    if ( ( cspTime != 0 ) && ( lp_timestamp_float( lp_timestamp_diff( cscTime, cspTime ) ) > csInterval ) ) {
 
-                        /* Check splitting condition */
-                        if ( ( cspTime != 0 ) && ( lp_timestamp_float( lp_timestamp_diff( cscTime, cspTime ) ) > csInterval ) ) {
+                        /* Update decomposition segment path */
+                        sprintf( csSeg, "%s/log-container.log-%05i", csDirectory, csIndex ++ );
 
-                            /* Update decomposition segment path */
-                            sprintf( csSeg, "%s/log-container.log-%05i", csDirectory, csIndex ++ );
+                        /* Reset output stream */
+                        fclose( csOStream ); csOStream = fopen( csSeg, "wb" );
 
-                            /* Reset output stream */
-                            fclose( csOStream ); csOStream = fopen( csSeg, "wb" );
-
-                            /* Display decomposition information */
-                            fprintf( LC_OUT, "    %s\n", basename( csSeg ) );
-
-                        }
-
-                        /* Memorize previous timestamp */
-                        cspTime = cscTime;
+                        /* Display decomposition information */
+                        fprintf( LC_OUT, "    %s\n", basename( csSeg ) );
 
                     }
+
+                    /* Memorize previous timestamp */
+                    cspTime = cscTime;
 
                     /* Write recored in output stream */
                     if ( csOStream != NULL ) fwrite( csRec, 1, LC_RECORD, csOStream );
