@@ -86,7 +86,7 @@
                         fprintf( LC_OUT, "Validating : %s\n    Exported in %s", basename( csEnt ), basename( csExp ) );
 
                         /* Copy validated log-file */
-                        fprintf( LC_OUT, " (%li sentence discared)\n", cs_elphel_validate( csEnt, csExp ) );
+                        fprintf( LC_OUT, " - %li sentence(s) discared\n", cs_elphel_validate( csEnt, csExp ) );
 
                     }
 
@@ -170,7 +170,7 @@
     ) {
 
         /* Failsafe check on record tail */
-        if ( * ( ( uint32_t * ) ( csBuffer + 60 ) ) == 0 ) {
+        if ( * ( ( uint16_t * ) ( csBuffer + 62 ) ) == 0 ) {
 
             /* Failsafe check on record header */
             if ( ( ( * ( ( uint64_t * ) csBuffer ) ) & 0x00000000F0F00000 ) == 0 ) {
