@@ -58,13 +58,9 @@
         /* Validation index variables */
         long csIndex = 1;
 
-        /* Minimum size variables */
-        long csMinimum = 317696; /* ~ 2 Seconds */
-
         /* Search in parameters */
-        lc_stdp( lc_stda( argc, argv, "--source"      , "-s" ), argv,   csSrc     , LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--destination" , "-d" ), argv,   csDst     , LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--minimum-size", "-m" ), argv, & csMinimum , LC_LONG   );
+        lc_stdp( lc_stda( argc, argv, "--source"      , "-s" ), argv, csSrc, LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--destination" , "-d" ), argv, csDst, LC_STRING );
 
         /* Execution switch */
         if ( lc_stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
@@ -83,24 +79,14 @@
                     /* Check logs-file tag */
                     if ( strstr( csEnt, LC_PATTERN ) != 0 ) {
 
-                        /* Validation on file size */
-                        if ( lc_file_size( csEnt ) > csMinimum ) {
+                        /* Build validated temporary logs-file path */
+                        sprintf( csExp, "%s/log-container.log-%05li", csDst, csIndex ++ );
 
-                            /* Build validated temporary logs-file path */
-                            sprintf( csExp, "%s/log-container.log-%05li", csDst, csIndex ++ );
+                        /* Display information */
+                        fprintf( LC_OUT, "Validating : %s\n    Exported in %s", basename( csEnt ), basename( csExp ) );
 
-                            /* Display information */
-                            fprintf( LC_OUT, "Validating : %s\n    Exported in %s\n", basename( csEnt ), basename( csExp ) );
-
-                            /* Copy validated log-file */
-                            cs_elphel_validate( csEnt, csExp );
-
-                        } else {
-
-                            /* Display information */
-                            fprintf( LC_OUT, "Validating : %s\n    Not exported\n", basename( csEnt ) );
-
-                        }
+                        /* Copy validated log-file */
+                        fprintf( LC_OUT, " (%li sentence discared)\n", cs_elphel_validate( csEnt, csExp ) );
 
                     }
 
@@ -119,7 +105,7 @@
     Source - File validation
 */
 
-    void cs_elphel_validate( 
+    long int cs_elphel_validate( 
 
         char const * const csiFile, 
         char const * const csoFile 
@@ -128,6 +114,9 @@
 
         /* Records buffer variables */
         lp_Byte_t csBuffer[LC_RECORD] = { 0 };
+
+        /* Returned value variables */
+        long int csDiscared = 0;
 
         /* File handle variables */
         FILE * csiStream = NULL;
@@ -148,7 +137,8 @@
                         /* Export record buffer */
                         fwrite( csBuffer, 1, LC_RECORD, csoStream );
 
-                    }
+                    /* Update discared sentences count */
+                    } else { csDiscared ++; }
 
                 }
 
@@ -163,6 +153,9 @@
 
         /* Display message */
         } else { fprintf( LC_ERR, "Error : unable to access %s\n", basename( ( char * ) csiFile ) ); }
+
+        /* Return discared count */
+        return( csDiscared );
 
     }
 
