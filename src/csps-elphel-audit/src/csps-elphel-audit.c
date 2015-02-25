@@ -110,8 +110,8 @@
     ) {
 
         /* Logs-file size variables */
-        size_t csRead = 0;
-        size_t csSize = 0;
+        long csRead = 0;
+        long csSize = 0;
 
         /* Records buffer variables */
         lp_Byte_t csBuffer[LC_RECORD] = { 0 };
