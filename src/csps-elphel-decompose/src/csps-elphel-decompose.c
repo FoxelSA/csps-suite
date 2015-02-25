@@ -54,11 +54,11 @@
         char csDst[256] = { 0 };
         char csFil[256] = { 0 };
 
+        /* Decomposition index variables */
+        size_t csIndex = 1;
+
         /* Decompostion condition variables */
         double csInterval = 1.0;
-
-        /* Decomposition index variables */
-        long csIndex = 1;
 
         /* Search in parameters */
         lc_stdp( lc_stda( argc, argv,  "--source"     , "-s" ), argv,   csSrc     , LC_STRING );
@@ -111,11 +111,11 @@
 
     ) {
 
-        /* Decomposition path variables */
-        char csSeg[256] = { 0 };
-
         /* Records buffer variables */
         lp_Byte_t csRec[LC_RECORD] = { 0 };
+
+        /* Decomposition path variables */
+        char csSeg[256] = { 0 };
 
         /* Timestamp variables */
         lp_Time_t cspTime = 0;

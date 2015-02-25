@@ -137,8 +137,8 @@
     /*! \brief Software main function
      *  
      *  The main function reads the logs-file contained in the provided source
-     *  directory and split the logs-files that contain more than one record
-     *  part on the base of IMU-events timestamps analysis.
+     *  directory and split the logs-files that contain more than one continuous
+     *  records sequence based on their timestamp analysis.
      *  
      *  \param  argc Standard main parameter
      *  \param  argv Standard main parameter
@@ -151,16 +151,16 @@
     /*! \brief Logs-file decomposer
      * 
      *  This function opens the input logs-file and tests if a too wide interval
-     *  appears between the successive IMU-events timestamps. It transfers the
-     *  content of the input logs-file in separated output files according to
-     *  the detected intervals.
+     *  appears between the successive event timestamps. If wide intervals are
+     *  detected, the function separates continuous events records sequences in
+     *  differents output logs-files.
      *
      *  \param  csLog       Input logs-file path
      *  \param  csDirectory Output directory
      *  \param  csIndex     Current index of the decomposition
-     *  \param  csInterval  Maximum admited time gap between IMU-events
+     *  \param  csInterval  Maximum admited time gap between events timestamps
      *
-     *  \return Returns corrected decomposition index
+     *  \return Returns updated decomposition index
      */
 
     int cs_elphel_decompose ( 
