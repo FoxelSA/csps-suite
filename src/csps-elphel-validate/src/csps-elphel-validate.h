@@ -135,6 +135,9 @@
 
     /*! \brief Software main function
      *  
+     *  The main function import logs-files contained in the source directory
+     *  and send them to the validation procedure. The validated logs-files are
+     *  the exported in the destination directory.
      *  
      *  \param  argc Standard main parameter
      *  \param  argv Standard main parameter
@@ -146,9 +149,14 @@
 
     /*! \brief File validation
      *
+     *  This validation function reads the provided logs-file record and detect
+     *  if random events appears. Only validated records are exported in output
+     *  logs-file.
      *
-     *  \param csiFile Source file path
-     *  \param csoFile destination file path
+     *  \param  csiFile Source file path
+     *  \param  csoFile Destination file path
+     *
+     *  \return Returns discared event record count
      */
 
     size_t cs_elphel_validate( 
@@ -160,13 +168,13 @@
 
     /*! \brief Record validation
      *
-     *  This function detect if a record buffer is valid or not to remove record
-     *  buffer filled with random value due to hardware malfunction. Detection
-     *  is based on expected binary pattern in each record.
+     *  This function detects event record filled with invalid data, typically
+     *  random bytes. It returns boolean value that indicates provided record
+     *  validity.
      *
      *  \param  csBuffer Pointer to record buffer
      *
-     *  \return Returns boolean value that indicates record buffer validity
+     *  \return Returns boolean value that indicates record validity
      */
 
     int cs_elphel_validate_record(
