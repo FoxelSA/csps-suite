@@ -124,7 +124,7 @@
         cs_Sort_t * csTail = NULL;
 
         /* Parsing variables */
-        size_t csSize  = 0;
+        long csSize  = 0;
 
         /* Timestamp variables */
         lp_Time_t csTime = 0;

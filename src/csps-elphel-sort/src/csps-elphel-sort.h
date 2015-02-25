@@ -108,12 +108,12 @@
  */
 
     /* Standard help */
-    # define CS_HELP "Usage summary :\n"                    \
-    "  csps-elphel-sort [Arguments] [Parameters] ...\n"     \
-    "Short arguments and parameters summary :\n"            \
-    "  -s Directory containing source logs-files\n"         \
-    "  -d Directory where sorted logs-files are exported\n" \
-    "csps-elphel-sort - csps-suite\n"                       \
+    # define CS_HELP "Usage summary :\n\n"                     \
+    "\tcsps-elphel-sort [Arguments] [Parameters] ...\n\n"      \
+    "Short arguments and parameters summary :\n\n"             \
+    "\t-s\tDirectory containing source logs-files\n"           \
+    "\t-d\tDirectory where sorted logs-files are exported\n\n" \
+    "csps-elphel-sort - csps-suite\n"                          \
     "Copyright (c) 2013-2015 FOXEL SA\n"
 
 /* 
@@ -150,7 +150,7 @@
         lp_Time_t   srTime;
 
         /* Offset fields */
-        size_t      srOffset;
+        long        srOffset;
 
         /* Links fields */
         void      * srp;
@@ -185,9 +185,9 @@
      *  This function is designed to consume as less as memory space as possible
      *  avoiding to load entire logs-file.
      *
-     *  The function implement an insertion sorting algorithm due to the fact 
+     *  The function implements an insertion sorting algorithm due to the fact 
      *  that records have to be read at least one time to get their timestamp
-     *  and because incomming logs-file are assumed, most of the time, to be 
+     *  and because incomming logs-files are assumed, most of the time, to be 
      *  nearly sorted.
      * 
      *  \param csiFile Path to input logs-file
