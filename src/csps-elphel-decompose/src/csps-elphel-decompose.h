@@ -109,13 +109,13 @@
  */
 
     /* Standard help */
-    # define CS_HELP "Usage summary :\n"                               \
-    "  csps-elphel-decompose [Arguments] [Parameters] ...\n"           \
-    "Short arguments and parameters summary :\n"                       \
-    "  -s Directory path containing the logs-files to decompose\n"     \
-    "  -d Directory path where decomposed logs-files are exported\n"   \
-    "  -i Smallest time interval, in seconds, that induce splitting\n" \
-    "csps-elphel-decompose - csps-suite\n"                             \
+    # define CS_HELP "Usage summary :\n\n"                                \
+    "\tcsps-elphel-decompose [Arguments] [Parameters] ...\n\n"            \
+    "Short arguments and parameters summary :\n\n"                        \
+    "\t-s\tDirectory path containing the logs-files to decompose\n"       \
+    "\t-d\tDirectory path where decomposed logs-files are exported\n"     \
+    "\t-i\tSmallest time interval, in seconds, that induce splitting\n\n" \
+    "csps-elphel-decompose - csps-suite\n"                                \
     "Copyright (c) 2013-2015 FOXEL SA\n"
 
 /* 
@@ -138,7 +138,7 @@
      *  
      *  The main function reads the logs-file contained in the provided source
      *  directory and split the logs-files that contain more than one continuous
-     *  records sequence based on their timestamp analysis.
+     *  records sequence based on their timestamp intervals analysis.
      *  
      *  \param  argc Standard main parameter
      *  \param  argv Standard main parameter
@@ -151,7 +151,7 @@
     /*! \brief Logs-file decomposer
      * 
      *  This function opens the input logs-file and tests if a too wide interval
-     *  appears between the successive event timestamps. If wide intervals are
+     *  appears between two successive event timestamps. If wide intervals are
      *  detected, the function separates continuous events records sequences in
      *  differents output logs-files.
      *
@@ -163,11 +163,11 @@
      *  \return Returns updated decomposition index
      */
 
-    int cs_elphel_decompose ( 
+    long cs_elphel_decompose ( 
 
         char   const * const csLog, 
         char   const * const csDirectory, 
-        int                  csIndex, 
+        long                 csIndex, 
         double const         csInterval 
 
     );

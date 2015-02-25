@@ -55,7 +55,7 @@
         char csFil[256] = { 0 };
 
         /* Decomposition index variables */
-        size_t csIndex = 1;
+        long csIndex = 1;
 
         /* Decompostion condition variables */
         double csInterval = 1.0;
@@ -102,11 +102,11 @@
     Source - Logs-file decomposer
 */
 
-    int cs_elphel_decompose( 
+    long cs_elphel_decompose( 
 
         char   const * const csLog, 
         char   const * const csDirectory, 
-        int                  csIndex, 
+        long                 csIndex, 
         double const         csInterval 
 
     ) {
@@ -129,7 +129,7 @@
         if ( ( csIStream = fopen( csLog, "rb" ) ) != NULL ) {
 
             /* Compose initial decomposition segment path */
-            sprintf( csSeg, "%s/log-container.log-%05i", csDirectory, csIndex ++ );
+            sprintf( csSeg, "%s/log-container.log-%05li", csDirectory, csIndex ++ );
 
             /* Create and check output stream creation */
             if ( ( csOStream = fopen( csSeg, "wb" ) ) != NULL ) { 
@@ -147,7 +147,7 @@
                     if ( ( cspTime != 0 ) && ( lp_timestamp_float( lp_timestamp_diff( cscTime, cspTime ) ) > csInterval ) ) {
 
                         /* Update decomposition segment path */
-                        sprintf( csSeg, "%s/log-container.log-%05i", csDirectory, csIndex ++ );
+                        sprintf( csSeg, "%s/log-container.log-%05li", csDirectory, csIndex ++ );
 
                         /* Reset output stream */
                         fclose( csOStream ); csOStream = fopen( csSeg, "wb" );
