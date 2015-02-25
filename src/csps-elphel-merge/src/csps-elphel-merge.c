@@ -217,7 +217,7 @@
                         fclose( csIStream );
 
                         /* Display information */
-                        fprintf( LC_OUT, "     %li event(s) discared\n", csCount );
+                        fprintf( LC_OUT, "    %li event(s) discared\n", csCount );
 
                     /* Display message */
                     } else { fprintf( LC_ERR, "Error : unable to access %s\n", basename( csStack[csSelect].dsName ) ); }
