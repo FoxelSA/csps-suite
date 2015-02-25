@@ -1,5 +1,13 @@
 ## Changelog
 
+### Beta 0.3
+
+- `Added` : Elphel specific events records sorting software
+- `Revised` : Suppressing IMU-events-based decomposition in **csps-elphel-decompose**
+- `Revised` : Suppressing IMU-events-based appending condition in **csps-elphel-merge**
+- `Revised` : Added events records validity check in **csps-elphel-validate**
+- `Revised` : Removed validity check based on file size in **csps-elphel-validate**
+
 ### Release 0.2 (February 13, 2015)
 
 - `Revised` : Adaptation to **libcsps 0.3** error management
