@@ -61,9 +61,9 @@
         double csInterval = 1.0;
 
         /* Search in parameters */
-        lc_stdp( lc_stda( argc, argv,  "--source"     , "-s" ), argv,   csSrc     , LC_STRING );
-        lc_stdp( lc_stda( argc, argv,  "--destination", "-d" ), argv,   csDst     , LC_STRING );
-        lc_stdp( lc_stda( argc, argv,  "--interval"   , "-i" ), argv, & csInterval, LC_DOUBLE );
+        lc_stdp( lc_stda( argc, argv, "--source"     , "-s" ), argv,   csSrc     , LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--destination", "-d" ), argv,   csDst     , LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--interval"   , "-i" ), argv, & csInterval, LC_DOUBLE );
 
         /* Execution switch */
         if ( lc_stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
