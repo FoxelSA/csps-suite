@@ -233,7 +233,7 @@
     void csps_elphel_cat_record( lp_Byte_t * csBuffer ) {
 
         /* Parsing variables */
-        int csParse = 0;
+        long csParse = 0;
 
         /* Display frame */
         fprintf( LC_OUT, " [ " );

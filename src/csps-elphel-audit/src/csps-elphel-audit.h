@@ -109,7 +109,7 @@
     # define CS_HELP "Usage summary :\n\n"                  \
     "\tcsps-elphel-audit [Arguments] [Parameters] ...\n\n"  \
     "Short arguments and parameters summary :\n\n"          \
-    "\t-p Directory containing the logs-files to audit\n\n" \
+    "\t-p\tDirectory containing the logs-files to audit\n\n" \
     "csps-elphel-audit - csps-suite\n"                      \
     "Copyright (c) 2013-2015 FOXEL SA\n"
 

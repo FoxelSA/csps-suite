@@ -108,13 +108,13 @@
  */
 
     /* Standard help */
-    # define CS_HELP "Usage summary :\n"               \
-    "  csps-elphel-cat [Arguments] [Parameters] ...\n" \
-    "Short arguments and parameters summary :\n"       \
-    "  -l Path to logs-file to display\n"              \
-    "  -f Display flag [i|m|g|o|b]\n"                  \
-    "  -m Display first master timestamp only\n"       \
-    "csps-elphel-cat - csps-suite\n"                   \
+    # define CS_HELP "Usage summary :\n\n"               \
+    "\tcsps-elphel-cat [Arguments] [Parameters] ...\n\n" \
+    "Short arguments and parameters summary :\n"         \
+    "\t-l\tPath to logs-file to display\n"               \
+    "\t-f\tDisplay flag [i|m|g|o|b]\n"                   \
+    "\t-m\tDisplay first master timestamp only\n\n"      \
+    "csps-elphel-cat - csps-suite\n"                     \
     "Copyright (c) 2013-2015 FOXEL SA\n"
 
 /* 
@@ -135,7 +135,7 @@
 
     /*! \brief Software main function
      *  
-     *  The main function parse the provided logs-file and dumps its content 
+     *  The main function parses the provided logs-file and dumps its content 
      *  according to software parameters.
      *  
      *  \param  argc Standard main parameter
