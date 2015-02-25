@@ -109,12 +109,12 @@
  */
 
     /* Standard help */
-    # define CS_HELP "Usage summary :\n"                    \
-    "  csps-elphel-validate [Arguments] [Parameters] ...\n" \
-    "Short arguments and parameters summary :\n"            \
-    "  -s Directory containing source logs-files\n"         \
-    "  -d Directory containing exported logs-files\n"       \
-    "csps-elphel-validate - csps-suite\n"                   \
+    # define CS_HELP "Usage summary :\n\n"                    \
+    "\tcsps-elphel-validate [Arguments] [Parameters] ...\n\n" \
+    "Short arguments and parameters summary :\n\n"            \
+    "\t-s\tDirectory containing source logs-files\n"          \
+    "\t-d\tDirectory containing exported logs-files\n\n"      \
+    "csps-elphel-validate - csps-suite\n"                     \
     "Copyright (c) 2013-2015 FOXEL SA\n"
 
 /* 
@@ -135,8 +135,8 @@
 
     /*! \brief Software main function
      *  
-     *  The main function import logs-files contained in the source directory
-     *  and send them to the validation procedure. The validated logs-files are
+     *  The main function imports logs-files contained in the source directory
+     *  and sends them to the validation procedure. The validated logs-files are
      *  the exported in the destination directory.
      *  
      *  \param  argc Standard main parameter
@@ -149,17 +149,17 @@
 
     /*! \brief File validation
      *
-     *  This validation function reads the provided logs-file record and detect
+     *  This validation function reads the provided logs-file records and detect
      *  if random events appears. Only validated records are exported in output
      *  logs-file.
      *
      *  \param  csiFile Source file path
      *  \param  csoFile Destination file path
      *
-     *  \return Returns discared event record count
+     *  \return Returns discared events record count
      */
 
-    unsigned long cs_elphel_validate( 
+    long cs_elphel_validate( 
 
         char const * const csiFile, 
         char const * const csoFile 
