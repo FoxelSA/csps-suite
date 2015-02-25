@@ -173,8 +173,8 @@
 
                     }
 
-                    /* Display append information */
-                    fprintf( LC_OUT, "    %s", basename( csStack[csSelect].dsName ) );
+                    /* Display information */
+                    fprintf( LC_OUT, "    Appending %s\n", basename( csStack[csSelect].dsName ) );
 
                     /* Update selection state */
                     csStack[csSelect].dsFlag = LC_TRUE;
@@ -191,16 +191,11 @@
                         /* Sub-appending loop */
                         while ( fread( csBuffer, 1, LC_RECORD, csIStream ) == LC_RECORD ) {
 
-                            /* Check record event type */
-                            if ( LC_EDM( csBuffer, LC_IMU ) ) {
+                            /* Appending condition trigger */
+                            if ( ( lp_timestamp_ge( csLKnown, LC_TSR( csBuffer ) ) ) == LC_FALSE ) {
 
-                                /* Appending condition trigger */
-                                if ( ( lp_timestamp_ge( csLKnown, LC_TSR( csBuffer ) ) ) == LC_FALSE ) {
-
-                                    /* Set appending condition flag */
-                                    csFlag = LC_TRUE;
-
-                                }
+                                /* Set appending condition flag */
+                                csFlag = LC_TRUE;
 
                             }
 
@@ -210,24 +205,21 @@
                                 /* Append records */
                                 fwrite( csBuffer, 1, LC_RECORD, csOStream );
 
-                                /* Memorize last known timestamp */
+                                /* Update last known timestamp */
                                 csLKnown = LC_TSR( csBuffer );
 
-                            } else {
-
-                                /* Update losses count */
-                                csCount ++; 
-
-                            }
+                            /* Update losses count */
+                            } else { csCount ++; }
 
                         }
 
                         /* Close input stream */
                         fclose( csIStream );
 
-                        /* Display append information */
-                        fprintf( LC_OUT, " - %lu event(s) lost\n", csCount );
+                        /* Display information */
+                        fprintf( LC_OUT, "     %li event(s) discared\n", csCount );
 
+                    /* Display message */
                     } else { fprintf( LC_ERR, "Error : unable to access %s\n", basename( csStack[csSelect].dsName ) ); }
 
                     /* Update appending loop state */
@@ -249,7 +241,7 @@
     }
 
 /*
-    Source - First timestamp detection
+    Source - First event timestamp extraction
  */
 
     lp_Time_t cs_elphel_merge_first( char const * const csFile ) {
@@ -266,11 +258,11 @@
         /* Check stream creation */
         if ( csStream != NULL ) {
 
-            /* Parse input stream */
-            while ( ( csFirst == 0 ) && ( fread( csBuffer, 1, LC_RECORD, csStream ) == LC_RECORD ) ) {
+            /* Reading first record buffer */
+            if ( fread( csBuffer, 1, LC_RECORD, csStream ) == LC_RECORD ) {
 
-                /* Event type detection and timestamp assignation */
-                if ( LC_EDM( csBuffer, LC_IMU ) ) csFirst = LC_TSR( csBuffer );
+                /* Import logs-file first timestamp */
+                csFirst = LC_TSR( csBuffer );
 
             }
 

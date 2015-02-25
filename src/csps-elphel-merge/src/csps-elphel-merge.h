@@ -108,12 +108,12 @@
  */
 
     /* Standard help */
-    # define CS_HELP "Usage summary :\n"                 \
-    "  csps-elphel-merge [Arguments] [Parameters] ...\n" \
-    "Short arguments and parameters summary :\n"         \
-    "  -s Directory containing the segments to merge\n"  \
-    "  -d Directory that recieve merged segments\n\n"    \
-    "csps-elphel-merge - csps-suite\n"                   \
+    # define CS_HELP "Usage summary :\n"                  \
+    "  csps-elphel-merge [Arguments] [Parameters] ...\n"  \
+    "Short arguments and parameters summary :\n"          \
+    "  -s Directory containing the logs-files to merge\n" \
+    "  -d Directory that recieve merged logs-file\n\n"    \
+    "csps-elphel-merge - csps-suite\n"                    \
     "Copyright (c) 2013-2015 FOXEL SA\n"
 
 /* 
@@ -132,20 +132,25 @@
      *  \brief Logs-file descriptor
      *
      *  This structure stores the necessary informations to perform logs-files
-     *  merging.
+     *  merging such as initial timestamp found in logs-files.
      *
      *  \var cs_Descriptor_struct::dsName
-     *  Stores raw logs-file path
+     *  Stores logs-file path
      *  \var cs_Descriptor_struct::dsFlag
-     *  Appended flag - True if file already appended
+     *  Appended flag - True if file already appended, flase otherwise
      *  \var cs_Descriptor_struct::dsFirst
-     *  Raw logs-file first IMU timestamp
+     *  Logs-file first event timestamp
      */ 
 
     typedef struct cs_Descriptor_struct {
 
+        /* Logs-file path fields */
         char      dsName[256];
+
+        /* Appended flag fields */
         int       dsFlag;
+
+        /* Timestamp fields */
         lp_Time_t dsFirst;
 
     } cs_Descriptor_t;
@@ -156,9 +161,10 @@
 
     /*! \brief Software main function
      *  
-     *  The main function lists the log-files present in the input directory and
-     *  merge them together in a single log-file in their chronologic order. By
-     *  this merge procedure, logs-files overlapping is removed.
+     *  The main function lists the log-files contained in the input directory
+     *  and merges them together in a single logs-file. The logs-files appending
+     *  is based on their first event timestamp to realize a chronologic append.
+     *  Overlapps are also removed through this procedure.
      *  
      *  \param argc Standard main parameter
      *  \param argv Standard main parameter
@@ -166,14 +172,14 @@
 
     int main ( int argc, char ** argv );
 
-    /*! \brief First timestamp detection
+    /*! \brief First event timestamp extraction
      *
-     *  This function searches the first IMU-events found in the provided
-     *  logs-file and returns its timestamp.
+     *  This function searches the first event found in the provided logs-file 
+     *  and returns its timestamp.
      *
      *  \param  csFile   Provided logs-file path
      *
-     *  \return Returns first IMU-event timestamp
+     *  \return Returns first event timestamp
      */
 
     lp_Time_t cs_elphel_merge_first( char const * const csFile );
