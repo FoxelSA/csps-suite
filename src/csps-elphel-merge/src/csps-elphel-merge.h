@@ -108,12 +108,12 @@
  */
 
     /* Standard help */
-    # define CS_HELP "Usage summary :\n"                  \
-    "  csps-elphel-merge [Arguments] [Parameters] ...\n"  \
-    "Short arguments and parameters summary :\n"          \
-    "  -s Directory containing the logs-files to merge\n" \
-    "  -d Directory that recieve merged logs-file\n\n"    \
-    "csps-elphel-merge - csps-suite\n"                    \
+    # define CS_HELP "Usage summary :\n\n"                 \
+    "\tcsps-elphel-merge [Arguments] [Parameters] ...\n\n" \
+    "Short arguments and parameters summary :\n\n"         \
+    "\t-s\tDirectory containing the logs-files to merge\n" \
+    "\t-d\tDirectory that recieve merged logs-file\n\n"    \
+    "csps-elphel-merge - csps-suite\n"                     \
     "Copyright (c) 2013-2015 FOXEL SA\n"
 
 /* 
@@ -132,7 +132,7 @@
      *  \brief Logs-file descriptor
      *
      *  This structure stores the necessary informations to perform logs-files
-     *  merging such as initial timestamp found in logs-files.
+     *  merging such as initial timestamp.
      *
      *  \var cs_Descriptor_struct::dsName
      *  Stores logs-file path
@@ -166,8 +166,10 @@
      *  is based on their first event timestamp to realize a chronologic append.
      *  Overlapps are also removed through this procedure.
      *  
-     *  \param argc Standard main parameter
-     *  \param argv Standard main parameter
+     *  \param  argc Standard main parameter
+     *  \param  argv Standard main parameter
+     *
+     *  \return Returns exit code
      */
 
     int main ( int argc, char ** argv );
