@@ -155,6 +155,10 @@
                         csNear = NULL;
                         csRead = csLast;
 
+                        long i = 0;
+
+                        fprintf( stderr, "%010" lp_Time_p ".%06" lp_Time_p " - ", lp_timestamp_sec( csTime ), lp_timestamp_usec( csTime ) );
+
                         /* backward insertion */
                         while ( ( csNear == NULL ) && ( csRead != NULL ) ) {
 
@@ -171,7 +175,11 @@
 
                             }
 
+                            i ++; 
+
                         }
+
+                        fprintf( stderr, "Found in %li\n", i );
 
                         /* Insert event */
                         csTail->srTime   = csTime;
@@ -270,6 +278,30 @@
 
         /* Display message */
         } else { fprintf( LC_ERR, "Error : unable to access %s\n", basename( ( char * ) csiFile ) ); }
+
+    }
+
+/*
+    Source - Mathematical functions
+ */
+
+    unsigned long cs_elphel_sort_ngoep2( 
+
+        unsigned long const csValue 
+
+    ) {
+
+        /* Shifted value variables */
+        unsigned long csShift = csValue;
+
+        /* Scale value variables */
+        unsigned long csScale = 0;
+
+        /* Search largest scale */
+        while ( csShift != 0 ) { csShift = csShift >> 1; csScale ++; }
+
+        /* Return results */
+        return( ( ( 1 << ( csScale - 1 ) ) == csValue ) ? 1 << ( csScale - 1 ) : 1 << csScale );
 
     }
 

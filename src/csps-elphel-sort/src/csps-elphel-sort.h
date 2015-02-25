@@ -201,6 +201,22 @@
 
     );
 
+    /*! \brief Mathematical functions
+     *
+     *  This function computes the nearest greater or equal power of two of the
+     *  provided value.
+     *
+     *  \param  csValue Value to round
+     *
+     *  \return Return nearest greater or equal power of two
+     */
+
+    unsigned long cs_elphel_sort_ngoep2( 
+
+        unsigned long const csValue 
+
+    );
+
 /* 
     Header - C/C++ compatibility
  */
