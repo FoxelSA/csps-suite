@@ -37,7 +37,7 @@
  */
 
 
-/* 
+/*
     Source - Includes
  */
 
@@ -56,7 +56,7 @@
         char csExp[256] = { 0 };
 
         /* Validation index variables */
-        long csIndex = 1;
+        unsigned long csIndex = 1;
 
         /* Search in parameters */
         lc_stdp( lc_stda( argc, argv, "--source"     , "-s" ), argv, csSrc, LC_STRING );
@@ -80,13 +80,13 @@
                     if ( strstr( csEnt, LC_PATTERN ) != 0 ) {
 
                         /* Build validated temporary logs-file path */
-                        sprintf( csExp, "%s/log-container.log-%05li", csDst, csIndex ++ );
+                        sprintf( csExp, "%s/log-container.log-%05lu", csDst, csIndex ++ );
 
                         /* Display information */
                         fprintf( LC_OUT, "Validating : %s\n    Exported in %s\n", basename( csEnt ), basename( csExp ) );
 
                         /* Validation procedure */
-                        fprintf( LC_OUT, "    %li sentence(s) discared\n", cs_elphel_validate( csEnt, csExp ) );
+                        fprintf( LC_OUT, "    %li event(s) discared\n", cs_elphel_validate( csEnt, csExp ) );
 
                     }
 
@@ -105,10 +105,10 @@
     Source - File validation
 */
 
-    size_t cs_elphel_validate( 
+    unsigned long cs_elphel_validate(
 
-        char const * const csiFile, 
-        char const * const csoFile 
+        char const * const csiFile,
+        char const * const csoFile
 
     ) {
 
@@ -116,7 +116,7 @@
         lp_Byte_t csBuffer[LC_RECORD] = { 0 };
 
         /* Returned value variables */
-        size_t csDiscared = 0;
+        unsigned long csDiscared = 0;
 
         /* File handle variables */
         FILE * csiStream = NULL;

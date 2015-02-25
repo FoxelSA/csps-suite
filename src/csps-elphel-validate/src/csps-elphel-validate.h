@@ -159,7 +159,7 @@
      *  \return Returns discared event record count
      */
 
-    size_t cs_elphel_validate( 
+    unsigned long cs_elphel_validate( 
 
         char const * const csiFile, 
         char const * const csoFile 
