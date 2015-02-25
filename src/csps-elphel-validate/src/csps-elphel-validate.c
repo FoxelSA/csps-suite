@@ -59,8 +59,8 @@
         long csIndex = 1;
 
         /* Search in parameters */
-        lc_stdp( lc_stda( argc, argv, "--source"      , "-s" ), argv, csSrc, LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--destination" , "-d" ), argv, csDst, LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--source"     , "-s" ), argv, csSrc, LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--destination", "-d" ), argv, csDst, LC_STRING );
 
         /* Execution switch */
         if ( lc_stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
@@ -83,10 +83,10 @@
                         sprintf( csExp, "%s/log-container.log-%05li", csDst, csIndex ++ );
 
                         /* Display information */
-                        fprintf( LC_OUT, "Validating : %s\n    Exported in %s", basename( csEnt ), basename( csExp ) );
+                        fprintf( LC_OUT, "Validating : %s\n    Exported in %s\n", basename( csEnt ), basename( csExp ) );
 
-                        /* Copy validated log-file */
-                        fprintf( LC_OUT, " - %li sentence(s) discared\n", cs_elphel_validate( csEnt, csExp ) );
+                        /* Validation procedure */
+                        fprintf( LC_OUT, "    %li sentence(s) discared\n", cs_elphel_validate( csEnt, csExp );
 
                     }
 
@@ -105,7 +105,7 @@
     Source - File validation
 */
 
-    long int cs_elphel_validate( 
+    size_t cs_elphel_validate( 
 
         char const * const csiFile, 
         char const * const csoFile 
@@ -116,7 +116,7 @@
         lp_Byte_t csBuffer[LC_RECORD] = { 0 };
 
         /* Returned value variables */
-        long int csDiscared = 0;
+        size_t csDiscared = 0;
 
         /* File handle variables */
         FILE * csiStream = NULL;
@@ -169,11 +169,11 @@
 
     ) {
 
-        /* Failsafe check on record tail */
-        if ( * ( ( uint16_t * ) ( csBuffer + 62 ) ) == 0 ) {
+        /* Failsafe check on record header */
+        if ( ( ( * ( ( uint64_t * ) csBuffer ) ) & 0x00000000F0F00000 ) == 0 ) {
 
-            /* Failsafe check on record header */
-            if ( ( ( * ( ( uint64_t * ) csBuffer ) ) & 0x00000000F0F00000 ) == 0 ) {
+            /* Failsafe check on record tail */
+            if ( * ( ( uint16_t * ) ( csBuffer + 62 ) ) == 0 ) {
 
                 /* Valide record */
                 return( LC_TRUE );

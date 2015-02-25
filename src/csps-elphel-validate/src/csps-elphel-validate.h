@@ -135,9 +135,6 @@
 
     /*! \brief Software main function
      *  
-     *  The main function considers logs-files from the source directory and
-     *  proceed to a validation based on their size. Validated file are copied
-     *  in the destination directory.
      *  
      *  \param  argc Standard main parameter
      *  \param  argv Standard main parameter
@@ -149,13 +146,12 @@
 
     /*! \brief File validation
      *
-     *  This function simply copies the source file in the output destination.
      *
      *  \param csiFile Source file path
      *  \param csoFile destination file path
      */
 
-    long int cs_elphel_validate( 
+    size_t cs_elphel_validate( 
 
         char const * const csiFile, 
         char const * const csoFile 
