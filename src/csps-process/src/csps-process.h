@@ -107,12 +107,12 @@
  */
 
     /* Standard help */
-    # define CS_HELP "Usage summary :\n"            \
-    "  csps-process [Arguments] [Parameters] ...\n" \
-    "Short arguments and parameters summary :\n"    \
-    "  -p CSPS directory structure path\n"          \
-    "  -t CSPS topology file path\n"                \
-    "csps-process - csps-suite\n"                   \
+    # define CS_HELP "Usage summary :\n\n"            \
+    "\tcsps-process [Arguments] [Parameters] ...\n\n" \
+    "Short arguments and parameters summary :\n\n"    \
+    "\t-p\tCSPS directory structure path\n"           \
+    "\t-t\tCSPS topology file path\n\n"               \
+    "csps-process - csps-suite\n"                     \
     "Copyright (c) 2013-2015 FOXEL SA\n"
 
 /* 
