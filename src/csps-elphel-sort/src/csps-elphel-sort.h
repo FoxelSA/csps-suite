@@ -191,7 +191,7 @@
      *  nearly sorted.
      * 
      *  \param csiFile Path to input logs-file
-     *  \param csiFile Path to output logs-file
+     *  \param csoFile Path to output logs-file
      */
 
     void cs_elphel_sort(
