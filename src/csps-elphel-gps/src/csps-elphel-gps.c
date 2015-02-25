@@ -278,17 +278,17 @@
     Source - NMEA sentence block validation
  */
 
-    int cs_elphel_gps_bloc( 
+    long cs_elphel_gps_bloc( 
 
         lp_Byte_t const * const csBlock
 
     ) {
 
         /* Returned value variables */
-        int csReturn = LC_TRUE;
+        long csReturn = LC_TRUE;
 
         /* Parsing variables */
-        int csParse = 0;
+        long csParse = 0;
 
         /* Validation loop */
         while ( ( csParse < CS_NTYPE ) && ( csReturn == LC_TRUE ) ) {

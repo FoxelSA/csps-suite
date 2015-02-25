@@ -109,12 +109,12 @@
  */
 
     /* Standard help */
-    # define CS_HELP "Usage summary :\n"                       \
-    "  csps-elphel-gps [Arguments] [Parameters] ...\n"         \
-    "Short arguments and parameters summary :\n"               \
-    "  -s Directory containing logs-files to decimate\n"       \
-    "  -d Directory where decimated logs-files are exported\n" \
-    "csps-elphel-gps - csps-suite\n"                           \
+    # define CS_HELP "Usage summary :\n\n"                        \
+    "\tcsps-elphel-gps [Arguments] [Parameters] ...\n\n"          \
+    "Short arguments and parameters summary :\n\n"                \
+    "\t-s\tDirectory containing logs-files to decimate\n"         \
+    "\t-d\tDirectory where decimated logs-files are exported\n\n" \
+    "csps-elphel-gps - csps-suite\n"                              \
     "Copyright (c) 2013-2015 FOXEL SA\n"
 
     /* Define sentence buffer size */
@@ -142,13 +142,13 @@
      *  The main function expects logs-files that have been processed in order
      *  to remove anomalous records or block of records. It parses the logs-files
      *  contained in the source directory and calls the GPS decimation process
-     *  for each logs-files. The decimated logs-files are the written in the
+     *  for each logs-file. The decimated logs-files are then written in the
      *  destination directory.
      *  
      *  \param  argc Standard main parameter
      *  \param  argv Standard main parameter
      *
-     *  \return Return exit code
+     *  \return Returns exit code
      */
 
     int main ( int argc, char ** argv );
@@ -158,12 +158,12 @@
      *  The way this function works is highly related to Elphel camera device
      *  hardware. The function performs a GPS decimation based on block of
      *  NMEA sentence completion and on the timestamp of the GPS-events. It also
-     *  rebuild the timestamps of the GPS-events after validation of the block.
+     *  rebuild the timestamps of the GPS events after validation of the block.
      *
-     *  \param  csIStream Openned input logs-file handle
-     *  \param  csOStream Openned output logs-file handle
+     *  \param  csIStream Openned input logs-file stream
+     *  \param  csOStream Openned output logs-file stream
      *
-     *  \return Returns the number of discarded GPS-events
+     *  \return Returns the number of discarded GPS events
      */
 
     unsigned long cs_elphel_gps_process( 
@@ -181,7 +181,7 @@
      *
      *  This array is then parsed by the function in order to be sure that, for
      *  a given GPS measure, each NMEA type appears only one. The block of
-     *  sentence can then be discarded otherwise.
+     *  sentences can then be discarded otherwise.
      * 
      *  \param  csBlock Pointer to first element of the array
      *
@@ -189,7 +189,7 @@
      *          otherwise
      */
 
-    int cs_elphel_gps_bloc( 
+    long cs_elphel_gps_bloc( 
 
         lp_Byte_t const * const csBlock
 
@@ -197,14 +197,14 @@
 
     /*! \brief GPS timestamp reconstruction
      * 
-     *  This function rebuild the GPS-event timestamp on the base of the last
+     *  This function rebuilds the GPS events timestamp on the base of the last
      *  reference timestamp and the number of repetition of this reference
      *  timestamp, assuming a frequency of measure of five hertz.
      *
      *  \param  csReference Last reference timestamp
      *  \param  csRepet     Number of repetition of the reference timestamp
      *
-     *  \return Returns rebuilded GPS-event timestamp
+     *  \return Returns rebuilded GPS event timestamp
      */
 
     lp_Time_t cs_elphel_gps_timestamp( 
@@ -219,8 +219,8 @@
      *  This function interprets the eight first bytes of the logs-file record
      *  buffer to replace the original timestamp by the rebuilded one.
      * 
-     *  \param csHeader Pointer to first byte of record buffer
-     *  \param csTime   Timestamp to write in recrod header
+     *  \param csHeader Pointer to record buffer
+     *  \param csTime   Timestamp to write in record
      */
 
     void cs_elphel_gps_header( 
