@@ -86,7 +86,7 @@
                         fprintf( LC_OUT, "Validating : %s\n    Exported in %s\n", basename( csEnt ), basename( csExp ) );
 
                         /* Validation procedure */
-                        fprintf( LC_OUT, "    %li sentence(s) discared\n", cs_elphel_validate( csEnt, csExp );
+                        fprintf( LC_OUT, "    %li sentence(s) discared\n", cs_elphel_validate( csEnt, csExp ) );
 
                     }
 
