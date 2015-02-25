@@ -109,23 +109,23 @@
  */
 
     /* Standard help */
-    # define CS_HELP "Usage summary :\n"              \
-    "  csps-frustum [Arguments] [Parameters] ...\n"   \
-    "Short arguments and parameters summary :\n"      \
-    "  -p CSPS-processed directory structure path\n"  \
-    "  -t Standard directory structure mount point\n" \
-    "  -l OpenMVG input list\n"                       \
-    "  -r OpenMVG output pairs\n"                     \
-    "  -a Camera MAC address\n"                       \
-    "  -c Camera trigger device CSPS-tag\n"           \
-    "  -m Camera trigger device CSPS-module\n"        \
-    "  -g GPS device CSPS-tag\n"                      \
-    "  -n GPS device CSPS-module\n"                   \
-    "  -i IMU device CSPS-tag\n"                      \
-    "  -s IMU device CSPS-module\n"                   \
-    "  -e Frustum near plane\n"                       \
-    "  -f Frustum far plane\n"                        \
-    "csps-frustum - csps-suite\n"                     \
+    # define CS_HELP "Usage summary :\n\n"             \
+    "\tcsps-frustum [Arguments] [Parameters] ...\n\n"  \
+    "Short arguments and parameters summary :\n\n"     \
+    "\t-p\tCSPS-processed directory structure path\n"  \
+    "\t-t\tStandard directory structure mount point\n" \
+    "\t-l\tOpenMVG input list\n"                       \
+    "\t-r\tOpenMVG output pairs\n"                     \
+    "\t-a\tCamera MAC address\n"                       \
+    "\t-c\tCamera trigger device CSPS-tag\n"           \
+    "\t-m\tCamera trigger device CSPS-module\n"        \
+    "\t-g\tGPS device CSPS-tag\n"                      \
+    "\t-n\tGPS device CSPS-module\n"                   \
+    "\t-i\tIMU device CSPS-tag\n"                      \
+    "\t-s\tIMU device CSPS-module\n"                   \
+    "\t-e\tFrustum near plane\n"                       \
+    "\t-f\tFrustum far plane\n\n"                      \
+    "csps-frustum - csps-suite\n"                      \
     "Copyright (c) 2013-2015 FOXEL SA\n"
 
 /* 
@@ -154,11 +154,11 @@
 
     typedef struct cs_List_struct {
 
-        /* Channel */
-        unsigned long lsChannel;
+        /* Channel fields */
+        long      lsChannel;
 
-        /* Timestamp */
-        lp_Time_t     lsTime;
+        /* Timestamp fields */
+        lp_Time_t lsTime;
 
     } cs_List_t;
 
@@ -197,25 +197,25 @@
 
     typedef struct cs_Frustum_struct {
 
-        /* Frustum nadir/left/top vectors */
+        /* Frustum nadir/left/top vectors fields */
         double fsNad[3];
         double fsLef[3];
         double fsTop[3];
 
-        /* Frustum origin/near/far points */
+        /* Frustum origin/near/far points fields */
         double fsOrg[3];
         double fsNPP[3];
         double fsFPP[3];
 
-        /* Frustum left/top appertures */
+        /* Frustum left/top appertures fields */
         double fsLefApp;
         double fsTopApp;
 
-        /* Frustum near/far planes */
+        /* Frustum near/far planes fields */
         double fsNear;
         double fsFar;
 
-        /* Frustum summit arrays */
+        /* Frustum summit arrays fields */
         double fsSX[8];
         double fsSY[8];
         double fsSZ[8];
@@ -228,7 +228,7 @@
 
     /*! \brief Software main function
      *  
-     *  The main function starts by importing information contained in the
+     *  The main function starts by importing informations contained in the
      *  OpenMVG list file. It then parses the created informations stack to
      *  determine which camera sensors have an intersection of their respective
      *  frustum.
@@ -252,7 +252,7 @@
      *  camera sensor channel. It also query the CSPS to retrieve sensor image
      *  synchronization timestamp.
      *
-     *  The information are stored in a stack that is create and filled by this
+     *  The informations are stored in a stack that is create and filled by this
      *  function. Note that, for performance purpose, the actual size, in memory,
      *  of the stack can be greater than the returned size.
      *
@@ -303,7 +303,7 @@
     void cs_frustum_eyesis4pi(
 
         char            const * const csCamera, 
-        int             const         csChannel, 
+        long            const         csChannel, 
         double          const         csEFxx,
         double          const         csEFxy,
         double          const         csEFxz,

@@ -378,7 +378,7 @@
     void cs_frustum_eyesis4pi(
 
         char            const * const csCamera, 
-        int             const         csChannel, 
+        long            const         csChannel, 
         double          const         csEFxx,
         double          const         csEFxy,
         double          const         csEFxz,
@@ -524,7 +524,7 @@
         };
 
         /* Secondary loop variables */
-        int csParse = 0;
+        long csParse = 0;
 
         /* Edge point coordinates variables */
         double csInterX = 0.0;
