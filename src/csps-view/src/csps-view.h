@@ -106,17 +106,17 @@
  */
 
     /* Standard help */
-    # define CS_HELP "Usage summary :\n"         \
-    "  csps-view [Arguments] [Parameters] ...\n" \
-    "Short arguments and parameters summary :\n" \
-    "  -p CSPS directory structure path\n"       \
-    "  -m Camera CSPS-module\n"                  \
-    "  -n GPS CSPS-module\n"                     \
-    "  -s IMU CSPS-module\n"                     \
-    "  -c Camera CSPS-tag\n"                     \
-    "  -g GPS CSPS-tag\n"                        \
-    "  -i IMU CSPS-tag\n"                        \
-    "csps-view - csps-suite\n"                   \
+    # define CS_HELP "Usage summary :\n\n"         \
+    "\tcsps-view [Arguments] [Parameters] ...\n\n" \
+    "Short arguments and parameters summary :\n\n" \
+    "\t-p\tCSPS directory structure path\n"        \
+    "\t-m\tCamera CSPS-module\n"                   \
+    "\t-n\tGPS CSPS-module\n"                      \
+    "\t-s\tIMU CSPS-module\n"                      \
+    "\t-c\tCamera CSPS-tag\n"                      \
+    "\t-g\tGPS CSPS-tag\n"                         \
+    "\t-i\tIMU CSPS-tag\n\n"                       \
+    "csps-view - csps-suite\n"                     \
     "Copyright (c) 2013-2015 FOXEL SA\n"
 
 /* 
