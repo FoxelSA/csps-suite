@@ -109,20 +109,20 @@
  */
 
     /* Standard help */
-    # define CS_HELP "Usage summary :\n"           \
-    "  csps-export [Arguments] [Parameters] ...\n" \
-    "Short arguments and parameters summary :\n"   \
-    "  -p CSPS-processed structure path\n"         \
-    "  -e JSON exportation file path\n"            \
-    "  -c Capture trigger device CSPS-tag\n"       \
-    "  -m Capture trigger device CSPS-module\n"    \
-    "  -g GPS device CSPS-tag\n"                   \
-    "  -n GPS device CSPS-module\n"                \
-    "  -i IMU device CSPS-tag\n"                   \
-    "  -s IMU device CSPS-module\n"                \
-    "  -t Still range device CSPS-tag\n"           \
-    "  -k Still range device CSPS-module\n"        \
-    "csps-export - csps-suite\n"                   \
+    # define CS_HELP "Usage summary :\n\n"           \
+    "\tcsps-export [Arguments] [Parameters] ...\n\n" \
+    "Short arguments and parameters summary :\n\n"   \
+    "\t-p\tCSPS-processed structure path\n"          \
+    "\t-e\tJSON exportation file path\n"             \
+    "\t-c\tCapture trigger device CSPS-tag\n"        \
+    "\t-m\tCapture trigger device CSPS-module\n"     \
+    "\t-g\tGPS device CSPS-tag\n"                    \
+    "\t-n\tGPS device CSPS-module\n"                 \
+    "\t-i\tIMU device CSPS-tag\n"                    \
+    "\t-s\tIMU device CSPS-module\n"                 \
+    "\t-t\tStill range device CSPS-tag\n"            \
+    "\t-k\tStill range device CSPS-module\n\n"       \
+    "csps-export - csps-suite\n"                     \
     "Copyright (c) 2013-2015 FOXEL SA\n"
 
 /* 
@@ -166,7 +166,7 @@
      * 
      *  This function is responsible for JSON file exportation based on queries
      *  performed on the CSPS. It is also responsible to import some fields of
-     *  the previous exportation file if available. The function expect already
+     *  the previous exportation file if available. The function expects already
      *  created CSPS query structures.
      *
      *  \param csTrigger  CSPS camera trigger query structure

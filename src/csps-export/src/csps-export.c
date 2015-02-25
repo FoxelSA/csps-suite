@@ -169,10 +169,10 @@
     ) {
 
         /* Camera stream size variables */
-        lp_Size_t csSize  = 0;
+        long csSize  = 0;
 
         /* Parsing variables */
-        lp_Size_t csParse = 0;
+        long csParse = 0;
 
         /* Stream variables */
         FILE * csStream = NULL;
@@ -356,10 +356,10 @@
     ) {
 
         /* Parsing variables */
-        static size_t csIndex = 0;
+        static long csIndex = 0;
 
         /* Size variables */
-        size_t csSize = 0;
+        long csSize = 0;
 
         /* Timestamp variables */
         lp_Time_t csTime = 0;
