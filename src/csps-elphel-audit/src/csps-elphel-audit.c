@@ -102,7 +102,12 @@
     Source - Audit procedure
  */
 
-    void cs_elphel_audit( char const * const csFile, FILE * const csStream ) {
+    void cs_elphel_audit ( 
+
+        char const * const csFile, 
+        FILE       * const csStream 
+
+    ) {
 
         /* Logs-file size variables */
         size_t csRead = 0;

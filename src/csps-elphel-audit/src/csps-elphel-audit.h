@@ -106,11 +106,11 @@
  */
 
     /* Standard help */
-    # define CS_HELP "Usage summary :\n"                  \
-    "  csps-elphel-audit [Arguments] [Parameters] ...\n"  \
-    "Short arguments and parameters summary :\n"          \
-    "  -p Directory containing the logs-files to audit\n" \
-    "csps-elphel-audit - csps-suite\n"                    \
+    # define CS_HELP "Usage summary :\n\n"                  \
+    "\tcsps-elphel-audit [Arguments] [Parameters] ...\n\n"  \
+    "Short arguments and parameters summary :\n\n"          \
+    "\t-p Directory containing the logs-files to audit\n\n" \
+    "csps-elphel-audit - csps-suite\n"                      \
     "Copyright (c) 2013-2015 FOXEL SA\n"
 
 /* 
@@ -153,7 +153,12 @@
      *  \param csStream Handle to openned logs-file
      */
 
-    void cs_elphel_audit ( char const * const csFile, FILE * const csStream );
+    void cs_elphel_audit ( 
+
+        char const * const csFile, 
+        FILE       * const csStream 
+
+    );
 
 /* 
     Header - C/C++ compatibility
