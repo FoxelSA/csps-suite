@@ -132,7 +132,7 @@
      *  \brief Sorting array structure
      *
      *  This structure is used to create a chained list in order to sort events
-     *  provided by through a logs-file using insertion sorting algorithm.
+     *  provided by a logs-file using insertion sorting algorithm.
      *
      *  \var cs_Sort_struct::srTime
      *  Field that stores record timestamp
@@ -146,13 +146,13 @@
 
     typedef struct cs_Sort_struct {
 
-        /* Event timestamp */
+        /* Timestamp fields */
         lp_Time_t   srTime;
 
-        /* Offset of record */
+        /* Offset fields */
         size_t      srOffset;
 
-        /* Chained list pointers */
+        /* Links fields */
         void      * srp;
         void      * srn;
 
@@ -164,8 +164,8 @@
 
     /*! \brief Software main function
      *  
-     *  The main function lists the logs-files stored in the source directory
-     *  and send them to the sorting procedure. Each sorted logs-file are then
+     *  The main function lists the logs-files contained in the source directory
+     *  and send them to the sorting procedure. Each sorted logs-file is then
      *  exported in the destination directory.
      *
      *  \param  argc Standard main parameter
@@ -179,7 +179,7 @@
     /*! \brief Sorting procedure
      *
      *  This procedure takes a logs-file path as input in order to reads the 
-     *  event records and to perform a time-based sorting of the events. The
+     *  events records and to perform a time-based sorting of the events. The
      *  sorted events are the exported in the output logs-files.
      *
      *  This function is designed to consume as less as memory space as possible

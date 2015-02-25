@@ -253,7 +253,7 @@
 
                     } 
 
-                    /* Unallocate sorting array memery */
+                    /* Unallocate sorting array memory */
                     free( csSort );
 
                 /* Display message */
