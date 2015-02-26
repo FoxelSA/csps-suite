@@ -3,8 +3,8 @@
 ### Beta 0.3
 
 - `Added` : Elphel specific events records sorting software : **csps-elphel-sort**
-- `Revised` : Suppressing IMU-events-based decomposition condition in **csps-elphel-decompose**
-- `Revised` : Suppressing IMU-events-based appending condition in **csps-elphel-merge**
+- `Revised` : Suppressing IMU-based decomposition condition in **csps-elphel-decompose**
+- `Revised` : Suppressing IMU-based appending condition in **csps-elphel-merge**
 - `Revised` : Added events records probabilist validity check in **csps-elphel-validate**
 - `Revised` : Removed validity check based on file size in **csps-elphel-validate**
 
