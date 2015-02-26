@@ -116,18 +116,28 @@
         lp_Byte_t csBuffer[LC_RECORD] = { 0 };
 
         /* Sorting structure variables */
-        cs_Sort_t * csSort = NULL;
-        cs_Sort_t * csHead = NULL;
-        cs_Sort_t * csLast = NULL;
-        cs_Sort_t * csNear = NULL;
-        cs_Sort_t * csRead = NULL;
-        cs_Sort_t * csTail = NULL;
+        cs_Sort_t * csrSort = NULL;
+        cs_Sort_t * cssSort = NULL;
+        cs_Sort_t * csaSwap = NULL;
+
+        /* Merge-sort variables */
+        unsigned long csScale = 0;
+        unsigned long csSteps = 2;
+
+        /* Scale parsing variables */
+        unsigned long csrIndex = 0;
+        unsigned long cssIndex = 0;
+        unsigned long csaIndex = 0;
+        unsigned long csaLimit = 0;
+        unsigned long csbIndex = 0;
+        unsigned long csbLimit = 0;
+
+        /* Switch flag variables */
+        int csfSort = 0;
 
         /* Parsing variables */
-        long csSize  = 0;
-
-        /* Timestamp variables */
-        lp_Time_t csTime = 0;
+        unsigned long csParse = 0;
+        unsigned long csSize  = 0;
 
         /* Streams variables */
         FILE * csiStream = NULL;
@@ -143,110 +153,119 @@
             if ( ( csoStream = fopen( csoFile, "w" ) ) != NULL ) {
 
                 /* Allocating sorting array memory */
-                if ( ( csTail = ( csSort = ( cs_Sort_t * ) malloc( csSize * sizeof( cs_Sort_t ) ) ) ) != NULL ) {
+                if ( ( csrSort = ( cs_Sort_t * ) malloc( csSize * sizeof( cs_Sort_t ) * 2 ) ) != NULL ) {
 
-                    /* Input stream parsing loop */
+                    /* Creating secondary pointer */
+                    cssSort = csrSort + csSize;
+
+                    /* Computing merge-sort scale */
+                    csScale = cs_elphel_sort_ngoep2( csSize );
+
+                    /* Reset size */
+                    csSize = 0;
+
+                    /* Creating records descriptors */
                     while ( fread( csBuffer, 1, LC_RECORD, csiStream ) == LC_RECORD ) {
 
-                        /* Retrieve record timestamp */
-                        csTime = LC_TSR( csBuffer );
+                        /* Assign record timestamp */
+                        csrSort[csSize].srTime = LC_TSR( csBuffer );
 
-                        /* Backward parser */
-                        csNear = NULL;
-                        csRead = csLast;
+                        /* Assign record offset */
+                        csrSort[csSize].srSeek = ftell( csiStream ) - LC_RECORD;
 
-                        long i = 0;
+                        /* Update pointer and size */
+                        csSize ++; 
 
-                        fprintf( stderr, "%010" lp_Time_p ".%06" lp_Time_p " - ", lp_timestamp_sec( csTime ), lp_timestamp_usec( csTime ) );
+                    }
 
-                        /* backward insertion */
-                        while ( ( csNear == NULL ) && ( csRead != NULL ) ) {
+                    /* Merge sort algorithm - sequential implementation */
+                    while ( csSteps <= csScale ) {
 
-                            /* Insertion position search */
-                            if ( lp_timestamp_ge( csTime, csRead->srTime ) == LP_TRUE ) {
+                        /* Scale parsing reset */
+                        cssIndex = 0;
+                        csrIndex = 0;
 
-                                /* Select nearest */
-                                csNear = csRead;
+                        /* Scale parsing loop */
+                        while ( csrIndex < csSize ) {
 
-                            } else {
+                            /* Merge procedure reset */                            
+                            csaIndex = csrIndex;
+                            csaLimit = csrIndex + ( csSteps >> 1 );
+                            csbIndex = csaLimit;
+                            csbLimit = csrIndex + ( csSteps );
 
-                                /* Continue backward insertion */
-                                csRead = csRead->srp;
+                            /* Head limit correction */
+                            csaLimit = ( csaLimit <= csSize ) ? csaLimit : csSize;
+                            csbLimit = ( csbLimit <= csSize ) ? csbLimit : csSize;
+
+                            /* Merge procedure */
+                            while ( ( csaIndex < csaLimit ) || ( csbIndex < csbLimit ) ) {
+
+                                /* Check sequences limits */
+                                if ( csaIndex >= csaLimit ) {
+
+                                    /* Update swicth */
+                                    csfSort = LP_FALSE;
+
+                                } else
+                                if ( csbIndex >= csbLimit ) {
+
+                                    /* Update swicth */
+                                    csfSort = LP_TRUE;
+
+                                } else {
+
+                                    /* Update switch */
+                                    csfSort = lp_timestamp_ge( csrSort[csbIndex].srTime, csrSort[csaIndex].srTime );
+
+                                }
+
+                                /* Merge node */
+                                if ( csfSort == LP_TRUE ) {
+
+                                    /* Merge element */
+                                    cssSort[cssIndex].srTime = csrSort[csaIndex].srTime;
+                                    cssSort[cssIndex].srSeek = csrSort[csaIndex].srSeek;
+
+                                    /* Update head */
+                                    csaIndex ++;
+
+                                } else {
+
+                                    /* Merge element */
+                                    cssSort[cssIndex].srTime = csrSort[csbIndex].srTime;
+                                    cssSort[cssIndex].srSeek = csrSort[csbIndex].srSeek;
+
+                                    /* Update head */
+                                    csbIndex ++;
+
+                                }
+
+                                /* Update secondary index */
+                                cssIndex ++;
 
                             }
 
-                            i ++; 
+                            /* Update main index */
+                            csrIndex += csSteps;
 
                         }
 
-                        fprintf( stderr, "Found in %li\n", i );
+                        /* Update scale */
+                        csSteps *= 2;
 
-                        /* Insert event */
-                        csTail->srTime   = csTime;
-                        csTail->srOffset = ftell( csiStream ) - LC_RECORD;
-
-                        /* Update previous link */
-                        if ( csNear == NULL ) {
-
-                            /* Update links */
-                            csTail->srp = NULL;
-                            csTail->srn = csHead;
-
-                            /* Check boundary */
-                            if ( csHead == NULL ) {
-
-                                /* Update boundary */
-                                csLast = csTail; 
-
-                            } else {
-
-                                /* Update link */
-                                csHead->srp = csTail;
-
-                            }
-
-                            /* Update boundary */
-                            csHead = csTail;
-
-                        } else {
-
-                            /* Update link */
-                            csTail->srp = csNear;
-
-                            /* Check boundary */
-                            if ( csNear->srn == NULL ) {
-
-                                /* Update link */
-                                csTail->srn = NULL;
-
-                                /* Update boundary */
-                                csLast = csTail;
-
-                            } else {
-
-                                /* Update link */
-                                csTail->srn = csNear->srn;
-
-                                /* Update next link */
-                                ( ( cs_Sort_t * ) csNear->srn )->srp = csTail;
-
-                            }
-
-                            /* Update previous link */
-                            csNear->srn = csTail;
-
-                        }
-
-                        /* Update */
-                        csTail += 1;
+                        /* Swap array */
+                        csaSwap = csrSort;
+                        csrSort = cssSort;
+                        cssSort = csaSwap;
 
                     }
 
                     /* Exportation of sorted events */
-                    while ( csHead != NULL ) {
+                    while ( csParse < csSize ) {
 
                         /* Setting offset in input stream */
-                        fseek( csiStream, csHead->srOffset , SEEK_SET );
+                        fseek( csiStream, csrSort[csParse].srSeek, SEEK_SET );
 
                         /* Read input stream */
                         if ( fread( csBuffer, 1, LC_RECORD, csiStream ) == LC_RECORD ) {
@@ -257,12 +276,12 @@
                         }
 
                         /* Update parser */
-                        csHead = csHead->srn;
+                        csParse ++;
 
                     } 
 
                     /* Unallocate sorting array memory */
-                    free( csSort );
+                    free( csrSort < cssSort ? csrSort : cssSort );
 
                 /* Display message */
                 } else { fprintf( LC_ERR, "Error : unable to allocate memory\n" ); }

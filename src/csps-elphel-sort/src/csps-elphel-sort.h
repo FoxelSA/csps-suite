@@ -150,6 +150,7 @@
         lp_Time_t   srTime;
 
         /* Offset fields */
+        unsigned long srSeek;
         long        srOffset;
 
         /* Links fields */
