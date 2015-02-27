@@ -115,16 +115,14 @@
         /* Records buffer variables */
         lp_Byte_t csBuffer[LC_RECORD] = { 0 };
 
-        /* Sorting structure variables */
-        cs_Sort_t * csrSort = NULL;
-        cs_Sort_t * cssSort = NULL;
-        cs_Sort_t * csaSwap = NULL;
+        /* Switch flag variables */
+        int csfSort = 0;
 
         /* Merge-sort variables */
         unsigned long csScale = 0;
         unsigned long csSteps = 2;
 
-        /* Scale parsing variables */
+        /* Merge-sort head and limit variables */
         unsigned long csrIndex = 0;
         unsigned long cssIndex = 0;
         unsigned long csaIndex = 0;
@@ -132,12 +130,14 @@
         unsigned long csbIndex = 0;
         unsigned long csbLimit = 0;
 
-        /* Switch flag variables */
-        int csfSort = 0;
-
         /* Parsing variables */
         unsigned long csParse = 0;
         unsigned long csSize  = 0;
+
+        /* Sorting structure variables */
+        cs_Sort_t * csrSort = NULL;
+        cs_Sort_t * cssSort = NULL;
+        cs_Sort_t * csaSwap = NULL;
 
         /* Streams variables */
         FILE * csiStream = NULL;
@@ -146,22 +146,22 @@
         /* Create and check input stream */
         if ( ( csiStream = fopen( csiFile, "r" ) ) != NULL ) {
 
-            /* Retrieve input stream size */
+            /* Retrieve input stream size and records count */
             csSize = lc_file_size( csiFile ) / 64;
 
-            /* Create and check input stream */
+            /* Create and check output stream */
             if ( ( csoStream = fopen( csoFile, "w" ) ) != NULL ) {
 
-                /* Allocating sorting array memory */
+                /* Allocating sorting arrays memory */
                 if ( ( csrSort = ( cs_Sort_t * ) malloc( csSize * sizeof( cs_Sort_t ) * 2 ) ) != NULL ) {
 
-                    /* Creating secondary pointer */
+                    /* Creating secondary array pointer */
                     cssSort = csrSort + csSize;
 
                     /* Computing merge-sort scale */
                     csScale = cs_elphel_sort_ngoep2( csSize );
 
-                    /* Reset size */
+                    /* Reset records count */
                     csSize = 0;
 
                     /* Creating records descriptors */
@@ -173,7 +173,7 @@
                         /* Assign record offset */
                         csrSort[csSize].srSeek = ftell( csiStream ) - LC_RECORD;
 
-                        /* Update pointer and size */
+                        /* Update records count */
                         csSize ++; 
 
                     }
@@ -188,20 +188,20 @@
                         /* Scale parsing loop */
                         while ( csrIndex < csSize ) {
 
-                            /* Merge procedure reset */                            
+                            /* Heads initialization */
                             csaIndex = csrIndex;
                             csaLimit = csrIndex + ( csSteps >> 1 );
                             csbIndex = csaLimit;
                             csbLimit = csrIndex + ( csSteps );
 
-                            /* Head limit correction */
+                            /* Heads limits correction */
                             csaLimit = ( csaLimit <= csSize ) ? csaLimit : csSize;
                             csbLimit = ( csbLimit <= csSize ) ? csbLimit : csSize;
 
-                            /* Merge procedure */
+                            /* Heads processing */
                             while ( ( csaIndex < csaLimit ) || ( csbIndex < csbLimit ) ) {
 
-                                /* Check sequences limits */
+                                /* Merge-sort main switch */
                                 if ( csaIndex >= csaLimit ) {
 
                                     /* Update swicth */
@@ -220,10 +220,10 @@
 
                                 }
 
-                                /* Merge node */
+                                /* Merge-sort swicth analysis */
                                 if ( csfSort == LP_TRUE ) {
 
-                                    /* Merge element */
+                                    /* Merge-sort element */
                                     cssSort[cssIndex].srTime = csrSort[csaIndex].srTime;
                                     cssSort[cssIndex].srSeek = csrSort[csaIndex].srSeek;
 
@@ -232,7 +232,7 @@
 
                                 } else {
 
-                                    /* Merge element */
+                                    /* Merge-sort element */
                                     cssSort[cssIndex].srTime = csrSort[csbIndex].srTime;
                                     cssSort[cssIndex].srSeek = csrSort[csbIndex].srSeek;
 
@@ -246,7 +246,7 @@
 
                             }
 
-                            /* Update main index */
+                            /* Update main head index */
                             csrIndex += csSteps;
 
                         }
@@ -254,7 +254,7 @@
                         /* Update scale */
                         csSteps *= 2;
 
-                        /* Swap array */
+                        /* Swap arrays */
                         csaSwap = csrSort;
                         csrSort = cssSort;
                         cssSort = csaSwap;
