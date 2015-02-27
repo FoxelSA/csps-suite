@@ -36,13 +36,13 @@
  *      Attribution" section of <http://foxel.ch/license>.
  */
 
-    /*! \file   csps-elphel-gps.h
+    /*! \file   csps-elphel-repair.h
      *  \author Nils Hamel <n.hamel@foxel.ch>
      *   
      *  Software main header
      */
 
-    /*! \mainpage csps-elphel-gps
+    /*! \mainpage csps-elphel-repair
      *
      *  \section csps-suite
      *  \section _ CSPS library front-end suite
@@ -81,8 +81,8 @@
     Header - Include guard
  */
 
-    # ifndef __CS_ELPHEL_GPS__
-    # define __CS_ELPHEL_GPS__
+    # ifndef __CS_ELPHEL_REPAIR__
+    # define __CS_ELPHEL_REPAIR__
 
 /* 
     Header - C/C++ compatibility
@@ -109,12 +109,12 @@
  */
 
     /* Standard help */
-    # define CS_HELP "Usage summary :\n\n"                        \
-    "\tcsps-elphel-gps [Arguments] [Parameters] ...\n\n"          \
-    "Short arguments and parameters summary :\n\n"                \
-    "\t-s\tDirectory containing logs-files to decimate\n"         \
-    "\t-d\tDirectory where decimated logs-files are exported\n\n" \
-    "csps-elphel-gps - csps-suite\n"                              \
+    # define CS_HELP "Usage summary :\n\n"                       \
+    "\tcsps-elphel-repair [Arguments] [Parameters] ...\n\n"      \
+    "Short arguments and parameters summary :\n\n"               \
+    "\t-s\tDirectory containing logs-files to repair\n"          \
+    "\t-d\tDirectory where repaired logs-files are exported\n\n" \
+    "csps-elphel-repair - csps-suite\n"                          \
     "Copyright (c) 2013-2015 FOXEL SA\n"
 
     /* Define sentence buffer size */
@@ -152,6 +152,36 @@
      */
 
     int main ( int argc, char ** argv );
+
+    /*! \brief Logs-file repair process
+     *
+     */
+
+    unsigned long cs_elphel_repair(
+
+        char * const csiFile,
+        char * const csoFile
+
+    );
+
+    /*! \brief Record probabilist validation
+     *
+     *  This function detects event record filled with invalid data, typically
+     *  random bytes. It returns boolean value that indicates provided record
+     *  validity.
+     *
+     *  \param  csBuffer Pointer to record buffer
+     *
+     *  \return Returns boolean value that indicates record validity
+     */
+
+    int cs_elphel_validate_record(
+
+        lp_Byte_t const * const csBuffer
+
+    );
+
+    /* *** */
 
     /*! \brief Logs-file GPS decimation
      *

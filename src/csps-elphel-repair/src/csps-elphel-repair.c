@@ -41,7 +41,7 @@
     Source - Includes
  */
 
-    # include "csps-elphel-gps.h"
+    # include "csps-elphel-repair.h"
 
 /*
     Source - Software main function
@@ -52,15 +52,11 @@
         /* Structure path variables */
         char csSrc[256] = { 0 };
         char csDst[256] = { 0 };
-        char csInl[256] = { 0 };
-        char csOul[256] = { 0 };
+        char csFil[256] = { 0 };
+        char csExp[256] = { 0 };
 
         /* Indexation variables */
-        long csIndex = 1;
-
-        /* Stream handle variables */
-        FILE * csIStream = NULL;
-        FILE * csOStream = NULL;
+        unsigned long csIndex = 1;
 
         /* Search in parameters */
         lc_stdp( lc_stda( argc, argv, "--source"     , "-s" ), argv, csSrc, LC_STRING );
@@ -75,37 +71,22 @@
         } else {
 
             /* Directory entity enumeration */
-            while ( lc_file_enum( csSrc, csInl ) != LC_FALSE ) {
+            while ( lc_file_enum( csSrc, csFil ) != LC_FALSE ) {
 
                 /* Consider only file entity */
-                if ( lc_file_detect( csInl, LC_FILE ) == LC_TRUE ) {
+                if ( lc_file_detect( csFil, LC_FILE ) == LC_TRUE ) {
 
                     /* Check log-file tag */
-                    if ( strstr( csInl, LC_PATTERN ) != 0 ) {
+                    if ( strstr( csFil, LC_PATTERN ) != 0 ) {
 
                         /* Display information */
-                        fprintf( LC_OUT, "Decimating : %s\n", basename( csInl ) );
+                        fprintf( LC_OUT, "Repairing : %s\n", basename( csFil ) );
 
                         /* Construct output file name */
-                        sprintf( csOul, "%s/log-container.log-%05li", csDst, csIndex ++ );
+                        sprintf( csExp, "%s/log-container.log-%05li", csDst, csIndex ++ );
 
-                        /* Create input stream */
-                        if ( ( csIStream = fopen( csInl, "rb" ) ) != NULL ) {
-
-                            /* Create output stream */
-                            if ( ( csOStream = fopen( csOul, "wb" ) ) != NULL ) {
-
-                                /* Log-file GPS processing */
-                                fprintf( LC_OUT, "    %lu GPS-event(s) lost\n", cs_elphel_gps_process( csIStream, csOStream ) );
-
-                            /* Display message */
-                            } else { fprintf( LC_ERR, "Error : unable to access %s\n", basename( csOul ) ); }
-
-                            /* Close input stream */
-                            fclose( csIStream );
-
-                        /* Display message */
-                        } else { fprintf( LC_ERR, "Error : unable to access %s\n", basename( csInl ) ); }
+                        /* Logs-file repair process */
+                        fprintf( LC_OUT, "    %s - %lu event(s) discared\n", basename( csExp ), cs_elphel_repair( csFil, csExp ) );
 
                     }
 
@@ -121,13 +102,99 @@
     }
 
 /*
+    Source - Logs-file repair process
+*/
+
+    unsigned long cs_elphel_repair(
+
+        char * const csiFile,
+        char * const csoFile
+
+    ) {
+
+        /* Record buffer variables */
+        lp_Byte_t csBuffer[LC_RECORD] = { 0 };
+
+        /* Discared count variables */
+        unsigned long csCount = 0;
+
+        /* Stream variables */
+        FILE * csiStream = NULL;
+        FILE * csoStream = NULL;
+
+        /* Create and check input stream */
+        if ( ( csiStream = fopen( csiFile, "rb" ) ) == NULL ) {
+
+            /* Display message */
+            fprintf( LC_ERR, "Error : unable to access %s\n", basename( csiFile ) );
+
+        } else {
+
+            /* Create and check input stream */
+            if ( ( csoStream = fopen( csoFile, "wb" ) ) == NULL ) {
+
+                /* Display message */
+                fprintf( LC_ERR, "Error : unable to access %s\n", basename( csoFile ) );
+
+            } else {
+
+                /* Parsing input stream */
+                while ( fread( csBuffer, 1, LC_RECORD, csiStream ) == LC_RECORD ) {
+
+                    /* Checking record validity */
+                    if ( cs_elphel_validate_record( csBuffer ) == LC_TRUE ) {
+
+                        
+
+                    /* Update discared count */
+                    } else { csCount ++; }
+
+                }
+
+                /* Close input stream */
+                fclose( csoStream );
+
+            }
+
+            /* Close input stream */
+            fclose( csiStream );
+
+        }
+
+        /* Return discared count */
+        return ( csCount );
+
+    }
+
+/*
+    Source - Record probabilist validation
+*/
+
+    int cs_elphel_validate_record(
+
+        lp_Byte_t const * const csBuffer
+
+    ) {
+
+        /* Failsafe check on record header */
+        if ( ( ( * ( ( uint64_t * ) csBuffer ) ) & 0x00000000F0F00000 ) == 0 ) {
+
+            /* Failsafe check on record tail */
+            if ( * ( ( uint16_t * ) ( csBuffer + 62 ) ) == 0 ) return( LC_TRUE ); else  return( LC_FALSE );
+
+        /* Invalid record */
+        } else { return( LC_FALSE ); }
+
+    }
+
+/*
     Source - Logs-file GPS decimation
 */
 
     unsigned long cs_elphel_gps_process( 
 
-        FILE * const csIStream, 
-        FILE * const csOStream 
+        FILE * const csiStream, 
+        FILE * const csoStream 
 
     ) {
 
@@ -160,7 +227,7 @@
         unsigned long csCount = 0;
 
         /* Content parsing */
-        while ( fread( csBuffer, 1, LC_RECORD, csIStream ) == LC_RECORD ) {
+        while ( fread( csBuffer, 1, LC_RECORD, csiStream ) == LC_RECORD ) {
 
             /* Event type verification */
             if ( LC_EDM( csBuffer, LC_GPS ) ) {
@@ -212,7 +279,7 @@
                                         cs_elphel_gps_header( ( lp_Time_t * ) csStackSent[csParse], csTimer );
 
                                         /* Export stacked record */
-                                        fwrite( csStackSent[csParse], 1, LC_RECORD, csOStream );
+                                        fwrite( csStackSent[csParse], 1, LC_RECORD, csoStream );
 
                                     }
 
@@ -263,7 +330,7 @@
             } else {
 
                 /* Export record buffer */
-                fwrite( csBuffer, 1, LC_RECORD, csOStream );
+                fwrite( csBuffer, 1, LC_RECORD, csoStream );
 
             }
 
