@@ -117,6 +117,9 @@
     "csps-elphel-repair - csps-suite\n"                          \
     "Copyright (c) 2013-2015 FOXEL SA\n"
 
+    /* Define GPS buffer size */
+    # define CS_GPSA    64
+
     /* Define sentence buffer size */
     # define CS_NTYPE           4
     # define CS_REPET           5
@@ -153,7 +156,7 @@
 
     int main ( int argc, char ** argv );
 
-    /*! \brief Logs-file repair process
+    /*! \brief Logs-file repair procedure
      *
      */
 
@@ -175,53 +178,30 @@
      *  \return Returns boolean value that indicates record validity
      */
 
-    int cs_elphel_validate_record(
+    int cs_elphel_repair_record(
 
         lp_Byte_t const * const csBuffer
 
     );
 
-    /* *** */
-
-    /*! \brief Logs-file GPS decimation
+    /*! \brief Record equality check
      *
-     *  The way this function works is highly related to Elphel camera device
-     *  hardware. The function performs a GPS decimation based on block of
-     *  NMEA sentence completion and on the timestamp of the GPS-events. It also
-     *  rebuild the timestamps of the GPS events after validation of the block.
-     *
-     *  \param  csIStream Openned input logs-file stream
-     *  \param  csOStream Openned output logs-file stream
-     *
-     *  \return Returns the number of discarded GPS events
      */
 
-    unsigned long cs_elphel_gps_process( 
+    int cs_elphel_repair_req(
 
-        FILE * const csIStream, 
-        FILE * const csOStream 
+        lp_Byte_t const * const csaBuffer,
+        lp_Byte_t const * const csbBuffer
 
     );
 
-    /*! \brief NMEA sentence block validation
+    /*! \brief GPS events specific procedure
      *
-     *  This function waits an array with each of its element associated to a
-     *  type of NMEA sentence. Each array element are expected to carry the count
-     *  of NMEA sentence of the type its related to.
-     *
-     *  This array is then parsed by the function in order to be sure that, for
-     *  a given GPS measure, each NMEA type appears only one. The block of
-     *  sentences can then be discarded otherwise.
-     * 
-     *  \param  csBlock Pointer to first element of the array
-     *
-     *  \return Returns true if each sentence type appears only once, false
-     *          otherwise
      */
 
-    long cs_elphel_gps_bloc( 
+    unsigned long cs_elphel_repair_gps(
 
-        lp_Byte_t const * const csBlock
+        lp_Byte_t const * const csBuffer
 
     );
 
@@ -237,14 +217,14 @@
      *  \return Returns rebuilded GPS event timestamp
      */
 
-    lp_Time_t cs_elphel_gps_timestamp( 
+    lp_Time_t cs_elphel_repair_timestamp( 
 
         lp_Time_t     const csReference,
         unsigned long const csRepet 
 
     );
 
-    /*! \brief Record header override
+    /*! \brief GPS timestamp overide
      *  
      *  This function interprets the eight first bytes of the logs-file record
      *  buffer to replace the original timestamp by the rebuilded one.
@@ -253,7 +233,7 @@
      *  \param csTime   Timestamp to write in record
      */
 
-    void cs_elphel_gps_header( 
+    void cs_elphel_repair_header( 
 
         lp_Time_t * const csHeader, 
         lp_Time_t   const csTime 
