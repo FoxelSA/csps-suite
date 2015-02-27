@@ -131,31 +131,23 @@
     /*! \struct cs_Sort_struct
      *  \brief Sorting array structure
      *
-     *  This structure is used to create a chained list in order to sort events
-     *  provided by a logs-file using insertion sorting algorithm.
+     *  This structure is used for merge-sort based on timestamps in order to
+     *  keep the links between the timestamps to sort and their corresponding
+     *  offsets in the input logs-file.
      *
      *  \var cs_Sort_struct::srTime
      *  Field that stores record timestamp
-     *  \var cs_Sort_struct::srOffset
+     *  \var cs_Sort_struct::srSeek
      *  Field that stores record offset in input file
-     *  \var cs_Sort_struct::srp
-     *  Pointer to previous node of sorted structure
-     *  \var cs_Sort_struct::srn
-     *  Pointer to next node of sorted structure
      */ 
 
     typedef struct cs_Sort_struct {
 
         /* Timestamp fields */
-        lp_Time_t   srTime;
+        lp_Time_t     srTime;
 
         /* Offset fields */
         unsigned long srSeek;
-        long        srOffset;
-
-        /* Links fields */
-        void      * srp;
-        void      * srn;
 
     } cs_Sort_t;
 
@@ -184,12 +176,8 @@
      *  sorted events are the exported in the output logs-files.
      *
      *  This function is designed to consume as less as memory space as possible
-     *  avoiding to load entire logs-file.
-     *
-     *  The function implements an insertion sorting algorithm due to the fact 
-     *  that records have to be read at least one time to get their timestamp
-     *  and because incomming logs-files are assumed, most of the time, to be 
-     *  nearly sorted.
+     *  avoiding to load entire logs-file. Sorting is provided by a sequential
+     *  implementation of merge-sort.
      * 
      *  \param csiFile Path to input logs-file
      *  \param csoFile Path to output logs-file
@@ -207,9 +195,9 @@
      *  This function computes the nearest greater or equal power of two of the
      *  provided value.
      *
-     *  \param  csValue Value to round
+     *  \param  csValue Value to log2-round
      *
-     *  \return Return nearest greater or equal power of two
+     *  \return Returns nearest greater or equal power of two
      */
 
     unsigned long cs_elphel_sort_ngoep2( 
