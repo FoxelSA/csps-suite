@@ -153,7 +153,7 @@
                         if ( LC_EDM( csBuffer, LC_IMU ) ) {
 
                             /* Detect repetition */
-                            if ( lp_timestamp_ge( csimuLast, LC_TSR( csBuffer ) ) == LP_TRUE ) {
+                            if ( lp_timestamp_ge( csimuLast, LC_TSR( csBuffer ) ) == LP_FALSE ) {
 
                                 /* Export events */
                                 fwrite( csBuffer, 1, LC_RECORD, csoStream );
@@ -170,7 +170,7 @@
                         if ( LC_EDM( csBuffer, LC_MAS ) ) {
 
                             /* Detect repetition */
-                            if ( lp_timestamp_ge( csmasLast, LC_TSR( csBuffer ) ) == LP_TRUE ) {
+                            if ( lp_timestamp_ge( csmasLast, LC_TSR( csBuffer ) ) == LP_FALSE ) {
 
                                 /* Export events */
                                 fwrite( csBuffer, 1, LC_RECORD, csoStream );
@@ -183,7 +183,7 @@
                         } else {
 
                             /* Detect repetition */
-                            if ( lp_timestamp_ge( csothLast, LC_TSR( csBuffer ) ) == LP_TRUE ) {
+                            if ( lp_timestamp_ge( csothLast, LC_TSR( csBuffer ) ) == LP_FALSE ) {
 
                                 /* Export events */
                                 fwrite( csBuffer, 1, LC_RECORD, csoStream );
