@@ -2,6 +2,7 @@
 
 ### Beta 0.3
 
+- `Revised` : Adapting Elphel logs-files processing strategy and softwares
 - `Added` : Elphel specific events records sorting software : **csps-elphel-sort**
 - `Revised` : Suppressing IMU-based decomposition condition in **csps-elphel-decompose**
 - `Revised` : Suppressing IMU-based appending condition in **csps-elphel-merge**

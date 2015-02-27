@@ -70,6 +70,9 @@
         /* Losses variables */
         unsigned long csCount = 0;
 
+        /* Appending flag variables */
+        unsigned long csFlag = LC_FALSE;
+
         /* Logs-files stack variables */
         cs_Descriptor_t csStack[8192];
 
@@ -176,6 +179,9 @@
                     /* Update selection state */
                     csStack[csSelect].dsFlag = LC_TRUE;
 
+                    /* Appending condition flag reset */
+                    csFlag = LC_FALSE;
+
                     /* Reset loss count */
                     csCount = 0;
 
@@ -188,12 +194,21 @@
                             /* Appending condition trigger */
                             if ( ( lp_timestamp_ge( csLKnown, LC_TSR( csBuffer ) ) ) == LC_FALSE ) {
 
+                                /* Set appending condition flag */
+                                csFlag = LC_TRUE;
+
+                            }
+
+                            /* Append condition verification */
+                            if ( csFlag == LC_TRUE ) {
+
                                 /* Append records */
                                 fwrite( csBuffer, 1, LC_RECORD, csOStream );
 
                                 /* Update last known timestamp */
                                 csLKnown = LC_TSR( csBuffer );
 
+                            /* Update losses count */
                             } else { csCount ++; }
 
                         }
@@ -259,6 +274,20 @@
 
         /* Return first timestamp */
         return( csFirst );
+
+    }
+
+/*
+    Source - Record buffer equality
+ */
+
+    int cs_elphel_merge_equal( lp_Byte_t * csBuffer ) {
+
+        /* Returned value variables */
+        int csReturn = LC_FALSE;
+
+        /* Parsing variables */
+        long 
 
     }
 
