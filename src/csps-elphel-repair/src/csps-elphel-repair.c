@@ -118,6 +118,11 @@
         /* Discared count variables */
         unsigned long csCount = 0;
 
+        /* Timestamp tracking variables */
+        lp_Time_t csimuLast = 0;
+        lp_Time_t csmasLast = 0;
+        lp_Time_t csothLast = 0;
+
         /* Stream variables */
         FILE * csiStream = NULL;
         FILE * csoStream = NULL;
@@ -144,7 +149,52 @@
                     /* Checking record validity */
                     if ( cs_elphel_validate_record( csBuffer ) == LC_TRUE ) {
 
-                        
+                        /* Detect event type */
+                        if ( LC_EDM( csBuffer, LC_IMU ) ) {
+
+                            /* Detect repetition */
+                            if ( lp_timestamp_ge( csimuLast, LC_TSR( csBuffer ) ) == LP_TRUE ) {
+
+                                /* Export events */
+                                fwrite( csBuffer, 1, LC_RECORD, csoStream );
+
+                                /* Update last-known timestamp */
+                                csimuLast = LC_TSR( csBuffer );
+
+                            }
+
+                        } else
+                        if ( LC_EDM( csBuffer, LC_GPS ) ) {
+
+                        } else
+                        if ( LC_EDM( csBuffer, LC_MAS ) ) {
+
+                            /* Detect repetition */
+                            if ( lp_timestamp_ge( csmasLast, LC_TSR( csBuffer ) ) == LP_TRUE ) {
+
+                                /* Export events */
+                                fwrite( csBuffer, 1, LC_RECORD, csoStream );
+
+                                /* Update last-known timestamp */
+                                csmasLast = LC_TSR( csBuffer );
+
+                            }
+
+                        } else {
+
+                            /* Detect repetition */
+                            if ( lp_timestamp_ge( csothLast, LC_TSR( csBuffer ) ) == LP_TRUE ) {
+
+                                /* Export events */
+                                fwrite( csBuffer, 1, LC_RECORD, csoStream );
+
+                                /* Update last-known timestamp */
+                                csothLast = LC_TSR( csBuffer );
+
+                            }
+
+
+                        }
 
                     /* Update discared count */
                     } else { csCount ++; }
