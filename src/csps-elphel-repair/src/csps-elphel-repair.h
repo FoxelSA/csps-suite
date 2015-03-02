@@ -117,12 +117,10 @@
     "csps-elphel-repair - csps-suite\n"                          \
     "Copyright (c) 2013-2015 FOXEL SA\n"
 
-    /* Define GPS buffer size */
-    # define CS_GPSA    64
-
-    /* Define sentence buffer size */
-    # define CS_NTYPE           4
-    # define CS_REPET           5
+    /* Define GPS sequence parameters */
+    # define CS_MEASURE     4
+    # define CS_GROUPS      5
+    # define CS_BUFFERS     CS_MEASURE * CS_GROUPS
 
 /* 
     Header - Preprocessor macros
@@ -184,14 +182,13 @@
 
     );
 
-    /*! \brief Record equality check
+    /*! \brief GPS events specific procedure
      *
      */
 
-    int cs_elphel_repair_req(
+    int cs_elphel_repair_detect(
 
-        lp_Byte_t const * const csaBuffer,
-        lp_Byte_t const * const csbBuffer
+        lp_Byte_t const * const csBuffer
 
     );
 
@@ -199,9 +196,29 @@
      *
      */
 
-    unsigned long cs_elphel_repair_gps(
+    int cs_elphel_repair_filter(
 
-        lp_Byte_t const * const csBuffer
+        lp_Byte_t csgpsStack[CS_BUFFERS][LC_RECORD]
+
+    );
+
+    /*! \brief GPS events specific procedure
+     *
+     */
+
+    double cs_elphel_repair_clock(
+
+        lp_Char_t const * const csSentence
+
+    );
+
+    /*! \brief GPS events specific procedure
+     *
+     */
+
+    unsigned long cs_elphel_repair_fix(
+
+        lp_Char_t const * const csSentence
 
     );
 
