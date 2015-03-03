@@ -5,6 +5,7 @@
 - `Revised` : Adapting Elphel logs-files processing strategy and softwares
 - `Added` : Elphel specific events records sorting software : **csps-elphel-sort**
 - `Revised` : Suppressing IMU-based decomposition condition in **csps-elphel-decompose**
+- `Revised` : Suppressing chronological append in **csps-elphel-merge** replaced by **csps-elphel-sort**
 - `Revised` : Suppressing IMU-based appending condition in **csps-elphel-merge**
 - `Added` : Added **csps-elphel-repair** software for logs-files content filtering
 - `Removed` : Suppression of **csps-elphel-validate** replaced by **csps-elphel-repair**
