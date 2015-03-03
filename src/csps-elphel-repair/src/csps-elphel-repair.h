@@ -140,11 +140,6 @@
 
     /*! \brief Software main function
      *  
-     *  The main function expects logs-files that have been processed in order
-     *  to remove anomalous records or block of records. It parses the logs-files
-     *  contained in the source directory and calls the GPS decimation process
-     *  for each logs-file. The decimated logs-files are then written in the
-     *  destination directory.
      *  
      *  \param  argc Standard main parameter
      *  \param  argv Standard main parameter
@@ -156,7 +151,20 @@
 
     /*! \brief Logs-file repair procedure
      *
-     *  
+     *  The repair procedure reads the event records contained in the input
+     *  files and dumps the filtered one in the output logs-file.
+     *
+     *  This filtering procedure is different for GPS events that needs stronger
+     *  validation and repair procedures. The procedure detects initial NMEA/GGA
+     *  sentences that start GPS measure blocks group and checks the structure
+     *  of the twenty sentence composing the group that are five measures with
+     *  one GGA, GSA, RMC and VTG, in this order. The group consistency is
+     *  checked considering GPS clock. The repeated group are also detected and
+     *  discared.
+     *
+     *  For the other event records, the function simply detects multiple record
+     *  on the base of their timestamp. Only one occurence of each records is
+     *  then exported.
      *
      *  \param  csiFile Path to the input logs-file
      *  \param  csiFile Path to the output logs-file
