@@ -324,7 +324,7 @@
     }
 
 /*
-    Source - Initial GGA detection
+    Source - Group initial GGA detection
  */
 
     int cs_elphel_repair_detect(
@@ -333,20 +333,20 @@
 
     ) {
 
+        /* GPS clock variables */
+        double csClock = 0.0;
+
         /* Sentence buffer variables */
         lp_Char_t csSentence[256] = { 0 };
 
-        /* Milliseconds variables */
-        double csClock = 0.0;
-
-        /* Read sentence */
+        /* Decode NMEA/GGA sentence */
         if ( lp_nmea_sentence( csBuffer + 8, ( LC_RECORD - 8 ) << 1, csSentence ) == LP_NMEA_IDENT_GGA ) {
 
             /* Retrieve GPS clock */
             csClock = cs_elphel_repair_clock( csSentence );
 
-            /* Analyse GPS clock milliseconds and return answer */
-            if ( csClock - floor( csClock ) < 0.005 ) return( LC_TRUE ); else return( LC_FALSE );
+            /* Analyse GPS clock and return answer */
+            if ( csClock - floor( csClock ) < 0.001 ) return( LC_TRUE ); else return( LC_FALSE );
 
         /* Return negative answer */
         } else { return( LC_FALSE ); }

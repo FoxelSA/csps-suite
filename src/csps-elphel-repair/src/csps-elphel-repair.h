@@ -182,8 +182,18 @@
 
     );
 
-    /*! \brief GPS events specific procedure
+    /*! \brief Group initial GGA detection
      *
+     *  This function reads the GPS event record and checks if it contains an
+     *  encoded NMEA/GGA sentence. It then checks if the detected GGA sentence
+     *  has a GPS clock equal, with millisecond precision, to the nearest lowest
+     *  integer (in seconds) clock value. If both conditions are verified, the
+     *  GGA sentence is considered as a GPS measures blocks group begining.
+     *
+     *  \param  csBuffer GPS event record buffer
+     *
+     *  \return Returns LC_TRUE if the provided record buffer contains a GGA
+     *          sentence that defines the begining of a measures blocks group
      */
 
     int cs_elphel_repair_detect(
@@ -307,5 +317,4 @@
  */
 
     # endif
-
 
