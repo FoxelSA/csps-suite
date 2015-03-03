@@ -49,43 +49,18 @@
 
     int main ( int argc, char ** argv ) {
 
+        /* Records buffer variables */
+        lp_Byte_t csBuffer[LC_RECORD] = { 0 };
+
         /* Software path variables */
         char csSrc[256] = { 0 };
         char csDst[256] = { 0 };
         char csFil[256] = { 0 };
         char csExp[256] = { 0 };
 
-        /* Stack size variables */
-        unsigned long csIndex = 0;
-
-        /* Stack decimation variables */
-        signed   long csAppend = 0;
-
-        /* Parsing variables */
-        unsigned long csParse = 0;
-
-        /* Selection variables */
-        unsigned long csSelect = 0;
-
-        /* Losses variables */
-        unsigned long csCount = 0;
-
-        /* Appending flag variables */
-        unsigned long csFlag = LC_FALSE;
-
-        /* Logs-files stack variables */
-        cs_Descriptor_t csStack[8192];
-
-        /* Records buffer variables */
-        lp_Byte_t csBuffer[LC_RECORD] = { 0 };
-
-        /* Timestamp variables */
-        lp_Time_t csPush   = 0;
-        lp_Time_t csLKnown = 0;
-
         /* Stream variables */
-        FILE * csIStream = NULL;
-        FILE * csOStream = NULL;
+        FILE * csiStream = NULL;
+        FILE * csoStream = NULL;
 
         /* Search in parameters */
         lc_stdp( lc_stda( argc, argv, "--source"     , "-s" ), argv, csSrc, LC_STRING );
@@ -99,195 +74,68 @@
 
         } else {
 
-            /* Display information */
-            fprintf( LC_OUT, "Stacking for merge :\n" );
-
-            /* Directory entity enumeration */
-            while ( lc_file_enum( csSrc, csFil ) != LC_FALSE ) {
-
-                /* Consider only file entity */
-                if ( lc_file_detect( csFil, LC_FILE ) == LC_TRUE ) {
-
-                    /* Check log-file tag */
-                    if ( strstr( csFil, LC_PATTERN ) != 0 ) {
-
-                        /* Assign logs-file path */
-                        strcpy( csStack[csIndex].dsName, csFil );
-
-                        /* Initialize appending flag */
-                        csStack[csIndex].dsFlag = LC_FALSE;
-
-                        /* Extract logs-file timestamp extremums */
-                        if ( ( csStack[csIndex].dsFirst = cs_elphel_merge_first( csFil ) ) != 0 ) {
-
-                            /* Display information */
-                            fprintf( LC_OUT, "    %s\n", basename( csFil ) );
-
-                            /* Update stack size */
-                            csAppend = ( ++ csIndex ); 
-
-                        }
-
-                    }
-
-                }
-
-            }
-
             /* Compose output file name */
             sprintf( csExp, "%s/log-container.log-00001", csDst );
 
-            /* Display information */
-            fprintf( LC_OUT, "Merging : %s\n", basename( csExp ) );
+            /* Create and check output stream */
+            if ( ( csoStream = fopen( csExp, "wb" ) ) == NULL ) {
 
-            /* Create output stream handle */
-            if ( ( csOStream = fopen( csExp, "wb" ) ) != NULL ) {
+                /* Display message */
+                fprintf( LC_ERR, "Error : unable to access %s\n", basename( csExp ) );
 
-                /* Appending loop */
-                while ( csAppend > 0 ) {
+            } else {
 
-                    /* Push infinit time */
-                    csPush = LC_INFTY;
+                /* Display information */
+                fprintf( LC_OUT, "Merging : %s\n", basename( csExp ) );
 
-                    /* Reset selection */
-                    csSelect = csIndex;
+                /* Directory entity enumeration */
+                while ( lc_file_enum( csSrc, csFil ) != LC_FALSE ) {
 
-                    /* Search oldest segment */
-                    for ( csParse = 0; csParse < csIndex; csParse ++ ) {
+                    /* Consider only file entity */
+                    if ( lc_file_detect( csFil, LC_FILE ) == LC_TRUE ) {
 
-                        /* Check stack element flag */
-                        if ( csStack[csParse].dsFlag == LC_FALSE ) {
+                        /* Check log-file tag */
+                        if ( strstr( csFil, LC_PATTERN ) != 0 ) {
 
-                            /* Compare timestamp */
-                            if ( lp_timestamp_ge( csPush, csStack[csParse].dsFirst ) == LC_TRUE ) {
+                            /* Create and check input stream */
+                            if ( ( csiStream = fopen( csFil, "rb" ) ) == NULL ) {
 
-                                /* Update search timestamp */
-                                csPush = csStack[csParse].dsFirst;
+                                /* Display message */
+                                fprintf( LC_ERR, "Error : unable to access %s\n", basename( csFil ) );
 
-                                /* Update selection stack index */
-                                csSelect = csParse;
+                            } else {
+
+                                /* Display information */
+                                fprintf( LC_OUT, "    %s\n", basename( csFil ) );
+
+                                /* Copy records buffer */
+                                while ( fread( csBuffer, 1, LC_RECORD, csiStream ) == LC_RECORD ) {
+
+                                    /* Export record buffer */
+                                    fwrite( csBuffer, 1, LC_RECORD, csoStream );
+
+                                }
+
+                                /* Close input stream */
+                                fclose( csiStream );
 
                             }
 
                         }
 
                     }
-
-                    /* Display information */
-                    fprintf( LC_OUT, "    Appending %s\n", basename( csStack[csSelect].dsName ) );
-
-                    /* Update selection state */
-                    csStack[csSelect].dsFlag = LC_TRUE;
-
-                    /* Appending condition flag reset */
-                    csFlag = LC_FALSE;
-
-                    /* Reset loss count */
-                    csCount = 0;
-
-                    /* Create input stream */
-                    if ( ( csIStream = fopen( csStack[csSelect].dsName, "rb" ) ) != NULL ) {
-
-                        /* Sub-appending loop */
-                        while ( fread( csBuffer, 1, LC_RECORD, csIStream ) == LC_RECORD ) {
-
-                            /* Appending condition trigger */
-                            if ( ( lp_timestamp_ge( csLKnown, LC_TSR( csBuffer ) ) ) == LC_FALSE ) {
-
-                                /* Set appending condition flag */
-                                csFlag = LC_TRUE;
-
-                            }
-
-                            /* Append condition verification */
-                            if ( csFlag == LC_TRUE ) {
-
-                                /* Append records */
-                                fwrite( csBuffer, 1, LC_RECORD, csOStream );
-
-                                /* Update last known timestamp */
-                                csLKnown = LC_TSR( csBuffer );
-
-                            /* Update losses count */
-                            } else { csCount ++; }
-
-                        }
-
-                        /* Close input stream */
-                        fclose( csIStream );
-
-                        /* Display information */
-                        fprintf( LC_OUT, "    %li event(s) discared\n", csCount );
-
-                    /* Display message */
-                    } else { fprintf( LC_ERR, "Error : unable to access %s\n", basename( csStack[csSelect].dsName ) ); }
-
-                    /* Update appending loop state */
-                    csAppend --;
 
                 }
 
                 /* Close output stream */
-                fclose( csOStream );
+                fclose( csoStream );
 
-            /* Display message */
-            } else { fprintf( LC_ERR, "Error : unable to access %s\n", basename( csExp ) ); }
+            }
 
         }
 
         /* Return to system */
         return( EXIT_SUCCESS );
-
-    }
-
-/*
-    Source - First event timestamp extraction
- */
-
-    lp_Time_t cs_elphel_merge_first( char const * const csFile ) {
-
-        /* Records buffer variables */
-        lp_Byte_t csBuffer[LC_RECORD] = { 0 };
-
-        /* Returned value variables */
-        lp_Time_t csFirst = 0;
-
-        /* Create input stream */
-        FILE * csStream = fopen( csFile, "rb" );
-
-        /* Check stream creation */
-        if ( csStream != NULL ) {
-
-            /* Reading first record buffer */
-            if ( fread( csBuffer, 1, LC_RECORD, csStream ) == LC_RECORD ) {
-
-                /* Import logs-file first timestamp */
-                csFirst = LC_TSR( csBuffer );
-
-            }
-
-            /* Close input stream */
-            fclose( csStream );
-
-        /* Display message */
-        } else { fprintf( LC_ERR, "Error : unable to access %s\n", basename( ( char * ) csFile ) ); }
-
-        /* Return first timestamp */
-        return( csFirst );
-
-    }
-
-/*
-    Source - Record buffer equality
- */
-
-    int cs_elphel_merge_equal( lp_Byte_t * csBuffer ) {
-
-        /* Returned value variables */
-        int csReturn = LC_FALSE;
-
-        /* Parsing variables */
-        long 
 
     }
 

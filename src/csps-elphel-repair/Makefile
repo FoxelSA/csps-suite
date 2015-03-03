@@ -5,7 +5,7 @@
 #   make - Configuration
 #
 
-    CONFIG_NAME:=csps-elphel-gps
+    CONFIG_NAME:=csps-elphel-repair
     CONFIG_CODE:=c
     CONFIG_TYPE:=suite
 

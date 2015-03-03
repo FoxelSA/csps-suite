@@ -128,33 +128,6 @@
     Header - Structures
  */
 
-    /*! \struct cs_Descriptor_struct
-     *  \brief Logs-file descriptor
-     *
-     *  This structure stores the necessary informations to perform logs-files
-     *  merging such as initial timestamp.
-     *
-     *  \var cs_Descriptor_struct::dsName
-     *  Stores logs-file path
-     *  \var cs_Descriptor_struct::dsFlag
-     *  Appended flag - True if file already appended, flase otherwise
-     *  \var cs_Descriptor_struct::dsFirst
-     *  Logs-file first event timestamp
-     */ 
-
-    typedef struct cs_Descriptor_struct {
-
-        /* Logs-file path fields */
-        char      dsName[256];
-
-        /* Appended flag fields */
-        int       dsFlag;
-
-        /* Timestamp fields */
-        lp_Time_t dsFirst;
-
-    } cs_Descriptor_t;
-
 /* 
     Header - Function prototypes
  */
@@ -162,9 +135,9 @@
     /*! \brief Software main function
      *  
      *  The main function lists the log-files contained in the input directory
-     *  and merges them together in a single logs-file. The logs-files appending
-     *  is based on their first event timestamp to realize a chronologic append.
-     *  Overlapps are also removed through this procedure.
+     *  and merges them together in a single logs-file. It consists simply in
+     *  an append procedure without any consideration of sorting of the input
+     *  logs-files.
      *  
      *  \param  argc Standard main parameter
      *  \param  argv Standard main parameter
@@ -173,18 +146,6 @@
      */
 
     int main ( int argc, char ** argv );
-
-    /*! \brief First event timestamp extraction
-     *
-     *  This function searches the first event found in the provided logs-file 
-     *  and returns its timestamp.
-     *
-     *  \param  csFile   Provided logs-file path
-     *
-     *  \return Returns first event timestamp
-     */
-
-    lp_Time_t cs_elphel_merge_first( char const * const csFile );
 
 /* 
     Header - C/C++ compatibility
