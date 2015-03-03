@@ -112,7 +112,7 @@
     "\tcsps-elphel-merge [Arguments] [Parameters] ...\n\n" \
     "Short arguments and parameters summary :\n\n"         \
     "\t-s\tDirectory containing the logs-files to merge\n" \
-    "\t-d\tDirectory that recieve merged logs-file\n\n"    \
+    "\t-d\tDirectory that recieves merged logs-file\n\n"   \
     "csps-elphel-merge - csps-suite\n"                     \
     "Copyright (c) 2013-2015 FOXEL SA\n"
 
