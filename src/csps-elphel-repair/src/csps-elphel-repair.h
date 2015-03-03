@@ -178,7 +178,7 @@
      *  then exported in the output file.
      *
      *  \param  csiFile Path to the input logs-file
-     *  \param  csiFile Path to the output logs-file
+     *  \param  csoFile Path to the output logs-file
      *
      *  \return Returns the discared events count
      */
