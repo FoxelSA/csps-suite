@@ -1,13 +1,13 @@
 ## Changelog
 
-### Beta 0.3
+### Release 0.3 (March 3, 2015)
 
-- `Revised` : Adapting Elphel logs-files processing strategy and softwares
-- `Added` : Elphel specific events records sorting software : **csps-elphel-sort**
-- `Revised` : Suppressing IMU-based decomposition condition in **csps-elphel-decompose**
-- `Revised` : Suppressing chronological append in **csps-elphel-merge** replaced by **csps-elphel-sort**
-- `Revised` : Suppressing IMU-based appending condition in **csps-elphel-merge**
-- `Added` : Added **csps-elphel-repair** software for logs-files content filtering
+- `Revised` : Adapting Elphel logs-files pre-processing strategy and softwares
+- `Added` : Addition of Elphel specific event records sorting software : **csps-elphel-sort**
+- `Revised` : Suppression of IMU-based decomposition condition in **csps-elphel-decompose**
+- `Revised` : Suppression of chronological append in **csps-elphel-merge** replaced by **csps-elphel-sort**
+- `Revised` : Suppression of IMU-based appending condition in **csps-elphel-merge**
+- `Added` : Addition of **csps-elphel-repair** software for logs-files content filtering
 - `Removed` : Suppression of **csps-elphel-validate** replaced by **csps-elphel-repair**
 - `Removed` : Suppression of **csps-elphel-gps** replaced by **csps-elphel-repair**
 
