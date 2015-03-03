@@ -456,37 +456,37 @@
     }
 
 /*
-    Source - GPS timestamp reconstruction
+    Source - GPS timestamp computation
  */
 
     lp_Time_t cs_elphel_repair_timestamp( 
 
         lp_Time_t     const csReference,
-        unsigned long const csRepet 
+        unsigned long const csDistance 
 
     ) {
 
-        /* Computation buffer variables */
-        lp_Time_t csReturn = csRepet * 200000lu;
+        /* Distance to reference variables */
+        lp_Time_t csReturn = csDistance * lp_Time_s( 200000 );
 
-        /* Compute reconstructed timestamp */
-        return( lp_timestamp_add( csReference, lp_timestamp_compose( csReturn / 1000000, csReturn % 1000000 ) ) );
+        /* Compute and return GPS timestamp */
+        return( lp_timestamp_add( csReference, lp_timestamp_compose( csReturn / lp_Time_s( 1000000 ), csReturn % lp_Time_s( 1000000 ) ) ) );
 
     }
 
 /*
-    Source - GPS timestamp overide
+    Source - Replace record timestamp
  */
 
     void cs_elphel_repair_header( 
 
-        lp_Time_t * const csHeader, 
+        lp_Time_t * const csRecord, 
         lp_Time_t   const csTime 
 
     ) {
 
-        /* Override record header */
-        ( * csHeader ) = csTime | ( ( * csHeader ) & 0x00000000FFF00000llu );
+        /* Replace record timestamp */
+        ( * csRecord ) = csTime | ( ( * csRecord ) & lp_Time_s( 0x00000000FFF00000 ) );
 
     }
 

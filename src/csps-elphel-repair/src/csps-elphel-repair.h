@@ -222,7 +222,7 @@
 
     );
 
-    /*! \brief GPS timestamp reconstruction
+    /*! \brief GPS timestamp computation
      * 
      *  This function rebuilds the GPS events timestamp on the base of the last
      *  reference timestamp and the number of repetition of this reference
@@ -237,14 +237,15 @@
     lp_Time_t cs_elphel_repair_timestamp( 
 
         lp_Time_t     const csReference,
-        unsigned long const csRepet 
+        unsigned long const csDistance 
 
     );
 
-    /*! \brief GPS timestamp overide
+    /*! \brief Replace record timestamp
      *  
-     *  This function interprets the eight first bytes of the logs-file record
-     *  buffer to replace the original timestamp by the rebuilded one.
+     *  This function interprets the eight first bytes of a logs-file record
+     *  buffer as a timestamp value and replaces its original timestamp by the 
+     *  provided one.
      * 
      *  \param csHeader Pointer to record buffer
      *  \param csTime   Timestamp to write in record
@@ -252,7 +253,7 @@
 
     void cs_elphel_repair_header( 
 
-        lp_Time_t * const csHeader, 
+        lp_Time_t * const csRecord, 
         lp_Time_t   const csTime 
 
     );
