@@ -202,8 +202,18 @@
 
     );
 
-    /*! \brief GPS events specific procedure
+    /*! \brief GPS clock access
      *
+     *  This function parses the provided NMEA/GGA or NMEA/RMC sentence string
+     *  buffer and extract the GPS clock value. It the returns the found clock
+     *  value.
+     *
+     *  The provided NMEA/GGA or NMEA RMC sentence is expected without its type
+     *  header "$GPGGA," or "$GPRMC," and should start directly with GPS clock.
+     *
+     *  \param  csSentence NMEA/GGA or NMEA/RMC sentence string buffer
+     *
+     *  \return Returns GGA/RMC sentence GPS clock
      */
 
     double cs_elphel_repair_clock(
@@ -217,6 +227,9 @@
      *  This function parses the provided NMEA/GGA sentence string buffer to
      *  retrieve the value of the GPS measure fix. It then returns the found
      *  fix value.
+     *
+     *  The provided NMEA/GGA sentence is expected without its type header
+     *  "$GPGGA," and has to start directly by the GPS clock.
      *
      *  \param  csSentence NMEA/GGA sentence string buffer
      *

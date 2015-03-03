@@ -407,7 +407,7 @@
     }
 
 /*
-    Source - GPS clock
+    Source - GPS clock access
  */
 
     double cs_elphel_repair_clock(
@@ -416,7 +416,7 @@
 
     ) {
 
-        /* Returned clock variables */
+        /* Returned GPS clock variables */
         double csReturn = 0.0;
 
         /* Retrieve GPS clock */
