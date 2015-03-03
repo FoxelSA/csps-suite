@@ -47,12 +47,12 @@
      *  \section csps-suite
      *  \section _ CSPS library front-end suite
      *
-     *  The csps-suite is dedicated to CSPS processing using libcsps. It provides
+     *  The csps-suite is dedicated to CSPS processing using libcsps. It provides 
      *  a serie of softwares used for camera logs-files preparation and 
      *  validation according to manufacturers standards. It comes with a main 
-     *  software that is responsible of CSPS processing, using libcsps, of the
-     *  camera logs-files and also offers softwares for CSPS processing results
-     *  visualization and exportation.
+     *  software that is responsible of CSPS processing of the camera logs-files 
+     *  and also offers softwares for CSPS processing results visualization and
+     *  exportation.
      *
      *  \section Documentation
      *
