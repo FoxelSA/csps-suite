@@ -192,8 +192,24 @@
 
     );
 
-    /*! \brief GPS events specific procedure
+    /*! \brief GPS measures blocks group validation
      *
+     *  This function considers the builded GPS records stack and checks if the
+     *  contained measures blocks group is valid or not. The stack is expected
+     *  with five blocks of NMEA/GGA, GSA, RMC and VTG sentences.
+     *
+     *  The function checks if one of the five GGA sentence contains a fix to
+     *  zero. The group is considered as invalid in this case. It then checks
+     *  that each GGA and RMC of the same measure have the same GPS clock. The
+     *  group is considered as invalid if not. The functions considers finally 
+     *  the first GGA sentence GPS clock value and checks if the nine other GGA 
+     *  and RMC sentences have the same rounded GPS clock. If not, the group is
+     *  considered as invalid.
+     *
+     *  \param  csgpsStack GPS records buffer stack array
+     *
+     *  \return Returns LC_TRUE if measures blocks group is valid, LC_FALSE
+     *          otherwise
      */
 
     int cs_elphel_repair_filter(

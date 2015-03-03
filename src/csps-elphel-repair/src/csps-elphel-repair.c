@@ -354,7 +354,7 @@
     }
 
 /*
-    Source - GPS block validation
+    Source - GPS measures blocks group validation
  */
 
     int cs_elphel_repair_filter(
@@ -363,40 +363,43 @@
 
     ) {
 
-        /* Sentence buffer variables */
-        lp_Char_t csGGA[256] = { 0 };
-        lp_Char_t csRMC[256] = { 0 };
-
-        /* Reference time variables */
-        double csReference = 0.0;
-
         /* Parsing variables */
         unsigned long csParse = 0;
 
-        /* Parsing measure blocks group */
+        /* Time reference  variables */
+        double csReference = 0.0;
+
+        /* Sentences string buffer variables */
+        lp_Char_t csGGA[256] = { 0 };
+        lp_Char_t csRMC[256] = { 0 };
+
+        /* Parsing measures blocks group */
         for ( csParse = 0; csParse < CS_BUFFERS; csParse += 4 ) {
 
-            /* Decode NMEA (GGA/RMC) sentences */
+            /* Decode NMEA/GGA and NMEA/RMC sentences */
             lp_nmea_sentence( csgpsStack[csParse    ] + 8, ( LC_RECORD - 8 ) << 1, csGGA );
             lp_nmea_sentence( csgpsStack[csParse + 2] + 8, ( LC_RECORD - 8 ) << 1, csRMC );
 
-            /* GPS measure fix check */
+            /* Validation on GGA fix value */
             if ( cs_elphel_repair_fix( csGGA ) == 0 ) return( LC_FALSE );
 
-            /* GPS clock reference */
+            /* Validation on GPS clock */
+            if ( cs_elphel_repair_clock( csGGA ) != cs_elphel_repair_clock( csRMC ) ) return( LC_FALSE );
+
+            /* Detect reference sentence */
             if ( csParse == 0 ) {
 
-                /* Retrieve reference */
+                /* Retrieve time reference */
                 csReference = floor( cs_elphel_repair_clock( csGGA ) );
 
             } else {
 
-                /* Consistency verification */
+                /* Validation on GPS clock consistency */
                 if ( csReference != floor( cs_elphel_repair_clock( csGGA ) ) ) return( LC_FALSE );
 
             }
 
-            /* Consistency verification */
+            /* Validation on GPS clock consistency */
             if ( csReference != floor( cs_elphel_repair_clock( csRMC ) ) ) return( LC_FALSE );
 
         }
