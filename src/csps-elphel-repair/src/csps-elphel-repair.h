@@ -141,13 +141,13 @@
     /*! \brief Software main function
      *  
      *  The main function reads the content of the input directory and considers
-     *  all detected logs-files. It the calls the repair procedure for each of
+     *  all detected logs-files. It then calls the repair procedure for each of
      *  the detected logs-file. The repaired logs-files are then exported in the
      *  provided output directory.
      *
-     *  In order ensure a good filtering procedure, the input logs-files should
-     *  contain merged raw logs-files coming from the device disks. The merged
-     *  super-logs should the be timestamp-based sorted.
+     *  In order ensure a good repairing procedure, the input logs-files should
+     *  contain merged raw logs-files coming from a single record session. The 
+     *  merged super-logs should also be timestamp-based sorted.
      *  
      *  \param  argc Standard main parameter
      *  \param  argv Standard main parameter
@@ -159,20 +159,23 @@
 
     /*! \brief Logs-file repair procedure
      *
-     *  The repair procedure reads the event records contained in the input
-     *  files and dumps the filtered one in the output logs-file.
+     *  The repairing procedure reads the event records contained from the input
+     *  file and dumps the filtered records in the output logs-file.
+     *
+     *  The records are all validated preventing randomly filled event records
+     *  using a probabilistic algorithm.
      *
      *  This filtering procedure is different for GPS events that needs stronger
      *  validation and repair procedures. The procedure detects initial NMEA/GGA
      *  sentences that start GPS measure blocks group and checks the structure
-     *  of the twenty sentence composing the group that are five measures with
+     *  of the twenty sentences composing the group that is five measures with
      *  one GGA, GSA, RMC and VTG, in this order. The group consistency is
-     *  checked considering GPS clock. The repeated group are also detected and
-     *  discared.
+     *  checked considering the GPS clock. The repeated groups are also detected
+     *  and discared.
      *
-     *  For the other event records, the function simply detects multiple record
+     *  For the other event records, the function simply detects repeted records
      *  on the base of their timestamp. Only one occurence of each records is
-     *  then exported.
+     *  then exported in the output file.
      *
      *  \param  csiFile Path to the input logs-file
      *  \param  csiFile Path to the output logs-file
@@ -256,7 +259,7 @@
     /*! \brief GPS clock access
      *
      *  This function parses the provided NMEA/GGA or NMEA/RMC sentence string
-     *  buffer and extract the GPS clock value. It the returns the found clock
+     *  buffer and extract the GPS clock value. It then returns the found clock
      *  value.
      *
      *  The provided NMEA/GGA or NMEA RMC sentence is expected without its type
@@ -264,7 +267,7 @@
      *
      *  \param  csSentence NMEA/GGA or NMEA/RMC sentence string buffer
      *
-     *  \return Returns GGA/RMC sentence GPS clock
+     *  \return Returns GGA or RMC sentence GPS clock
      */
 
     double cs_elphel_repair_clock(
@@ -300,7 +303,7 @@
      *  timestamp, assuming a frequency of measure of five hertz.
      *
      *  \param  csReference Last reference timestamp
-     *  \param  csRepet     Number of repetition of the reference timestamp
+     *  \param  csDistance  Number of repetition of the reference timestamp
      *
      *  \return Returns rebuilded GPS event timestamp
      */
@@ -318,7 +321,7 @@
      *  buffer as a timestamp value and replaces its original timestamp by the 
      *  provided one.
      * 
-     *  \param csHeader Pointer to record buffer
+     *  \param csRecord Pointer to record buffer
      *  \param csTime   Timestamp to write in record
      */
 
