@@ -156,6 +156,12 @@
 
     /*! \brief Logs-file repair procedure
      *
+     *  
+     *
+     *  \param  csiFile Path to the input logs-file
+     *  \param  csiFile Path to the output logs-file
+     *
+     *  \return Returns the discared events count
      */
 
     unsigned long cs_elphel_repair(
@@ -225,7 +231,7 @@
      *          otherwise
      */
 
-    int cs_elphel_repair_filter(
+    int cs_elphel_repair_group(
 
         lp_Byte_t csgpsStack[CS_BUFFERS][LC_RECORD]
 

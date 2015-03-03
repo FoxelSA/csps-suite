@@ -112,18 +112,15 @@
 
     ) {
 
-        /* GPS records stack array variables */
-        lp_Byte_t csgpsStack[CS_BUFFERS][LC_RECORD] = { { 0 } };
-
-        /* Record buffer variables */
-        lp_Byte_t csBuffer[LC_RECORD] = { 0 };
+        /* Discared count variables */
+        unsigned long csCount = 0;
 
         /* GPS records stack variables */
         unsigned long csgpsIndex = 0;
         unsigned long csgpsParse = 0;
 
-        /* Discared count variables */
-        unsigned long csCount = 0;
+        /* GPS records stack array variables */
+        lp_Byte_t csgpsStack[CS_BUFFERS][LC_RECORD] = { { 0 } };
 
         /* Timestamp tracking variables */
         lp_Time_t csimuLast = 0;
@@ -137,6 +134,9 @@
         /* Stream variables */
         FILE * csiStream = NULL;
         FILE * csoStream = NULL;
+
+        /* Record buffer variables */
+        lp_Byte_t csBuffer[LC_RECORD] = { 0 };
 
         /* Create and check input stream */
         if ( ( csiStream = fopen( csiFile, "rb" ) ) == NULL ) {
@@ -160,35 +160,32 @@
                     /* Checking record validity */
                     if ( cs_elphel_repair_record( csBuffer ) == LC_TRUE ) {
 
-                        /* Detect event type */
+                        /* Switch on event type */
                         if ( LC_EDM( csBuffer, LC_IMU ) ) {
 
-                            /* Detect repetition */
+                            /* Detect record repetition */
                             if ( lp_timestamp_ge( csimuLast, LC_TSR( csBuffer ) ) == LP_FALSE ) {
 
-                                /* Export events */
+                                /* Export event buffer */
                                 fwrite( csBuffer, 1, LC_RECORD, csoStream );
 
                                 /* Update last-known timestamp */
                                 csimuLast = LC_TSR( csBuffer );
 
-                            /* Update discared */
+                            /* Update discared count */
                             } else { csCount ++; }
 
                         } else
                         if ( LC_EDM( csBuffer, LC_GPS ) ) {
 
-                            /* Detect stack state */
-                            if ( csgpsIndex == 0 ) {
+                            /* Search initial GGA sentence */
+                            if ( cs_elphel_repair_detect( csBuffer ) == LC_TRUE ) {
 
-                                /* Search initial GGA sentence */
-                                if ( cs_elphel_repair_detect( csBuffer ) == LC_TRUE ) {
+                                /* Reset stack state */
+                                csgpsIndex = 0;
 
-                                    /* Push sentence */
-                                    memcpy( csgpsStack[csgpsIndex ++], csBuffer, LC_RECORD );
-
-                                /* Update discared */
-                                } else { csCount ++; }
+                                /* Push sentence */
+                                memcpy( csgpsStack[csgpsIndex ++], csBuffer, LC_RECORD );
 
                             } else {
 
@@ -205,7 +202,7 @@
                                     /* Push sentence */
                                     memcpy( csgpsStack[csgpsIndex ++], csBuffer, LC_RECORD );
 
-                                /* Update discared */
+                                /* Update discared count */
                                 } else { csCount ++; }
 
                             }
@@ -213,28 +210,28 @@
                             /* Detect stack state */
                             if ( csgpsIndex == CS_BUFFERS ) {
 
-                                /* Repetition detection */
+                                /* Detect group repetition */
                                 if ( lp_timestamp_eq( csgpsRMCr, LC_TSR( csgpsStack[2] ) ) == LP_FALSE ) {
 
-                                    /* Block filtering */
-                                    if ( cs_elphel_repair_filter( csgpsStack ) == LC_TRUE ) {
+                                    /* GPS measures blocks group validation */
+                                    if ( cs_elphel_repair_group( csgpsStack ) == LC_TRUE ) {
 
-                                        /* Extract reference timestamp */
+                                        /* Retrieve group reference timestamp on first NMEA/RMC */
                                         csgpsRMCr = LC_TSR( csgpsStack[2] );
 
-                                        /* Exportation of validated sentences */
+                                        /* Exportation of validated records */
                                         for ( csgpsParse = 0; csgpsParse < 20; csgpsParse += 4 ) {
 
-                                            /* Compose rebuilded timestamp */
+                                            /* Compose GPS records timestamp */
                                             csgpsTime = cs_elphel_repair_timestamp( csgpsRMCr, csgpsParse >> 2 );
 
-                                            /* Rebuild GPS records timestamps */
+                                            /* Replace GPS records timestamps */
                                             cs_elphel_repair_header( ( lp_Time_t * ) ( csgpsStack[csgpsParse    ] ), csgpsTime );
                                             cs_elphel_repair_header( ( lp_Time_t * ) ( csgpsStack[csgpsParse + 1] ), csgpsTime );
                                             cs_elphel_repair_header( ( lp_Time_t * ) ( csgpsStack[csgpsParse + 2] ), csgpsTime );
                                             cs_elphel_repair_header( ( lp_Time_t * ) ( csgpsStack[csgpsParse + 3] ), csgpsTime );
 
-                                            /* Export GPS records */
+                                            /* Export event block buffers */
                                             fwrite( csgpsStack[csgpsParse    ], 1, LC_RECORD, csoStream );
                                             fwrite( csgpsStack[csgpsParse + 1], 1, LC_RECORD, csoStream );
                                             fwrite( csgpsStack[csgpsParse + 2], 1, LC_RECORD, csoStream );
@@ -254,30 +251,30 @@
                         } else
                         if ( LC_EDM( csBuffer, LC_MAS ) ) {
 
-                            /* Detect repetition */
+                            /* Detect record repetition */
                             if ( lp_timestamp_ge( csmasLast, LC_TSR( csBuffer ) ) == LP_FALSE ) {
 
-                                /* Export events */
+                                /* Export event buffer */
                                 fwrite( csBuffer, 1, LC_RECORD, csoStream );
 
                                 /* Update last-known timestamp */
                                 csmasLast = LC_TSR( csBuffer );
 
-                            /* Update discared */
+                            /* Update discared count */
                             } else { csCount ++; }
 
                         } else {
 
-                            /* Detect repetition */
+                            /* Detect record repetition */
                             if ( lp_timestamp_ge( csothLast, LC_TSR( csBuffer ) ) == LP_FALSE ) {
 
-                                /* Export events */
+                                /* Export event buffer */
                                 fwrite( csBuffer, 1, LC_RECORD, csoStream );
 
                                 /* Update last-known timestamp */
                                 csothLast = LC_TSR( csBuffer );
 
-                            /* Update discared */
+                            /* Update discared count */
                             } else { csCount ++; }
 
                         }
@@ -357,7 +354,7 @@
     Source - GPS measures blocks group validation
  */
 
-    int cs_elphel_repair_filter(
+    int cs_elphel_repair_group(
 
         lp_Byte_t csgpsStack[CS_BUFFERS][LC_RECORD]
 
