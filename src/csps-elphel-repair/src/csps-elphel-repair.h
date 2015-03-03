@@ -168,8 +168,11 @@
     /*! \brief Record probabilist validation
      *
      *  This function detects event record filled with invalid data, typically
-     *  random bytes. It returns boolean value that indicates provided record
-     *  validity.
+     *  random bytes. It returns boolean value that indicates if the provided
+     *  record can be considered as valid.
+     *
+     *  This validity check is a probabilist check and has a probability of
+     *  5.9605e-08 of failure on invalid record detection.
      *
      *  \param  csBuffer Pointer to record buffer
      *
