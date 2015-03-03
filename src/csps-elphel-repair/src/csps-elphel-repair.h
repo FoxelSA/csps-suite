@@ -140,6 +140,14 @@
 
     /*! \brief Software main function
      *  
+     *  The main function reads the content of the input directory and considers
+     *  all detected logs-files. It the calls the repair procedure for each of
+     *  the detected logs-file. The repaired logs-files are then exported in the
+     *  provided output directory.
+     *
+     *  In order ensure a good filtering procedure, the input logs-files should
+     *  contain merged raw logs-files coming from the device disks. The merged
+     *  super-logs should the be timestamp-based sorted.
      *  
      *  \param  argc Standard main parameter
      *  \param  argv Standard main parameter
