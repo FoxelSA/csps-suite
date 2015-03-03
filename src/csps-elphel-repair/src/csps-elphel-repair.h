@@ -212,8 +212,15 @@
 
     );
 
-    /*! \brief GPS events specific procedure
+    /*! \brief GPS fix access
      *
+     *  This function parses the provided NMEA/GGA sentence string buffer to
+     *  retrieve the value of the GPS measure fix. It then returns the found
+     *  fix value.
+     *
+     *  \param  csSentence NMEA/GGA sentence string buffer
+     *
+     *  \return Returns GGA sentence fix value
      */
 
     unsigned long cs_elphel_repair_fix(

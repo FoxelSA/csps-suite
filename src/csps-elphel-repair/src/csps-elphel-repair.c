@@ -428,7 +428,7 @@
     }
 
 /*
-    Source - GPS fix
+    Source - GPS fix access
  */
 
     unsigned long cs_elphel_repair_fix(
@@ -437,20 +437,20 @@
 
     ) {
 
-        /* Returned fix variables */
-        unsigned long csReturn = 0;
-
         /* Parsing variables */
         unsigned long csParse = 0;
         unsigned long csStack = 0;
 
-        /* Parsing GGA sentence */
+        /* Returned fix variables */
+        unsigned long csReturn = 0;
+
+        /* Parsing GGA sentence searching fix value */
         while ( csStack < 5 ) if ( * ( csSentence + ( csParse ++ ) ) == ',' ) csStack ++;
 
-        /* Retrieve GPS fix */
+        /* Retrieve GGA fix value */
         sscanf( csSentence + csParse, "%lu", & csReturn );
 
-        /* Return GPS fix */
+        /* Return GPS fix value */
         return( csReturn );
 
     }
