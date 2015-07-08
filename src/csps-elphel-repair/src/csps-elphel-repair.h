@@ -213,6 +213,12 @@
 
     );
 
+    int cs_elphel_repair_master(
+
+        lp_Byte_t const * const csBuffer
+
+    );
+
     /*! \brief Group initial GGA detection
      *
      *  This function reads the GPS event record and checks if it contains an

@@ -251,14 +251,20 @@
                         } else
                         if ( LC_EDM( csBuffer, LC_MAS ) ) {
 
-                            /* Detect record repetition */
-                            if ( lp_timestamp_ge( csmasLast, LC_TSR( csBuffer ) ) == LP_FALSE ) {
+                            /* Detect record consistency */
+                            if ( cs_elphel_repair_master( csBuffer ) == LC_TRUE ) {
 
-                                /* Export event buffer */
-                                fwrite( csBuffer, 1, LC_RECORD, csoStream );
+                                /* Detect record repetition */
+                                if ( lp_timestamp_ge( csmasLast, LC_TSR( csBuffer ) ) == LP_FALSE ) {
 
-                                /* Update last-known timestamp */
-                                csmasLast = LC_TSR( csBuffer );
+                                    /* Export event buffer */
+                                    fwrite( csBuffer, 1, LC_RECORD, csoStream );
+
+                                    /* Update last-known timestamp */
+                                    csmasLast = LC_TSR( csBuffer );
+
+                                /* Update discared count */
+                                } else { csCount ++; }
 
                             /* Update discared count */
                             } else { csCount ++; }
