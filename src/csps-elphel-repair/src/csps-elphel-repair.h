@@ -117,6 +117,9 @@
     "csps-elphel-repair - csps-suite\n"                          \
     "Copyright (c) 2013-2015 FOXEL SA\n"
 
+    /* Define master event filter value */
+    # define CS_MASTER      60
+
     /* Define GPS sequence parameters */
     # define CS_MEASURE     4
     # define CS_GROUPS      5

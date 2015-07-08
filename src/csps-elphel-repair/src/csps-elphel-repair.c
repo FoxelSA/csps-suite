@@ -321,6 +321,27 @@
     }
 
 /*
+    Source - Master record timestamps validation
+*/
+
+    int cs_elphel_repair_master(
+
+        lp_Byte_t const * const csBuffer
+
+    ) {
+
+        /* Compute time distance between master and synchronization timestamp */
+        if ( lp_timestamp_diff( LC_TSR( csBuffer ), LC_TSR( csBuffer + 8 ) ) > CS_MASTER ) {
+
+            /* Valid master record */
+            return( LC_TRUE );
+
+        /* Invalid master record */
+        } else { return( LC_FALSE ); }
+
+    }
+
+/*
     Source - Group initial GGA detection
  */
 
