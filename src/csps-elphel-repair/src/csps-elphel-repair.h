@@ -118,7 +118,7 @@
     "Copyright (c) 2013-2015 FOXEL SA\n"
 
     /* Define master event filter value */
-    # define CS_MASTER      3600
+    # define CS_MASTER      60
 
     /* Define GPS sequence parameters */
     # define CS_MEASURE     4
