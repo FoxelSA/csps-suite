@@ -251,14 +251,20 @@
                         } else
                         if ( LC_EDM( csBuffer, LC_MAS ) ) {
 
-                            /* Detect record repetition */
-                            if ( lp_timestamp_ge( csmasLast, LC_TSR( csBuffer ) ) == LP_FALSE ) {
+                            /* Detect record consistency */
+                            if ( cs_elphel_repair_master( csBuffer ) == LC_TRUE ) {
 
-                                /* Export event buffer */
-                                fwrite( csBuffer, 1, LC_RECORD, csoStream );
+                                /* Detect record repetition */
+                                if ( lp_timestamp_ge( csmasLast, LC_TSR( csBuffer ) ) == LP_FALSE ) {
 
-                                /* Update last-known timestamp */
-                                csmasLast = LC_TSR( csBuffer );
+                                    /* Export event buffer */
+                                    fwrite( csBuffer, 1, LC_RECORD, csoStream );
+
+                                    /* Update last-known timestamp */
+                                    csmasLast = LC_TSR( csBuffer );
+
+                                /* Update discared count */
+                                } else { csCount ++; }
 
                             /* Update discared count */
                             } else { csCount ++; }
@@ -316,6 +322,27 @@
             if ( * ( ( uint16_t * ) ( csBuffer + 62 ) ) == 0 ) return( LC_TRUE ); else  return( LC_FALSE );
 
         /* Invalid record */
+        } else { return( LC_FALSE ); }
+
+    }
+
+/*
+    Source - Master record timestamps validation
+*/
+
+    int cs_elphel_repair_master(
+
+        lp_Byte_t const * const csBuffer
+
+    ) {
+
+        /* Compute time distance between master and synchronization timestamp */
+        if ( lp_timestamp_diff( LC_TSR( csBuffer ), LC_TSR( csBuffer + 8 ) ) < CS_MASTER ) {
+
+            /* Valid master record */
+            return( LC_TRUE );
+
+        /* Invalid master record */
         } else { return( LC_FALSE ); }
 
     }

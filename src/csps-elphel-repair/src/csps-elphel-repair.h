@@ -117,6 +117,9 @@
     "csps-elphel-repair - csps-suite\n"                          \
     "Copyright (c) 2013-2015 FOXEL SA\n"
 
+    /* Define master event filter value */
+    # define CS_MASTER      60
+
     /* Define GPS sequence parameters */
     # define CS_MEASURE     4
     # define CS_GROUPS      5
@@ -205,6 +208,24 @@
      */
 
     int cs_elphel_repair_record(
+
+        lp_Byte_t const * const csBuffer
+
+    );
+
+    /*! \brief Master record timestamps validation
+     *
+     *  This function checks the consistency of master records by comparing the
+     *  two timestamps they carry that are synchronization timestamp and the
+     *  master (trigger) timestamp. If both differ more that a given value the
+     *  record is considered as invalid.
+     *
+     *  \param  csBuffer Pointer to record buffer
+     *
+     *  \return Returns boolean value that indicates record validity
+     */
+
+    int cs_elphel_repair_master(
 
         lp_Byte_t const * const csBuffer
 
