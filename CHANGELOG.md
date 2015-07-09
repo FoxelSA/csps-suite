@@ -1,6 +1,6 @@
 ## Changelog
 
-### Beta 0.4
+### Release 0.4 (July 9, 2015)
 
 - `Added` : Master event filtering in **csps-elphel-repair**
 - `Removed` : Suppression of **csps-frustum** software replaced by OpenMVG feature
