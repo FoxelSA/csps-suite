@@ -1,13 +1,15 @@
 
 ## csps-suite<br />CSPS library front-end suite
 
-The _csps-suite_ is dedicated to CSPS processing using _libcsps_. It provides a serie of softwares used for camera logs-files preparation and validation according to manufacturers standards. It comes with a main software that is responsible of CSPS processing of the camera logs-files and also offers softwares for CSPS processing results visualization and exportation.
-
+<p align="justify">
+The <i>csps-suite</i> is dedicated to CSPS processing using <i>libcsps</i>. It provides a serie of softwares used for camera logs-files preparation and validation according to manufacturers standards. It comes with a main software that is responsible of CSPS processing of the camera logs-files and also offers softwares for CSPS processing results visualization and exportation.
+</p>
 
 ### Documentation
 
-A detailed documentation can be generated through doxygen. A more general documentation can be consulted on the [wiki](https://github.com/FoxelSA/csps-suite/wiki).
-
+<p align="justify">
+A detailed documentation can be generated through doxygen. A more general documentation can be consulted on the <a href="https://github.com/FoxelSA/csps-suite/wiki">wiki</a>.
+</p>
 
 ### Copyright
 
