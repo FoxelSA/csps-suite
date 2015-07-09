@@ -217,7 +217,7 @@
      *
      *  This function checks the consistency of master records by comparing the
      *  two timestamps they carry that are synchronization timestamp and the
-     *  master (trigger) timestamp. If both differ more that a given value the
+     *  master (trigger) timestamp. If both differ more than a given value the
      *  record is considered as invalid.
      *
      *  \param  csBuffer Pointer to record buffer
