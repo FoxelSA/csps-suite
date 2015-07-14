@@ -300,21 +300,23 @@
         /* Display loop */
         for ( csParse = 0; csParse < LC_RECORD ; csParse ++ ) {
 
-            /* Char type verification */
-            if( ! csBuffer[csParse] || ! isalpha( csBuffer[csParse] ) )
-            {
+            /* Printable char verification */
+            if ( isprint( csBuffer[csParse] ) != 0 ) {
 
-                /* Display frame */
-                fprintf( LC_OUT, " . " );
+                /* Display char */
+                fprintf( LC_OUT, "%c", csBuffer[csParse] );
 
             } else {
 
-                /* Display frame */
-                fprintf( LC_OUT, "%c  ", csBuffer[csParse] );
+                /* Display symbol for unprintable char */
+                fprintf( LC_OUT, "." );
+
             }
+
         }
 
         /* Display frame */
-        fprintf( LC_OUT, "]" );
+        fprintf( LC_OUT, " ]" );
 
     }
+
