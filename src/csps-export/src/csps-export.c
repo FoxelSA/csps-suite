@@ -199,9 +199,10 @@
             fprintf( csStream, "{\n" );
 
             /* Export to stream */
-            cs_export_field( "split", "false", ",", csStream, csJson );
-            cs_export_field( "preview", "null", ",", csStream, csJson );
-            cs_export_field( "pose", "", "", csStream, NULL );
+            cs_export_field( "split"  , "false", ",", csStream, csJson );
+            cs_export_field( "preview", "null" , ",", csStream, csJson );
+            cs_export_field( "trash"  , "false", ",", csStream, csJson );
+            cs_export_field( "pose"   , ""     , "" , csStream, NULL   );
 
             /* Export format */
             fprintf( csStream, "[\n" );
