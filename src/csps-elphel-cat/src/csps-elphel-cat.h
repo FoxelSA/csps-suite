@@ -10,6 +10,11 @@
  *      Nils Hamel <n.hamel@foxel.ch>
  *
  *
+ * Contributor(s):
+ *
+ *      Kevin Velickovic <k.velickovic@foxel.ch>
+ *
+ *
  * This file is part of the FOXEL project <http://foxel.ch>.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -38,7 +43,7 @@
 
     /*! \file   csps-elphel-cat.h
      *  \author Nils Hamel <n.hamel@foxel.ch>
-     *   
+     *
      *  Software main header
      */
 
@@ -47,12 +52,12 @@
      *  \section csps-suite
      *  \section _ CSPS library front-end suite
      *
-     *  The csps-suite is dedicated to CSPS processing using libcsps. It provides 
-     *  a serie of softwares used for camera logs-files preparation and 
-     *  validation according to manufacturers standards. It comes with a main 
-     *  software that is responsible of CSPS processing of the camera logs-files 
-     *  and also offers softwares for CSPS processing results visualization and
-     *  exportation.
+     *  The csps-suite is dedicated to CSPS processing using libcsps. It provides
+     *  a serie of softwares used for camera logs-files preparation and
+     *  validation according to manufacturers standards. It comes with a main
+     *  software that is responsible of CSPS processing, using libcsps, of the
+     *  camera logs-files and also offers softwares for CSPS processing results
+     *  visualization and exportation.
      *
      *  \section Documentation
      *
@@ -60,10 +65,10 @@
      *  documentation can be consulted at https://github.com/FoxelSA/csps-suite/wiki.
      *
      *  \section Copyright
-     * 
+     *
      *  Copyright (c) 2013-2015 FOXEL SA - http://foxel.ch \n
      *  This program is part of the FOXEL project <http://foxel.ch>.
-     *  
+     *
      *  Please read the COPYRIGHT.md file for more information.
      *
      *  \section License
@@ -77,14 +82,14 @@
      *  Licensing terms and our Usage and Attribution guidelines.
      */
 
-/* 
+/*
     Header - Include guard
  */
 
     # ifndef __CS_ELPHEL_CAT__
     # define __CS_ELPHEL_CAT__
 
-/* 
+/*
     Header - C/C++ compatibility
  */
 
@@ -92,61 +97,62 @@
     extern "C" {
     # endif
 
-/* 
+/*
     Header - Includes
  */
 
     # include <stdio.h>
+    # include <ctype.h>
     # include <stdlib.h>
     # include <string.h>
     # include <libgen.h>
     # include <csps-all.h>
     # include <common-all.h>
 
-/* 
+/*
     Header - Preprocessor definitions
  */
 
     /* Standard help */
-    # define CS_HELP "Usage summary :\n\n"               \
-    "\tcsps-elphel-cat [Arguments] [Parameters] ...\n\n" \
-    "Short arguments and parameters summary :\n"         \
-    "\t-l\tPath to logs-file to display\n"               \
-    "\t-f\tDisplay flag [i|m|g|o|b]\n"                   \
-    "\t-m\tDisplay first master timestamp only\n\n"      \
-    "csps-elphel-cat - csps-suite\n"                     \
+    # define CS_HELP "Usage summary :\n"               \
+    "  csps-elphel-cat [Arguments] [Parameters] ...\n" \
+    "Short arguments and parameters summary :\n"       \
+    "  -l Path to logs-file to display\n"              \
+    "  -f Display flag [i|m|g|o|x|a]\n"                  \
+    "  -m Display first master timestamp only\n"       \
+    "csps-elphel-cat - csps-suite\n"                   \
     "Copyright (c) 2013-2015 FOXEL SA\n"
 
-/* 
+/*
     Header - Preprocessor macros
  */
 
-/* 
+/*
     Header - Typedefs
  */
 
-/* 
+/*
     Header - Structures
  */
 
-/* 
+/*
     Header - Function prototypes
  */
 
     /*! \brief Software main function
-     *  
-     *  The main function parses the provided logs-file and dumps its content 
+     *
+     *  The main function parse the provided logs-file and dumps its content
      *  according to software parameters.
-     *  
+     *
      *  \param  argc Standard main parameter
      *  \param  argv Standard main parameter
-     *  
+     *
      *  \return Returns exit code
      */
 
     int main ( int argc, char ** argv );
 
-    /*! \brief Record buffer ASCII display
+    /*! \brief Record buffer ASCII HEX display
      *
      *  This function simply displays the content of a record buffer in ASCII
      *  hexadecimal form using software standard output.
@@ -156,7 +162,17 @@
 
     void csps_elphel_cat_record ( lp_Byte_t * csBuffer );
 
-/* 
+    /*! \brief Record buffer ASCII display
+     *
+     *  This function simply displays the content of a record buffer in ASCII
+     *  text form using software standard output.
+     *
+     *  \param csBuffer Pointer to first byte of record buffer
+     */
+
+    void csps_elphel_cat_record_ascii ( lp_Byte_t * csBuffer );
+
+/*
     Header - C/C++ compatibility
  */
 
@@ -169,5 +185,3 @@
  */
 
     # endif
-
-
