@@ -1,5 +1,9 @@
 ## Changelog
 
+### Release 0.4.1 (July 14, 2015)
+
+- `Added` : Supplementary JSON field exportation in **csps-export**
+
 ### Release 0.4 (July 9, 2015)
 
 - `Added` : Master event filtering in **csps-elphel-repair**
