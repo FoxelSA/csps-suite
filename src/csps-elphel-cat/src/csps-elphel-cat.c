@@ -134,10 +134,18 @@
                             fprintf( LC_OUT, "IMU " LC_TSM , LC_TSD( csTime ) );
 
                             /* Display mode verification */
-                            if ( strstr( csFlag, "x" ) != LC_NULL ) csps_elphel_cat_record( csBuffer );
+                            if ( strstr( csFlag, "x" ) != LC_NULL ) {
 
-                            /* Display mode verification */
-                            if ( strstr( csFlag, "a" ) != LC_NULL ) csps_elphel_cat_record_ascii( csBuffer );
+                                /* Display record binary content */
+                                csps_elphel_cat_record( csBuffer );
+
+                            } else
+                            if ( strstr( csFlag, "a" ) != LC_NULL ) {
+
+                                /* Display record binary content */
+                                csps_elphel_cat_record_ascii( csBuffer );
+
+                            }
 
                             /* Display EOL */
                             fprintf( LC_OUT, "\n" );
@@ -159,8 +167,8 @@
                                 /* Display record binary content */
                                 csps_elphel_cat_record( csBuffer );
 
-                            /* Display mode verification */
-                            } else if ( strstr( csFlag, "a" ) != LC_NULL ) {
+                            } else 
+                            if ( strstr( csFlag, "a" ) != LC_NULL ) {
 
                                 /* Display record binary content */
                                 csps_elphel_cat_record_ascii( csBuffer );
@@ -195,9 +203,8 @@
                                 /* Display record binary content */
                                 csps_elphel_cat_record( csBuffer );
 
-
-                            /* Display mode verification */
-                            }else if ( strstr( csFlag, "a" ) != LC_NULL ) {
+                            }else 
+                            if ( strstr( csFlag, "a" ) != LC_NULL ) {
 
                                 /* Display record binary content */
                                 csps_elphel_cat_record_ascii( csBuffer );
@@ -227,11 +234,19 @@
                         /* Display event timestamp */
                         fprintf( LC_OUT, "UNK " LC_TSM, LC_TSD( csTime ) );
 
-                        /* Display mode verification in HEX format */
-                        if ( strstr( csFlag, "x" ) != LC_NULL ) csps_elphel_cat_record( csBuffer );
+                        /* Display mode verification */
+                        if ( strstr( csFlag, "x" ) != LC_NULL ) {
 
-                        /* Display mode verification in ASCII format */
-                        if ( strstr( csFlag, "a" ) != LC_NULL ) csps_elphel_cat_record_ascii( csBuffer );
+                            /* Display record binary content */
+                            csps_elphel_cat_record( csBuffer );
+
+                        } else
+                        if ( strstr( csFlag, "a" ) != LC_NULL ) {
+
+                            /* Display record binary content */
+                            csps_elphel_cat_record_ascii( csBuffer );
+
+                        }
 
                         /* Display EOL */
                         fprintf( LC_OUT, "\n" );

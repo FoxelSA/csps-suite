@@ -118,7 +118,7 @@
     "  csps-elphel-cat [Arguments] [Parameters] ...\n" \
     "Short arguments and parameters summary :\n"       \
     "  -l Path to logs-file to display\n"              \
-    "  -f Display flag [i|m|g|o|x|a]\n"                  \
+    "  -f Display flag [i|m|g|o|x|a]\n"                \
     "  -m Display first master timestamp only\n"       \
     "csps-elphel-cat - csps-suite\n"                   \
     "Copyright (c) 2013-2015 FOXEL SA\n"
