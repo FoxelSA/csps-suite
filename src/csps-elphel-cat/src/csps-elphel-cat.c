@@ -10,6 +10,11 @@
  *      Nils Hamel <n.hamel@foxel.ch>
  *
  *
+ * Contributor(s):
+ *
+ *      Kevin Velickovic <k.velickovic@foxel.ch>
+ *
+ *
  * This file is part of the FOXEL project <http://foxel.ch>.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -37,7 +42,7 @@
  */
 
 
-/* 
+/*
     Source - Includes
  */
 
@@ -66,7 +71,7 @@
             /* Display help summary */
             printf( CS_HELP );
 
-        } else 
+        } else
         if ( lc_stda( argc, argv, "--marker", "-m" ) ) {
 
             /* Records buffer variables */
@@ -79,7 +84,7 @@
             if ( ( csStream = fopen( csFile, "rb" ) ) != NULL ) {
 
                 /* Parse stream */
-                while ( ( fread( csBuffer, 1, LC_RECORD, csStream ) == LC_RECORD ) && ( csTime == 0 ) ) {            
+                while ( ( fread( csBuffer, 1, LC_RECORD, csStream ) == LC_RECORD ) && ( csTime == 0 ) ) {
 
                     /* Event detection */
                     if ( LC_EDM( csBuffer, LC_MAS ) ) {
@@ -99,7 +104,7 @@
             /* Display timestamp */
             fprintf( LC_OUT, "%" lp_Time_p "\n", lp_timestamp_sec( csTime ) );
 
-        } else { 
+        } else {
 
             /* Records buffer variables */
             lp_Byte_t csBuffer[LC_RECORD] = { 0 };
@@ -129,7 +134,18 @@
                             fprintf( LC_OUT, "IMU " LC_TSM , LC_TSD( csTime ) );
 
                             /* Display mode verification */
-                            if ( strstr( csFlag, "b" ) != LC_NULL ) csps_elphel_cat_record( csBuffer );
+                            if ( strstr( csFlag, "x" ) != LC_NULL ) {
+
+                                /* Display record binary content */
+                                csps_elphel_cat_record( csBuffer );
+
+                            } else
+                            if ( strstr( csFlag, "a" ) != LC_NULL ) {
+
+                                /* Display record binary content */
+                                csps_elphel_cat_record_ascii( csBuffer );
+
+                            }
 
                             /* Display EOL */
                             fprintf( LC_OUT, "\n" );
@@ -146,10 +162,16 @@
                             fprintf( LC_OUT, "MAS " LC_TSM, LC_TSD( csTime ) );
 
                             /* Display mode verification */
-                            if ( strstr( csFlag, "b" ) != LC_NULL ) {
+                            if ( strstr( csFlag, "x" ) != LC_NULL ) {
 
                                 /* Display record binary content */
                                 csps_elphel_cat_record( csBuffer );
+
+                            } else 
+                            if ( strstr( csFlag, "a" ) != LC_NULL ) {
+
+                                /* Display record binary content */
+                                csps_elphel_cat_record_ascii( csBuffer );
 
                             } else {
 
@@ -176,10 +198,16 @@
                             fprintf( LC_OUT, "GPS " LC_TSM, LC_TSD( csTime ) );
 
                             /* Display mode verification */
-                            if ( strstr( csFlag, "b" ) != LC_NULL ) {
+                            if ( strstr( csFlag, "x" ) != LC_NULL ) {
 
                                 /* Display record binary content */
                                 csps_elphel_cat_record( csBuffer );
+
+                            }else 
+                            if ( strstr( csFlag, "a" ) != LC_NULL ) {
+
+                                /* Display record binary content */
+                                csps_elphel_cat_record_ascii( csBuffer );
 
                             } else {
 
@@ -200,14 +228,25 @@
 
                         }
 
-                    } else 
+                    } else
                     if ( strstr( csFlag, "o" ) != LC_NULL ) {
 
                         /* Display event timestamp */
                         fprintf( LC_OUT, "UNK " LC_TSM, LC_TSD( csTime ) );
 
                         /* Display mode verification */
-                        if ( strstr( csFlag, "b" ) != LC_NULL ) csps_elphel_cat_record( csBuffer );
+                        if ( strstr( csFlag, "x" ) != LC_NULL ) {
+
+                            /* Display record binary content */
+                            csps_elphel_cat_record( csBuffer );
+
+                        } else
+                        if ( strstr( csFlag, "a" ) != LC_NULL ) {
+
+                            /* Display record binary content */
+                            csps_elphel_cat_record_ascii( csBuffer );
+
+                        }
 
                         /* Display EOL */
                         fprintf( LC_OUT, "\n" );
@@ -227,8 +266,8 @@
     }
 
 /*
-    Source - Record buffer ASCII display
-*/  
+    Source - Record buffer ASCII HEX display
+*/
 
     void csps_elphel_cat_record( lp_Byte_t * csBuffer ) {
 
@@ -243,6 +282,41 @@
 
         /* Display frame */
         fprintf( LC_OUT, "]" );
+
+    }
+
+/*
+    Source - Record buffer ASCII display
+*/
+
+    void csps_elphel_cat_record_ascii( lp_Byte_t * csBuffer ) {
+
+        /* Parsing variables */
+        int csParse = 0;
+
+        /* Display frame */
+        fprintf( LC_OUT, " [ " );
+
+        /* Display loop */
+        for ( csParse = 0; csParse < LC_RECORD ; csParse ++ ) {
+
+            /* Printable char verification */
+            if ( isprint( csBuffer[csParse] ) != 0 ) {
+
+                /* Display char */
+                fprintf( LC_OUT, "%c", csBuffer[csParse] );
+
+            } else {
+
+                /* Display symbol for unprintable char */
+                fprintf( LC_OUT, "." );
+
+            }
+
+        }
+
+        /* Display frame */
+        fprintf( LC_OUT, " ]" );
 
     }
 
