@@ -60,6 +60,7 @@
         char csIMUm[256] = { 0 };
         char csSTLd[256] = { 0 };
         char csSTLm[256] = { 0 };
+        char csGPSf[256] = { 0 };
 
         /* Query variables */
         lp_Trigger_t  csTrigger;
@@ -81,6 +82,7 @@
         lc_stdp( lc_stda( argc, argv, "--imu-mod"  ,"-s" ), argv, csIMUm, LC_STRING );
         lc_stdp( lc_stda( argc, argv, "--still-tag","-t" ), argv, csSTLd, LC_STRING );
         lc_stdp( lc_stda( argc, argv, "--still-mod","-k" ), argv, csSTLm, LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--forced"   ,"-f" ), argv, csGPSf, LC_STRING );
 
         /* Execution switch */
         if ( lc_stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {
@@ -121,7 +123,7 @@
                         fprintf( LC_OUT, "Updating %s JSON file ...\n", basename( csFile ) );
 
                         /* File exportation */
-                        cs_export( & csTrigger, & csPosition, & csOrient, & csStill, csFile, csJson );
+                        cs_export( & csTrigger, & csPosition, & csOrient, & csStill, csGPSf, csFile, csJson );
 
                         /* Delete master object */
                         json_object_put( csJson );
@@ -134,7 +136,7 @@
                     fprintf( LC_OUT, "Creating %s JSON file ...\n", basename( csFile ) );
 
                     /* File exportation */
-                    cs_export( & csTrigger, & csPosition, & csOrient, & csStill, csFile, NULL );
+                    cs_export( & csTrigger, & csPosition, & csOrient, & csStill, csGPSf, csFile, NULL );
 
                 }
 
@@ -163,6 +165,7 @@
         lp_Position_t * const csPosition, 
         lp_Orient_t   * const csOrient,
         lp_Still_t    * const csStill,
+        char          * const csGPSf,
         char          * const csFile,
         cs_Object_t   * const csJson
 
@@ -173,6 +176,17 @@
 
         /* Parsing variables */
         long csParse = 0;
+
+        /* GPS availability variables */
+        long csSignal = LC_FALSE;
+
+        /* GPS forced variables */
+        long csForced = LC_FALSE;
+
+        /* GPS forced position variables */
+        double csGPSflon = 0.0;
+        double csGPSflat = 0.0;
+        double csGPSfalt = 0.0;
 
         /* Stream variables */
         FILE * csStream = NULL;
@@ -189,6 +203,17 @@
 
         } else {
 
+            /* Check if GPS position are forced */
+            if ( strlen( csGPSf ) > 0 ) {
+
+                /* Update flag */
+                csForced = LC_TRUE;
+
+                /* Analyse forced position */
+                sscanf( csGPSf, "%lf,%lf,%lf", & csGPSflon, & csGPSflat, & csGPSfalt );
+
+            }
+
             /* Trigger count query */
             csSize = lp_query_trigger_size( csTrigger );
 
@@ -200,7 +225,7 @@
 
             /* Export to stream */
             cs_export_field( "split"  , "false", ",", csStream, csJson );
-            cs_export_field( "preview", "null" , ",", csStream, csJson );
+            cs_export_field( "preview", "false", ",", csStream, csJson );
             cs_export_field( "trash"  , "false", ",", csStream, csJson );
             cs_export_field( "pose"   , ""     , "" , csStream, NULL   );
 
@@ -236,42 +261,70 @@
                 fprintf( csStream, "\"sec\":%"  lp_Time_p ",\n", lp_timestamp_sec ( csTrigger->qrMaster ) );
                 fprintf( csStream, "\"usec\":%" lp_Time_p ",\n", lp_timestamp_usec( csTrigger->qrMaster ) );
 
-                /* Check position availability */
-                if ( lp_query_position_status( csPosition ) == LP_FALSE ) {
+                /* Check forced position */
+                if ( csForced == LC_TRUE ) {
+
+                    /* Update GPS availability */
+                    csSignal = LC_TRUE;
 
                     /* Export to stream */
-                    cs_export_field( "position", "null", ",", csStream, NULL );
+                    cs_export_field( "position", "", "", csStream, NULL );
+
+                    /* Export format */
+                    fprintf( csStream, "[\n" ); 
+
+                    /* Export to stream */
+                    fprintf( csStream, "%.16e,\n", csGPSflon );
+                    fprintf( csStream, "%.16e,\n", csGPSflat );
+                    fprintf( csStream, "%.16e,\n", csGPSfalt );
+                    fprintf( csStream, "%.16e \n", 0.0       );
+
+                    /* Export format */
+                    fprintf( csStream, "],\n" );
 
                 } else {
 
-                    /* Exception management */
-                    if ( 
-
-                        ( isnormal( csPosition->qrAltitude  ) == 0 ) || 
-                        ( isnormal( csPosition->qrLongitude ) == 0 ) || 
-                        ( isnormal( csPosition->qrLatitude  ) == 0 ) 
-
-                    ) {
+                    /* Check position availability */
+                    if ( lp_query_position_status( csPosition ) == LP_FALSE ) {
 
                         /* Export to stream */
                         cs_export_field( "position", "null", ",", csStream, NULL );
 
                     } else {
 
-                        /* Export to stream */
-                        cs_export_field( "position", "", "", csStream, NULL );
+                        /* Exception management */
+                        if ( 
 
-                        /* Export format */
-                        fprintf( csStream, "[\n" ); 
+                            ( isnormal( csPosition->qrAltitude  ) == 0 ) || 
+                            ( isnormal( csPosition->qrLongitude ) == 0 ) || 
+                            ( isnormal( csPosition->qrLatitude  ) == 0 ) 
 
-                        /* Export to stream */
-                        fprintf( csStream, "%.16e,\n", csPosition->qrAltitude  );
-                        fprintf( csStream, "%.16e,\n", csPosition->qrLongitude );
-                        fprintf( csStream, "%.16e,\n", csPosition->qrLatitude  );
-                        fprintf( csStream, "%.16e \n", csPosition->qrWeak      );
+                        ) {
 
-                        /* Export format */
-                        fprintf( csStream, "],\n" );
+                            /* Export to stream */
+                            cs_export_field( "position", "null", ",", csStream, NULL );
+
+                        } else {
+
+                            /* Update GPS availability */
+                            csSignal = LC_TRUE;
+
+                            /* Export to stream */
+                            cs_export_field( "position", "", "", csStream, NULL );
+
+                            /* Export format */
+                            fprintf( csStream, "[\n" ); 
+
+                            /* Export to stream */
+                            fprintf( csStream, "%.16e,\n", csPosition->qrAltitude  );
+                            fprintf( csStream, "%.16e,\n", csPosition->qrLongitude );
+                            fprintf( csStream, "%.16e,\n", csPosition->qrLatitude  );
+                            fprintf( csStream, "%.16e \n", csPosition->qrWeak      );
+
+                            /* Export format */
+                            fprintf( csStream, "],\n" );
+
+                        }
 
                     }
 
@@ -336,7 +389,14 @@
             }
 
             /* Export format */
-            fprintf( csStream, "]\n}\n" );
+            fprintf( csStream, "],\n" );
+
+            /* Export to stream */
+            cs_export_field( "single", ( csForced == LC_TRUE ) ? "true" : "false", ",", csStream, NULL );
+            cs_export_field( "gps"   , ( csSignal == LC_TRUE ) ? "true" : "false", "" , csStream, NULL );
+
+            /* Export format */
+            fprintf( csStream, "}\n" );
 
             /* Close output stream */
             fclose( csStream );
