@@ -174,6 +174,9 @@
         /* Parsing variables */
         long csParse = 0;
 
+        /* GPS availability variables */
+        long csSignal = LC_FALSE;
+
         /* Stream variables */
         FILE * csStream = NULL;
 
@@ -258,6 +261,9 @@
 
                     } else {
 
+                        /* Update GPS availability */
+                        csSignal = LC_TRUE;
+
                         /* Export to stream */
                         cs_export_field( "position", "", "", csStream, NULL );
 
@@ -336,7 +342,13 @@
             }
 
             /* Export format */
-            fprintf( csStream, "]\n}\n" );
+            fprintf( csStream, "]\n" );
+
+            /* Export to stream */
+            cs_export_field( "gps", ( csSignal == LC_TRUE ) ? "true" : "false", ",", csStream, NULL );
+
+            /* Export format */
+            fprintf( csStream, "}\n" );
 
             /* Close output stream */
             fclose( csStream );
