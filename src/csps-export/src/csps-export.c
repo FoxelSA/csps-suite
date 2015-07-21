@@ -342,10 +342,10 @@
             }
 
             /* Export format */
-            fprintf( csStream, "]\n" );
+            fprintf( csStream, "],\n" );
 
             /* Export to stream */
-            cs_export_field( "gps", ( csSignal == LC_TRUE ) ? "true" : "false", ",", csStream, NULL );
+            cs_export_field( "gps", ( csSignal == LC_TRUE ) ? "true" : "false", "", csStream, NULL );
 
             /* Export format */
             fprintf( csStream, "}\n" );
