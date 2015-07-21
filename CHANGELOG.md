@@ -1,6 +1,6 @@
 ## Changelog
 
-### Beta 0.4.2
+### Release 0.4.2 (July 21, 2015)
 
 - `Added` : GPS related fields in output of **csps-export**
 - `Added` : Manual position coordinates specification in **csps-export**
