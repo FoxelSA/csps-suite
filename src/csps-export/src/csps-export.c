@@ -56,11 +56,11 @@
         char csCAMm[256] = { 0 };
         char csGPSd[256] = { 0 };
         char csGPSm[256] = { 0 };
-        char csGPSf[256] = { 0 };
         char csIMUd[256] = { 0 };
         char csIMUm[256] = { 0 };
         char csSTLd[256] = { 0 };
         char csSTLm[256] = { 0 };
+        char csGPSf[256] = { 0 };
 
         /* Query variables */
         lp_Trigger_t  csTrigger;
@@ -78,11 +78,11 @@
         lc_stdp( lc_stda( argc, argv, "--cam-mod"  ,"-m" ), argv, csCAMm, LC_STRING );
         lc_stdp( lc_stda( argc, argv, "--gps-tag"  ,"-g" ), argv, csGPSd, LC_STRING );
         lc_stdp( lc_stda( argc, argv, "--gps-mod"  ,"-n" ), argv, csGPSm, LC_STRING );
-        lc_stdp( lc_stda( argc, argv, "--gps-def"  ,"-d" ), argv, csGPSf, LC_STRING );
         lc_stdp( lc_stda( argc, argv, "--imu-tag"  ,"-i" ), argv, csIMUd, LC_STRING );
         lc_stdp( lc_stda( argc, argv, "--imu-mod"  ,"-s" ), argv, csIMUm, LC_STRING );
         lc_stdp( lc_stda( argc, argv, "--still-tag","-t" ), argv, csSTLd, LC_STRING );
         lc_stdp( lc_stda( argc, argv, "--still-mod","-k" ), argv, csSTLm, LC_STRING );
+        lc_stdp( lc_stda( argc, argv, "--forced"   ,"-f" ), argv, csGPSf, LC_STRING );
 
         /* Execution switch */
         if ( lc_stda( argc, argv, "--help", "-h" ) || ( argc <= 1 ) ) {

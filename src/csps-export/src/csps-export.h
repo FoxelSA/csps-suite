@@ -121,7 +121,8 @@
     "\t-i\tIMU device CSPS-tag\n"                    \
     "\t-s\tIMU device CSPS-module\n"                 \
     "\t-t\tStill range device CSPS-tag\n"            \
-    "\t-k\tStill range device CSPS-module\n\n"       \
+    "\t-k\tStill range device CSPS-module\n"         \
+    "\t-f\tManual position coordinates\n\n"          \
     "csps-export - csps-suite\n"                     \
     "Copyright (c) 2013-2015 FOXEL SA\n"
 
@@ -173,7 +174,7 @@
      *  \param csPosition CSPS geoposition query structure
      *  \param csOrient   CSPS orientation query structure
      *  \param csStill    CSPS still range query structure
-     *  \param csGPSf     GPS forced position
+     *  \param csGPSf     GPS manual position coordinates.
      *  \param csFile     JSON exportation file
      *  \param csJson     Previous JSON file main object
      */
