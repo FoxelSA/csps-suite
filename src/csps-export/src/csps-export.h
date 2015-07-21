@@ -173,6 +173,7 @@
      *  \param csPosition CSPS geoposition query structure
      *  \param csOrient   CSPS orientation query structure
      *  \param csStill    CSPS still range query structure
+     *  \param csGPSf     GPS forced position
      *  \param csFile     JSON exportation file
      *  \param csJson     Previous JSON file main object
      */
@@ -183,6 +184,7 @@
         lp_Position_t * const csPosition, 
         lp_Orient_t   * const csOrient,
         lp_Still_t    * const csStill,
+        char          * const csGPSf,
         char          * const csFile,
         cs_Object_t   * const csJson
 
