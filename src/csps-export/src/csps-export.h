@@ -191,6 +191,16 @@
 
     );
 
+    /*! \brief Template exportation function
+     *
+     *  This function exports a empty templates of the standard JSON file based
+     *  on the standard storage structure. It can handle manual specification
+     *  of GPS position.
+     *
+     *  \param csGPSf   GPS manual position coordinates (lon,lat,alt)
+     *  \param csFile   JSON exportation file
+     */
+
     void cs_export_template( 
 
         char * const csGPSf,

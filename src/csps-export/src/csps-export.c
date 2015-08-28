@@ -443,7 +443,7 @@
             if ( strlen( csGPSf ) > 0 ) {
 
                 /* Export forced position */
-                fprintf( csStream, "[%s]", csGPSf );
+                fprintf( csStream, "[%s,0.0]", csGPSf );
 
             } else {
 
