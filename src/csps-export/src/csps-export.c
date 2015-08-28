@@ -90,6 +90,12 @@
             /* Display help summary */
             printf( CS_HELP );
 
+        } else
+        if ( lc_stda( argc, argv, "--template", "-l" ) ) {
+
+            /* File exportation */
+            cs_export_template( csGPSf, csFile );
+
         } else {
 
             /* Create query structure */
@@ -397,6 +403,57 @@
 
             /* Export format */
             fprintf( csStream, "}\n" );
+
+            /* Close output stream */
+            fclose( csStream );
+
+        }
+
+    }
+
+/*
+    Source - Template creation function
+ */
+
+    void cs_export_template( 
+
+        char * const csGPSf,
+        char * const csFile 
+
+    ) {
+
+        /* Stream variables */
+        FILE * csStream = NULL;
+
+        /* Create and check output stream */
+        if ( ( csStream = fopen( csFile, "w" ) ) == NULL ) {
+
+            /* Display message */
+            fprintf( LC_ERR, "Error : unable to write %s\n", basename( csFile ) );
+
+        } else {
+
+            /* Export header */
+            fprintf( csStream, "{\n\"split\":false,\n\"preview\":false,\n\"trash\":false,\n\"pose\":[\n{\n" );
+
+            /* Export template pose */
+            fprintf( csStream, "\"raw\":\"unknown\",\n\"still\":true,\n\"sec\":null,\n\"usec\":null,\n\"orientation\":null,\n\"position\":" );
+
+            /* Export GPS position */
+            if ( strlen( csGPSf ) > 0 ) {
+
+                /* Export forced position */
+                fprintf( csStream, "[%s]", csGPSf );
+
+            } else {
+
+                /* Export null field */
+                fprintf( csStream, "null" );
+
+            }
+
+            /* Export footer */
+            fprintf( csStream, "\n}\n],\n\"single\":%s,\n\"gps\":false\n}", ( strlen( csGPSf ) > 0 ) ? "true" : "false" );
 
             /* Close output stream */
             fclose( csStream );

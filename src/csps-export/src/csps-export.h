@@ -191,6 +191,13 @@
 
     );
 
+    void cs_export_template( 
+
+        char * const csGPSf,
+        char * const csFile 
+
+    );
+
     /*! \brief JSON array search
      * 
      *  This function expects a JSON object containing an array of camera pose
