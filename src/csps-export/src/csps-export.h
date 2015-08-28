@@ -122,7 +122,8 @@
     "\t-s\tIMU device CSPS-module\n"                 \
     "\t-t\tStill range device CSPS-tag\n"            \
     "\t-k\tStill range device CSPS-module\n"         \
-    "\t-f\tManual position coordinates\n\n"          \
+    "\t-f\tManual position coordinates\n"            \
+    "\t-l\tExport template JSON file\n\n"            \
     "csps-export - csps-suite\n"                     \
     "Copyright (c) 2013-2015 FOXEL SA\n"
 
@@ -188,6 +189,23 @@
         char          * const csGPSf,
         char          * const csFile,
         cs_Object_t   * const csJson
+
+    );
+
+    /*! \brief Template exportation function
+     *
+     *  This function exports a empty templates of the standard JSON file based
+     *  on the standard storage structure. It can handle manual specification
+     *  of GPS position.
+     *
+     *  \param csGPSf   GPS manual position coordinates (lon,lat,alt)
+     *  \param csFile   JSON exportation file
+     */
+
+    void cs_export_template( 
+
+        char * const csGPSf,
+        char * const csFile 
 
     );
 
