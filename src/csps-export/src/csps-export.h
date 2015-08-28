@@ -122,7 +122,8 @@
     "\t-s\tIMU device CSPS-module\n"                 \
     "\t-t\tStill range device CSPS-tag\n"            \
     "\t-k\tStill range device CSPS-module\n"         \
-    "\t-f\tManual position coordinates\n\n"          \
+    "\t-f\tManual position coordinates\n"            \
+    "\t-l\tExport template JSON file\n\n"            \
     "csps-export - csps-suite\n"                     \
     "Copyright (c) 2013-2015 FOXEL SA\n"
 
