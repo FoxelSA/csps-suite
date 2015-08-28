@@ -1,5 +1,9 @@
 ## Changelog
 
+### Beta 0.4.3
+
+- `Added` : Template JSON exportation in **csps-export**
+
 ### Release 0.4.2 (July 21, 2015)
 
 - `Added` : GPS related fields in output of **csps-export**
