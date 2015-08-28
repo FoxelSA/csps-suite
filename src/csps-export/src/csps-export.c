@@ -434,7 +434,7 @@
         } else {
 
             /* Export header */
-            fprintf( csStream, "{\n\"split\":false,\n\"preview\":false,\n\"trash\":false,\n\"pose\":[\n{\n" );
+            fprintf( csStream, "{\n\"split\":true,\n\"preview\":false,\n\"trash\":false,\n\"pose\":[\n{\n" );
 
             /* Export template pose */
             fprintf( csStream, "\"raw\":\"unknown\",\n\"still\":true,\n\"sec\":null,\n\"usec\":null,\n\"orientation\":null,\n\"position\":" );
