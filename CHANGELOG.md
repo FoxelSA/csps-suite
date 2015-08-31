@@ -1,6 +1,6 @@
 ## Changelog
 
-### Beta 0.4.3
+### Release 0.4.3 (August 31, 2015)
 
 - `Added` : Template JSON exportation in **csps-export**
 
